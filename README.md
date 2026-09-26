@@ -1,56 +1,43 @@
-# Welcome to your Expo app 👋
+# University Weather Station App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A cross-platform mobile application built with **React Native** and **Expo** designed to fetch, process, and beautifully display live telemetry data from our university's local weather station.
 
-## Get started
+## About the Project
 
-1. Install dependencies
+This application serves as the frontend client for a university project focused on data gathering and atmospheric monitoring. It connects directly to the campus Davis Weather Station to retrieve raw live JSON payloads, decodes the proprietary metrics, and displays them via a rich, glassmorphic UI.
 
+The system is built using strict **Hexagonal Architecture** principles to cleanly separate the domain logic (Weather Entities), the infrastructure (Weather APIs and JSON mapping), and the presentation layer (React Native UI).
+
+### Features
+* **Live Telemetry Engine:** Connects and polls the local weather station to receive real-time data packets.
+* **Smart Conversions:** Global context provider allowing seamless toggling between Metric and US/Imperial units with live conversions.
+* **Mathematical SVGs:** Uses pure mathematics to draw live Bezier curves for the barometer trends and exact solar trajectories based on sunrise/sunset data.
+* **Native Dynamic Theming:** Fully supports device-level Light and Dark mode using Native Tailwind variables (`uniwind`) and dynamic glassmorphism.
+
+## Future Roadmap (TODOs)
+
+While the live telemetry engine is fully operational, the following features are actively pending implementation:
+* **[ ] Historical Data Integration:** Connecting to a time-series database to track and graph weather data over the past days, weeks, and months.
+* **[ ] Forecasting Engine:** Implementing predictive weather models or integrating a forecasting API to predict upcoming university campus weather.
+* **[ ] Push Notifications:** Alerts for severe weather anomalies (high winds, extreme UV, flash floods).
+
+## Getting Started
+
+1. **Install dependencies:**
    ```bash
    npm install
    ```
 
-2. Start the app
-
+2. **Start the Expo server:**
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+3. Connect to the local university network (required to fetch the live station IP data directly without CORS blockers).
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Technologies Used
+* **React Native (Expo SDK 57)**
+* **NativeWind (v4 / uniwind)** for Tailwind CSS styling
+* **React Native Reanimated** for 60fps telemetry animations
+* **React Native SVG** for dynamic charts and arcs
+* **Lucide Icons**
