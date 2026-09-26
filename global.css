@@ -1,2 +1,33 @@
 @import 'tailwindcss';
 @import 'uniwind';
+
+@theme {
+  --color-surface: #0f131d;
+  --color-background: #0b0f19;
+  --color-primary: #38bdf8;
+  --color-secondary: #818cf8;
+  --color-tertiary: #c084fc;
+  --color-on-surface: #dfe2f1;
+  --color-on-surface-variant: #bdc8d1;
+  --color-outline: #87929a;
+  --color-outline-variant: #3e484f;
+  --color-surface-tint: #7bd0ff;
+  
+  --font-inter: 'Inter', sans-serif;
+  --font-space: 'Space Grotesk', sans-serif;
+}
+
+/* Glassmorphism utility classes */
+@utility glass-level-1 {
+  backdrop-filter: blur(24px) saturate(180%);
+  background-color: rgba(15, 23, 42, 0.55);
+  border-width: 1px;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+@utility glass-level-2 {
+  backdrop-filter: blur(36px) saturate(200%);
+  background-color: rgba(15, 23, 42, 0.85); /* Dark pill */
+  border-width: 1px;
+  border-color: rgba(255, 255, 255, 0.25);
+}

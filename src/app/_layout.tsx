@@ -5,7 +5,7 @@ import { DependencyProvider } from "../infrastructure/di/DependencyProvider";
 export default function RootLayout() {
   return (
     <DependencyProvider>
-      <Stack />
+      <Stack screenOptions={{ headerShown: false }} />
     </DependencyProvider>
   );
 }

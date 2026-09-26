@@ -1,7 +1,7 @@
 import { useFonts, SpaceGrotesk_400Regular, SpaceGrotesk_700Bold } from "@expo-google-fonts/space-grotesk";
 import { LoadingScreen } from "../presentation/components/LoadingScreen";
-import { HomeScreen } from "../presentation/components/HomeScreen";
 import { useStationInitialization } from "../presentation/hooks/useStationInitialization";
+import { Redirect } from 'expo-router';
 
 export default function Index() {
   const [fontsLoaded] = useFonts({
@@ -16,5 +16,5 @@ export default function Index() {
     return <LoadingScreen fontsLoaded={fontsLoaded} />;
   }
 
-  return <HomeScreen />;
+  return <Redirect href="/(main)" />;
 }
