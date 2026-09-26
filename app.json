@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "expoApp",
+    "name": "Weather App",
     "slug": "expoApp",
     "version": "1.0.0",
     "orientation": "portrait",
