@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, useColorScheme } from 'react-native';
 import { useState } from 'react';
 import Svg, { Path, Circle, Defs, LinearGradient, Stop, RadialGradient, Line, Text as SvgText } from 'react-native-svg';
 import { Sun, Clock, ChevronDown, ChevronRight, Sunrise, Sunset } from 'lucide-react-native';
@@ -27,7 +27,10 @@ const formatTimeAMPM = (timeStr: string) => {
 };
 
 export const SolarTrajectory = ({ data }: SolarTrajectoryProps) => {
-  const [expanded, setExpanded] = useState(true);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme !== 'light';
+  
+  const [expanded, setExpanded] = useState(false);
   
   const sunriseStr = data.astronomy.sunrise;
   const sunsetStr = data.astronomy.sunset;
@@ -36,9 +39,9 @@ export const SolarTrajectory = ({ data }: SolarTrajectoryProps) => {
   const setMins = parseTimeToMinutes(sunsetStr);
   const currentMins = (new Date().getHours() * 60) + new Date().getMinutes();
   
-  // Calculate progress (0 to 1)
   let progress = 0;
   let timeLeft = '';
+  let isDayTime = false;
   
   if (riseMins > 0 && setMins > 0) {
     if (currentMins < riseMins) {
@@ -48,6 +51,7 @@ export const SolarTrajectory = ({ data }: SolarTrajectoryProps) => {
       progress = 1;
       timeLeft = 'Night time';
     } else {
+      isDayTime = true;
       progress = (currentMins - riseMins) / (setMins - riseMins);
       const remaining = setMins - currentMins;
       const hLeft = Math.floor(remaining / 60);
@@ -103,14 +107,14 @@ export const SolarTrajectory = ({ data }: SolarTrajectoryProps) => {
   const sunPos = getBezierPoint(progress);
 
   return (
-    <View className="mt-4 pt-3 border-t border-white/5 flex-col">
+    <View className="mt-4 pt-3 border-t border-[#cbd5e1]/30 dark:border-[#3e484f]/30 flex-col">
       <Pressable 
         onPress={() => setExpanded(!expanded)} 
         className="flex-row items-center justify-between py-1"
       >
         <View className="flex-row items-center gap-2 opacity-90">
           <Sun size={15} color="#FBBF24" />
-          <Text className="text-on-surface-variant text-[10px] uppercase tracking-wider" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>
+          <Text className="text-[#475569] dark:text-[#bdc8d1] text-[10px] uppercase tracking-wider" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>
             Solar Trajectory
           </Text>
         </View>
@@ -124,7 +128,7 @@ export const SolarTrajectory = ({ data }: SolarTrajectoryProps) => {
             </View>
           ) : null}
           <Animated.View style={animatedChevStyle}>
-            <ChevronDown size={16} color="#87929a" />
+            <ChevronDown size={16} color={isDark ? '#87929a' : '#64748b'} />
           </Animated.View>
         </View>
       </Pressable>
@@ -148,10 +152,10 @@ export const SolarTrajectory = ({ data }: SolarTrajectoryProps) => {
               </Defs>
 
               {/* Horizon Line */}
-              <Line x1="20" y1="48" x2="260" y2="48" stroke="#3e484f" strokeWidth="1" strokeDasharray="3 3" opacity="0.35" />
+              <Line x1="20" y1="48" x2="260" y2="48" stroke={isDark ? '#3e484f' : '#cbd5e1'} strokeWidth="1" strokeDasharray="3 3" opacity="0.35" />
               
               {/* Full Background Arc */}
-              <Path d="M 20 48 C 60 12, 220 12, 260 48" fill="none" stroke="#313540" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.55" />
+              <Path d="M 20 48 C 60 12, 220 12, 260 48" fill="none" stroke={isDark ? '#313540' : '#e2e8f0'} strokeWidth="1.5" strokeDasharray="3 3" opacity="0.55" />
               
               {/* Active Elapsed Arc */}
               <Path 
@@ -165,15 +169,19 @@ export const SolarTrajectory = ({ data }: SolarTrajectoryProps) => {
               />
 
               {/* Dynamic Sun Position */}
-              <Circle cx={sunPos.x} cy={sunPos.y} r="9" fill="url(#sunAuraSubtle)" opacity="0.6" />
-              <Circle cx={sunPos.x} cy={sunPos.y} r="4" fill="#FEF08A" stroke="#F59E0B" strokeWidth="1" />
-              <Circle cx={sunPos.x} cy={sunPos.y} r="1.5" fill="#FFF" />
+              {isDayTime && (
+                <>
+                  <Circle cx={sunPos.x} cy={sunPos.y} r="9" fill="url(#sunAuraSubtle)" opacity="0.6" />
+                  <Circle cx={sunPos.x} cy={sunPos.y} r="4" fill="#FEF08A" stroke="#F59E0B" strokeWidth="1" />
+                  <Circle cx={sunPos.x} cy={sunPos.y} r="1.5" fill="#FFF" />
+                </>
+              )}
 
               {/* Text Labels */}
-              <SvgText x="20" y="44" fill="#87929a" fontSize="8.5" fontFamily="Space Grotesk" opacity="0.75" fontWeight="500">
+              <SvgText x="20" y="44" fill={isDark ? '#87929a' : '#64748b'} fontSize="8.5" fontFamily="Space Grotesk" opacity="0.75" fontWeight="500">
                 {sunriseStr}
               </SvgText>
-              <SvgText x="242" y="44" fill="#87929a" fontSize="8.5" fontFamily="Space Grotesk" opacity="0.75" fontWeight="500">
+              <SvgText x="242" y="44" fill={isDark ? '#87929a' : '#64748b'} fontSize="8.5" fontFamily="Space Grotesk" opacity="0.75" fontWeight="500">
                 {sunsetStr}
               </SvgText>
             </Svg>
@@ -181,25 +189,25 @@ export const SolarTrajectory = ({ data }: SolarTrajectoryProps) => {
 
           {/* Sunrise / Sunset blocks */}
           <View className="flex-row justify-between gap-3 mt-1">
-            <View className="flex-1 flex-row items-center gap-2 p-2 rounded-lg bg-[#262a35]/40 border border-white/5">
+            <View className="flex-1 flex-row items-center gap-2 p-2 rounded-lg bg-[#e2e8f0]/40 dark:bg-[#262a35]/40 border border-[#cbd5e1]/30 dark:border-[#3e484f]/30">
               <View className="w-6 h-6 rounded-full bg-amber-400/10 items-center justify-center">
                 <Sunrise size={14} color="#fbbf24" />
               </View>
               <View className="flex-col">
-                <Text className="text-on-surface-variant/80 text-[9px] uppercase tracking-wider" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>Sunrise</Text>
-                <Text className="text-white/90 text-[12px] font-medium" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>
+                <Text className="text-[#475569]/80 dark:text-[#bdc8d1]/80 text-[9px] uppercase tracking-wider" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>Sunrise</Text>
+                <Text className="text-[#0f172a]/90 dark:text-[#dfe2f1]/90 text-[12px] font-medium" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>
                   {formatTimeAMPM(sunriseStr)}
                 </Text>
               </View>
             </View>
             
-            <View className="flex-1 flex-row items-center gap-2 p-2 rounded-lg bg-[#262a35]/40 border border-white/5">
-              <View className="w-6 h-6 rounded-full bg-[#38bdf8]/10 items-center justify-center">
-                <Sunset size={14} color="#38bdf8" />
+            <View className="flex-1 flex-row items-center gap-2 p-2 rounded-lg bg-[#e2e8f0]/40 dark:bg-[#262a35]/40 border border-[#cbd5e1]/30 dark:border-[#3e484f]/30">
+              <View className="w-6 h-6 rounded-full bg-[#0284c7]/10 dark:bg-[#38bdf8]/10 items-center justify-center">
+                <Sunset size={14} color={isDark ? '#38bdf8' : '#0284c7'} />
               </View>
               <View className="flex-col">
-                <Text className="text-on-surface-variant/80 text-[9px] uppercase tracking-wider" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>Sunset</Text>
-                <Text className="text-white/90 text-[12px] font-medium" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>
+                <Text className="text-[#475569]/80 dark:text-[#bdc8d1]/80 text-[9px] uppercase tracking-wider" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>Sunset</Text>
+                <Text className="text-[#0f172a]/90 dark:text-[#dfe2f1]/90 text-[12px] font-medium" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>
                   {formatTimeAMPM(sunsetStr)}
                 </Text>
               </View>

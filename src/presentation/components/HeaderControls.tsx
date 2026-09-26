@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, useColorScheme, Appearance, Platform } from "react-native";
 import { useState, useEffect } from "react";
 import Animated, {
   useAnimatedStyle,
@@ -8,6 +8,8 @@ import Animated, {
   withRepeat,
 } from "react-native-reanimated";
 import { useUnit } from "../contexts/UnitContext";
+import { Sun, Moon } from "lucide-react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface HeaderControlsProps {
   lastFetched?: Date | null;
@@ -15,6 +17,23 @@ interface HeaderControlsProps {
 
 export const HeaderControls = ({ lastFetched }: HeaderControlsProps) => {
   const { unitSystem, setUnitSystem } = useUnit();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  
+  const toggleColorScheme = async () => {
+    try {
+      if (Platform.OS === 'web') {
+        alert("Manual theme toggle is not supported on web. Please use your OS or Browser theme settings.");
+        return;
+      }
+      const newTheme = isDark ? 'light' : 'dark';
+      Appearance.setColorScheme(newTheme);
+      await AsyncStorage.setItem('@app_theme', newTheme);
+    } catch (e) {
+      console.warn("Theme toggle failed:", e);
+    }
+  };
+  
   const [timeAgo, setTimeAgo] = useState("syncing...");
 
   useEffect(() => {
@@ -67,61 +86,71 @@ export const HeaderControls = ({ lastFetched }: HeaderControlsProps) => {
   return (
     <View className="flex-row items-center justify-between w-full pb-4">
       {/* Quick Status Pill & Station Metadata */}
-      <View className="flex-row items-center bg-[#262a35]/60 px-4 py-1.5 rounded-full border-t border-white/10">
+      <View className="flex-row items-center bg-[#e2e8f0]/60 dark:bg-[#262a35]/60 px-4 py-1.5 rounded-full border-t border-[#cbd5e1]/40 dark:border-[#3e484f]/40">
         <View className="relative w-2 h-2 mr-2 justify-center items-center">
           <Animated.View
-            className="absolute w-2 h-2 rounded-full bg-primary"
+            className="absolute w-2 h-2 rounded-full bg-[#0284c7] dark:bg-[#38bdf8]"
             style={animatedPingStyle}
           />
-          <View className="absolute w-2 h-2 rounded-full bg-primary" />
+          <View className="absolute w-2 h-2 rounded-full bg-[#0284c7] dark:bg-[#38bdf8]" />
         </View>
 
         <Text
-          className="text-primary text-[11px] tracking-widest uppercase"
+          className="text-[#0284c7] dark:text-[#38bdf8] text-[11px] tracking-widest uppercase"
           style={{ fontFamily: "SpaceGrotesk_600SemiBold" }}
         >
           Live Sync
         </Text>
 
         <Text
-          className="text-on-surface-variant/80 text-[12px] ml-2"
+          className="text-[#475569]/80 dark:text-[#bdc8d1]/80 text-[12px] ml-2"
           style={{ fontFamily: "Inter_400Regular" }}
         >
           {timeAgo}
         </Text>
       </View>
 
-      {/* Unit Selector Pebble: Metric / Imperial */}
-      <View className="flex-row items-center p-1 bg-[#262a35]/60 rounded-full border-t border-white/5 relative">
-        {/* Animated Sliding Background Thumb */}
-        <Animated.View
-          className="absolute top-1 bottom-1 w-[72px] bg-primary rounded-full left-1"
-          style={animatedThumbStyle}
-        />
-
-        <Pressable
-          onPress={() => setUnitSystem("metric")}
-          className="w-[72px] py-1 rounded-full items-center justify-center z-10"
+      <View className="flex-row items-center gap-2">
+        {/* Theme Toggle */}
+        <Pressable 
+          onPress={toggleColorScheme}
+          className="w-8 h-8 rounded-full bg-[#e2e8f0]/60 dark:bg-[#262a35]/60 border-t border-[#cbd5e1]/40 dark:border-[#3e484f]/40 items-center justify-center"
         >
-          <Animated.Text
-            className={`text-[11px] tracking-widest uppercase ${unitSystem === "metric" ? "text-[#00354a]" : "text-on-surface-variant"}`}
-            style={{ fontFamily: "SpaceGrotesk_600SemiBold" }}
-          >
-            METRIC
-          </Animated.Text>
+          {isDark ? <Sun size={14} color="#87929a" /> : <Moon size={14} color="#64748b" />}
         </Pressable>
 
-        <Pressable
-          onPress={() => setUnitSystem("imperial")}
-          className="w-[72px] py-1 rounded-full items-center justify-center z-10"
-        >
-          <Animated.Text
-            className={`text-[11px] tracking-widest uppercase ${unitSystem === "imperial" ? "text-[#00354a]" : "text-on-surface-variant"}`}
-            style={{ fontFamily: "SpaceGrotesk_600SemiBold" }}
+        {/* Unit Selector Pebble: Metric / Imperial */}
+        <View className="flex-row items-center p-1 bg-[#e2e8f0]/60 dark:bg-[#262a35]/60 rounded-full border-t border-[#cbd5e1]/30 dark:border-[#3e484f]/30 relative">
+          {/* Animated Sliding Background Thumb */}
+          <Animated.View
+            className="absolute top-1 bottom-1 w-[72px] bg-[#0284c7] dark:bg-[#38bdf8] rounded-full left-1"
+            style={animatedThumbStyle}
+          />
+
+          <Pressable
+            onPress={() => setUnitSystem("metric")}
+            className="w-[72px] py-1 rounded-full items-center justify-center z-10"
           >
-            US/IMP
-          </Animated.Text>
-        </Pressable>
+            <Animated.Text
+              className={`text-[11px] tracking-widest uppercase ${unitSystem === "metric" ? "text-white dark:text-[#00354a]" : "text-[#475569] dark:text-[#bdc8d1]"}`}
+              style={{ fontFamily: "SpaceGrotesk_600SemiBold" }}
+            >
+              METRIC
+            </Animated.Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => setUnitSystem("imperial")}
+            className="w-[72px] py-1 rounded-full items-center justify-center z-10"
+          >
+            <Animated.Text
+              className={`text-[11px] tracking-widest uppercase ${unitSystem === "imperial" ? "text-white dark:text-[#00354a]" : "text-[#475569] dark:text-[#bdc8d1]"}`}
+              style={{ fontFamily: "SpaceGrotesk_600SemiBold" }}
+            >
+              US/IMP
+            </Animated.Text>
+          </Pressable>
+        </View>
       </View>
     </View>
   );

@@ -2,19 +2,65 @@
 @import 'uniwind';
 
 @theme {
-  --color-surface: #0f131d;
-  --color-background: #0b0f19;
-  --color-primary: #38bdf8;
-  --color-secondary: #818cf8;
-  --color-tertiary: #c084fc;
-  --color-on-surface: #dfe2f1;
-  --color-on-surface-variant: #bdc8d1;
-  --color-outline: #87929a;
-  --color-outline-variant: #3e484f;
-  --color-surface-tint: #7bd0ff;
+  --color-surface: var(--color-surface-val);
+  --color-background: var(--color-background-val);
+  --color-primary: var(--color-primary-val);
+  --color-secondary: var(--color-secondary-val);
+  --color-tertiary: var(--color-tertiary-val);
+  --color-on-surface: var(--color-on-surface-val);
+  --color-on-surface-variant: var(--color-on-surface-variant-val);
+  --color-outline: var(--color-outline-val);
+  --color-outline-variant: var(--color-outline-variant-val);
+  --color-error: var(--color-error-val);
+  --color-on-primary: var(--color-on-primary-val);
+  
+  /* Surface Containers */
+  --color-surface-container: var(--color-surface-container-val);
+  --color-surface-container-high: var(--color-surface-container-high-val);
+  --color-surface-container-highest: var(--color-surface-container-highest-val);
   
   --font-inter: 'Inter', sans-serif;
   --font-space: 'Space Grotesk', sans-serif;
+}
+
+:root {
+  /* LIGHT THEME (Default) */
+  --color-surface-val: #ffffff;
+  --color-background-val: #f8fafc; /* slate-50 */
+  --color-primary-val: #0284c7; /* sky-600 */
+  --color-secondary-val: #0ea5e9;
+  --color-tertiary-val: #0369a1;
+  --color-on-surface-val: #0f172a;
+  --color-on-surface-variant-val: #475569;
+  --color-outline-val: #64748b;
+  --color-outline-variant-val: #cbd5e1;
+  --color-error-val: #ef4444; /* red-500 */
+  --color-on-primary-val: #ffffff;
+  
+  --color-surface-container-val: #f1f5f9; /* slate-100 */
+  --color-surface-container-high-val: #e2e8f0; /* slate-200 */
+  --color-surface-container-highest-val: #cbd5e1; /* slate-300 */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* DARK THEME */
+    --color-surface-val: #0f131d;
+    --color-background-val: #0b0f19;
+    --color-primary-val: #38bdf8;
+    --color-secondary-val: #818cf8;
+    --color-tertiary-val: #c084fc;
+    --color-on-surface-val: #dfe2f1;
+    --color-on-surface-variant-val: #bdc8d1;
+    --color-outline-val: #87929a;
+    --color-outline-variant-val: #3e484f;
+    --color-error-val: #ffb4ab;
+    --color-on-primary-val: #00354a;
+    
+    --color-surface-container-val: #1c1f2a;
+    --color-surface-container-high-val: #262a35;
+    --color-surface-container-highest-val: #313540;
+  }
 }
 
 /* Glassmorphism utility classes */

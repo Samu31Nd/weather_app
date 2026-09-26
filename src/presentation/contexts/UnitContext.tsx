@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type UnitSystem = 'metric' | 'imperial';
 
@@ -10,8 +11,37 @@ interface UnitContextType {
 const UnitContext = createContext<UnitContextType | undefined>(undefined);
 
 export const UnitProvider = ({ children }: { children: ReactNode }) => {
-  // Assuming the station defaults to imperial (F, mph, inHg, inches) based on raw data
-  const [unitSystem, setUnitSystem] = useState<UnitSystem>('imperial');
+  // Default to metric as requested
+  const [unitSystem, setUnitSystemState] = useState<UnitSystem>('metric');
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const loadUnit = async () => {
+      try {
+        const storedUnit = await AsyncStorage.getItem('@app_unit');
+        if (storedUnit === 'metric' || storedUnit === 'imperial') {
+          setUnitSystemState(storedUnit);
+        }
+      } catch (e) {
+        console.warn("Failed to load unit setting", e);
+      } finally {
+        setIsLoaded(true);
+      }
+    };
+    loadUnit();
+  }, []);
+
+  const setUnitSystem = async (unit: UnitSystem) => {
+    setUnitSystemState(unit);
+    try {
+      await AsyncStorage.setItem('@app_unit', unit);
+    } catch (e) {
+      console.warn("Failed to save unit setting", e);
+    }
+  };
+
+  // Only render children after loaded to prevent initial flash
+  if (!isLoaded) return null;
 
   return (
     <UnitContext.Provider value={{ unitSystem, setUnitSystem }}>
