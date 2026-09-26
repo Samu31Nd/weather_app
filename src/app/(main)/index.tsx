@@ -1,11 +1,32 @@
-import { View, Text } from 'react-native';
+import { View, ScrollView } from 'react-native';
+import { HeroWidget } from '../../presentation/components/HeroWidget';
+import { HeaderControls } from '../../presentation/components/HeaderControls';
+import { TelemetryStrip } from '../../presentation/components/TelemetryStrip';
+import { TelemetryGrid } from '../../presentation/components/TelemetryGrid';
+import { WindWidget } from '../../presentation/components/WindWidget';
+import { WeatherData } from '../../core/domain/models/WeatherData';
 
 export default function HomeRoute() {
+  const mockWeather: WeatherData = {
+    locationName: 'Aether Base • Sector 7',
+    temperature: 72,
+    condition: 'cloudy',
+    conditionText: 'Partly Cloudy',
+    highTemp: 78,
+    lowTemp: 64,
+  };
+
   return (
-    <View className="flex-1 items-center justify-center">
-      <Text className="text-white text-3xl font-bold" style={{ fontFamily: 'SpaceGrotesk_700Bold' }}>
-        Live Weather (Mock)
-      </Text>
-    </View>
+    <ScrollView 
+      className="flex-1 px-4 pt-12"
+      contentContainerStyle={{ paddingBottom: 120 }}
+      showsVerticalScrollIndicator={false}
+    >
+      <HeaderControls />
+      <HeroWidget data={mockWeather} />
+      <TelemetryStrip />
+      <TelemetryGrid />
+      <WindWidget />
+    </ScrollView>
   );
 }
