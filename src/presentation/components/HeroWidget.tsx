@@ -1,12 +1,34 @@
 import { View, Text } from 'react-native';
-import { Sun, Cloud, ArrowUp, ArrowDown } from 'lucide-react-native';
-import { WeatherData } from '../../core/domain/models/WeatherData';
+import { Sun, Cloud, ArrowUp, ArrowDown, CloudRain, Snowflake, CloudLightning } from 'lucide-react-native';
+import { WeatherEntity } from '../../core/domain/models/WeatherEntity';
+import { useUnit, convertTemp } from '../contexts/UnitContext';
+import { SolarTrajectory } from './SolarTrajectory';
 
 interface HeroWidgetProps {
-  data: WeatherData;
+  data: WeatherEntity;
 }
 
 export const HeroWidget = ({ data }: HeroWidgetProps) => {
+  const { unitSystem } = useUnit();
+
+  let icon = <Sun size={32} color="#F59E0B" fill="#FDE047" />;
+  let conditionText = 'Clear & Sunny';
+  let desc = '· High Visibility';
+  
+  if (data.rain.rate && data.rain.rate > 0) {
+    icon = <CloudRain size={32} color="#818cf8" fill="#a5b4fc" />;
+    conditionText = 'Rainy';
+    desc = '· Precipitation';
+  } else if (data.forecast.rule > 100) {
+    icon = <Cloud size={32} color="#38bdf8" fill="#BAE6FD" />;
+    conditionText = 'Partly Cloudy';
+    desc = '· Fair Sky';
+  }
+
+  const temp = convertTemp(data.outdoor.temperature, unitSystem);
+  const highTemp = convertTemp(data.historical.outdoorTemp.dayHigh, unitSystem);
+  const lowTemp = convertTemp(data.historical.outdoorTemp.dayLow, unitSystem);
+
   return (
     <View className="relative w-full rounded-2xl overflow-hidden mt-4">
       {/* Background layer for the card (surface-container/70) */}
@@ -23,7 +45,7 @@ export const HeroWidget = ({ data }: HeroWidgetProps) => {
           <View className="flex-col gap-1">
             <View className="flex-row items-center gap-2">
               <Text className="text-primary text-[11px] tracking-wider uppercase" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>
-                Outdoor Station
+                {data.station.name} Station
               </Text>
               <View className="px-2 py-0.5 rounded-full bg-primary/15 border border-primary/20">
                 <Text className="text-primary text-[10px] font-bold tracking-wide uppercase">
@@ -33,10 +55,10 @@ export const HeroWidget = ({ data }: HeroWidgetProps) => {
             </View>
             <View className="flex-row items-center gap-1 mt-1">
               <Text className="text-white text-[18px] font-light" style={{ fontFamily: 'Inter_300Light' }}>
-                {data.conditionText}
+                {conditionText}
               </Text>
               <Text className="text-on-surface-variant text-[12px]" style={{ fontFamily: 'Inter_400Regular' }}>
-                · Fair Sky
+                {desc}
               </Text>
             </View>
           </View>
@@ -44,21 +66,17 @@ export const HeroWidget = ({ data }: HeroWidgetProps) => {
           {/* Vivid Layered Weather Art Badge */}
           <View className="w-16 h-16 rounded-2xl bg-primary/20 border border-white/10 items-center justify-center relative overflow-hidden">
              <View className="absolute inset-0 bg-amber-500/10" />
-             {data.condition === 'sunny' ? (
-               <Sun size={32} color="#F59E0B" fill="#FDE047" />
-             ) : (
-               <Cloud size={32} color="#38bdf8" fill="#BAE6FD" />
-             )}
+             {icon}
           </View>
         </View>
 
         {/* Big Display Temperature */}
         <View className="flex-row items-baseline mt-4 mb-4">
           <Text className="text-white tracking-tighter" style={{ fontFamily: 'Inter_200ExtraLight', fontSize: 64, lineHeight: 72 }}>
-            {data.temperature}
+            {temp?.toFixed(1) || '--'}
           </Text>
           <Text className="text-primary font-light ml-1" style={{ fontFamily: 'Inter_300Light', fontSize: 28 }}>
-            °
+            °{unitSystem === 'metric' ? 'C' : 'F'}
           </Text>
         </View>
 
@@ -75,7 +93,7 @@ export const HeroWidget = ({ data }: HeroWidgetProps) => {
                 Day High
               </Text>
               <Text className="text-white text-[22px] mt-0.5" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>
-                {data.highTemp}°
+                {highTemp?.toFixed(1) || '--'}°
               </Text>
             </View>
           </View>
@@ -90,12 +108,14 @@ export const HeroWidget = ({ data }: HeroWidgetProps) => {
                 Night Low
               </Text>
               <Text className="text-white text-[22px] mt-0.5" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>
-                {data.lowTemp}°
+                {lowTemp?.toFixed(1) || '--'}°
               </Text>
             </View>
           </View>
 
         </View>
+
+        <SolarTrajectory data={data} />
       </View>
     </View>
   );

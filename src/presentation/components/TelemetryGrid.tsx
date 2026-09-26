@@ -1,14 +1,35 @@
 import { View, Text } from 'react-native';
-import { Home, Droplets, Gauge, TrendingUp, CloudRain } from 'lucide-react-native';
+import { Home, Droplets, Gauge, TrendingUp, CloudRain, TrendingDown } from 'lucide-react-native';
 import Svg, { Path, Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
+import { WeatherEntity } from '../../core/domain/models/WeatherEntity';
+import { useUnit, convertTemp, convertPressure, convertLength } from '../contexts/UnitContext';
 
-export const TelemetryGrid = () => {
+interface TelemetryGridProps {
+  data: WeatherEntity;
+}
+
+export const TelemetryGrid = ({ data }: TelemetryGridProps) => {
+  const { unitSystem } = useUnit();
+
+  const indoorTemp = convertTemp(data.indoor.temperature, unitSystem) || 0;
+  const indoorHum = data.indoor.humidity || 0;
+  const outHum = data.outdoor.humidity || 0;
+  const dewPt = convertTemp(data.outdoor.dewPoint, unitSystem) || 0;
+  const pressure = convertPressure(data.barometer.pressure, unitSystem) || 0;
+  const trend = convertPressure(data.barometer.trend, unitSystem) || 0;
+  const rain = convertLength(data.rain.daily, unitSystem) || 0;
+  const rainRate = convertLength(data.rain.rate, unitSystem) || 0;
+  
+  const isTrendingUp = trend > 0;
+  const tempUnit = unitSystem === 'metric' ? '°C' : '°F';
+  const pressUnit = unitSystem === 'metric' ? 'hPa' : 'inHg';
+  const rainUnit = unitSystem === 'metric' ? 'mm' : 'in';
+
   return (
     <View className="flex-row flex-wrap justify-between w-full mt-2 mb-8 gap-y-3">
       
       {/* Indoor Module Card */}
       <View className="w-[48%] relative flex-col justify-between p-3.5 rounded-xl bg-[#1c1f2a]/70 border border-white/5 overflow-hidden shadow-xl shadow-black/50">
-        {/* Absolute Background Blur effect */}
         <View className="absolute -right-6 -bottom-6 w-20 h-20 bg-[#818cf8]/20 rounded-full blur-xl pointer-events-none" />
         
         <View className="flex-row items-center justify-between mb-4">
@@ -18,19 +39,21 @@ export const TelemetryGrid = () => {
         
         <View className="flex-col gap-0.5 mb-4">
           <View className="flex-row items-baseline gap-1">
-            <Text className="text-white text-[22px]" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>21.5</Text>
-            <Text className="text-[#818cf8] text-[12px]" style={{ fontFamily: 'Inter_400Regular' }}>°C</Text>
+            <Text className="text-white text-[22px]" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>{indoorTemp.toFixed(1)}</Text>
+            <Text className="text-[#818cf8] text-[12px]" style={{ fontFamily: 'Inter_400Regular' }}>{tempUnit}</Text>
           </View>
           <View className="flex-row items-center mt-1">
             <Droplets size={12} color="#bdc8d1" />
-            <Text className="text-on-surface-variant text-[14px] ml-1" style={{ fontFamily: 'Inter_400Regular' }}>48%</Text>
-            <Text className="text-primary/80 text-[11px] tracking-widest ml-auto" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>IDEAL</Text>
+            <Text className="text-on-surface-variant text-[14px] ml-1" style={{ fontFamily: 'Inter_400Regular' }}>{indoorHum}%</Text>
+            <Text className="text-primary/80 text-[11px] tracking-widest ml-auto" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>
+              {indoorHum > 40 && indoorHum < 60 ? 'IDEAL' : 'WARN'}
+            </Text>
           </View>
         </View>
         
         {/* Progress Bar */}
         <View className="w-full bg-[#313540]/60 rounded-full h-1 overflow-hidden mt-auto">
-          <View className="bg-[#818cf8] h-1 rounded-full w-[48%]" />
+          <View className="bg-[#818cf8] h-1 rounded-full" style={{ width: `${Math.min(indoorHum, 100)}%` }} />
         </View>
       </View>
 
@@ -45,18 +68,18 @@ export const TelemetryGrid = () => {
         
         <View className="flex-col gap-0.5 mb-4">
           <View className="flex-row items-baseline gap-1">
-            <Text className="text-white text-[22px]" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>64</Text>
+            <Text className="text-white text-[22px]" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>{outHum}</Text>
             <Text className="text-[#38bdf8] text-[12px]" style={{ fontFamily: 'Inter_400Regular' }}>%</Text>
           </View>
           <View className="flex-row items-center justify-between mt-1">
             <Text className="text-on-surface-variant text-[12px]" style={{ fontFamily: 'Inter_400Regular' }}>Dew Pt</Text>
-            <Text className="text-white text-[14px]" style={{ fontFamily: 'Inter_400Regular' }}>15.2°C</Text>
+            <Text className="text-white text-[14px]" style={{ fontFamily: 'Inter_400Regular' }}>{dewPt.toFixed(1)}°</Text>
           </View>
         </View>
         
         {/* Progress Bar */}
         <View className="w-full bg-[#313540]/60 rounded-full h-1 overflow-hidden mt-auto">
-          <View className="bg-[#38bdf8] h-1 rounded-full w-[64%]" />
+          <View className="bg-[#38bdf8] h-1 rounded-full" style={{ width: `${Math.min(outHum, 100)}%` }} />
         </View>
       </View>
 
@@ -69,12 +92,20 @@ export const TelemetryGrid = () => {
         
         <View className="flex-col gap-0.5 mb-3">
           <View className="flex-row items-baseline gap-1">
-            <Text className="text-white text-[22px]" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>1016.4</Text>
-            <Text className="text-[#c084fc] text-[12px]" style={{ fontFamily: 'Inter_400Regular' }}>hPa</Text>
+            <Text className="text-white text-[22px]" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>
+              {pressure.toFixed(unitSystem === 'metric' ? 1 : 2)}
+            </Text>
+            <Text className="text-[#c084fc] text-[12px]" style={{ fontFamily: 'Inter_400Regular' }}>{pressUnit}</Text>
           </View>
           <View className="flex-row items-center mt-1">
-            <TrendingUp size={12} color="#38bdf8" />
-            <Text className="text-on-surface-variant text-[10px] tracking-tight ml-1 uppercase" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>+0.2 past 3h</Text>
+            {isTrendingUp ? (
+              <TrendingUp size={12} color="#38bdf8" />
+            ) : (
+              <TrendingDown size={12} color="#ffb4ab" />
+            )}
+            <Text className="text-on-surface-variant text-[10px] tracking-tight ml-1 uppercase" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>
+              {trend > 0 ? '+' : ''}{trend.toFixed(unitSystem === 'metric' ? 1 : 2)} past 3h
+            </Text>
           </View>
         </View>
         
@@ -87,9 +118,33 @@ export const TelemetryGrid = () => {
                 <Stop offset="100%" stopColor="#8ed5ff" stopOpacity={0} />
               </LinearGradient>
             </Defs>
-            <Path d="M 0 18 Q 25 16, 50 14 T 100 8" fill="none" stroke="#8ed5ff" strokeLinecap="round" strokeWidth={1.8} />
-            <Path d="M 0 18 Q 25 16, 50 14 T 100 8 L 100 24 L 0 24 Z" fill="url(#baroGrad)" />
-            <Circle cx={100} cy={8} fill="#8ed5ff" r={2.5} />
+            {(() => {
+              // Mathematical dynamic bezier curve based on the 3h trend
+              // We normalize trend assuming max fluctuation is around 60 (or 2.0 in hPa)
+              // We map it so trend=0 is flat, trend>0 curves up, trend<0 curves down
+              const maxTrend = unitSystem === 'metric' ? 2.0 : 60; 
+              const normalizedTrend = Math.max(-1, Math.min(1, trend / maxTrend)); 
+              
+              // Map to Y coordinates (0 is top, 24 is bottom)
+              // Current value (right side, x=100)
+              const endY = 12 - (normalizedTrend * 8); 
+              // 3 hours ago (left side, x=0)
+              const startY = 12 + (normalizedTrend * 8);
+              // Control points for a smooth bezier curve
+              const cp1X = 25, cp1Y = startY;
+              const cp2X = 50, cp2Y = endY;
+
+              const pathStr = `M 0 ${startY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, 100 ${endY}`;
+              const fillPathStr = `${pathStr} L 100 24 L 0 24 Z`;
+
+              return (
+                <>
+                  <Path d={pathStr} fill="none" stroke="#8ed5ff" strokeLinecap="round" strokeWidth={1.8} />
+                  <Path d={fillPathStr} fill="url(#baroGrad)" />
+                  <Circle cx={100} cy={endY} fill="#8ed5ff" r={2.5} />
+                </>
+              );
+            })()}
           </Svg>
         </View>
       </View>
@@ -103,21 +158,25 @@ export const TelemetryGrid = () => {
         
         <View className="flex-col gap-0.5 mb-5">
           <View className="flex-row items-baseline gap-1">
-            <Text className="text-white text-[22px]" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>1.8</Text>
-            <Text className="text-[#38bdf8] text-[12px]" style={{ fontFamily: 'Inter_400Regular' }}>mm</Text>
+            <Text className="text-white text-[22px]" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>
+              {rain.toFixed(unitSystem === 'metric' ? 1 : 2)}
+            </Text>
+            <Text className="text-[#38bdf8] text-[12px]" style={{ fontFamily: 'Inter_400Regular' }}>{rainUnit}</Text>
           </View>
           <View className="flex-row items-center justify-between mt-1">
             <Text className="text-on-surface-variant text-[12px]" style={{ fontFamily: 'Inter_400Regular' }}>Rate</Text>
-            <Text className="text-white text-[14px]" style={{ fontFamily: 'Inter_400Regular' }}>0.2 mm/h</Text>
+            <Text className="text-white text-[14px]" style={{ fontFamily: 'Inter_400Regular' }}>
+              {rainRate.toFixed(unitSystem === 'metric' ? 1 : 2)} {rainUnit}/h
+            </Text>
           </View>
         </View>
         
         {/* Segmented Precipitation Bar */}
         <View className="flex-row items-center gap-1 w-full mt-auto">
-          <View className="h-1.5 flex-1 rounded-full bg-[#38bdf8]" />
-          <View className="h-1.5 flex-1 rounded-full bg-[#38bdf8]/70" />
-          <View className="h-1.5 flex-1 rounded-full bg-[#313540]" />
-          <View className="h-1.5 flex-1 rounded-full bg-[#313540]" />
+          <View className={`h-1.5 flex-1 rounded-full ${rain > 0 ? 'bg-[#38bdf8]' : 'bg-[#313540]'}`} />
+          <View className={`h-1.5 flex-1 rounded-full ${rain > (unitSystem === 'metric' ? 12 : 0.5) ? 'bg-[#38bdf8]/70' : 'bg-[#313540]'}`} />
+          <View className={`h-1.5 flex-1 rounded-full ${rain > (unitSystem === 'metric' ? 25 : 1) ? 'bg-[#38bdf8]/40' : 'bg-[#313540]'}`} />
+          <View className={`h-1.5 flex-1 rounded-full ${rain > (unitSystem === 'metric' ? 50 : 2) ? 'bg-[#38bdf8]/20' : 'bg-[#313540]'}`} />
         </View>
       </View>
 

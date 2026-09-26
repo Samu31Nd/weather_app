@@ -1,27 +1,48 @@
 import { View, Text } from 'react-native';
 import { Wind } from 'lucide-react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withRepeat, withTiming, Easing, withSequence } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming, Easing, withSequence } from 'react-native-reanimated';
 import { useEffect } from 'react';
+import { WeatherEntity } from '../../core/domain/models/WeatherEntity';
+import { useUnit, convertSpeed } from '../contexts/UnitContext';
 
-export const WindWidget = () => {
-  // Mock animated wind fluctuation
-  const windRotation = useSharedValue(295);
+interface WindWidgetProps {
+  data: WeatherEntity;
+}
+
+export const WindWidget = ({ data }: WindWidgetProps) => {
+  const { unitSystem } = useUnit();
+  const windRotation = useSharedValue(data.wind.direction || 0);
 
   useEffect(() => {
+    const baseDir = data.wind.direction || 0;
+    // Animate slightly around the base direction to simulate live data
     windRotation.value = withRepeat(
       withSequence(
-        withTiming(305, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(285, { duration: 4000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(295, { duration: 2500, easing: Easing.inOut(Easing.ease) })
+        withTiming(baseDir + 10, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(baseDir - 10, { duration: 4000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(baseDir, { duration: 2500, easing: Easing.inOut(Easing.ease) })
       ),
       -1,
       false
     );
-  }, []);
+  }, [data.wind.direction]);
 
   const animatedNeedleStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${windRotation.value}deg` }]
   }));
+
+  const getCompassDirection = (deg: number) => {
+    const val = Math.floor((deg / 22.5) + 0.5);
+    const arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+    return arr[(val % 16)];
+  };
+
+  const windDirText = `${data.wind.direction || 0}° ${getCompassDirection(data.wind.direction || 0)}`;
+  const gustDirText = `${getCompassDirection(data.wind.gustDirection || 0)} (${data.wind.gustDirection || 0}°)`;
+
+  const speedUnit = unitSystem === 'metric' ? 'km/h' : 'mph';
+  const speed = convertSpeed(data.wind.speed, unitSystem);
+  const gust = convertSpeed(data.wind.gust, unitSystem);
 
   return (
     <View className="relative w-full rounded-xl bg-[#1c1f2a]/70 border border-white/5 p-5 overflow-hidden shadow-xl shadow-black/50 mb-8 mt-2">
@@ -38,7 +59,7 @@ export const WindWidget = () => {
         </View>
         <View className="px-2 py-1 rounded-full bg-[#262a35]/80">
           <Text className="text-primary text-[10px] uppercase tracking-wide" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>
-            295° WNW
+            {windDirText}
           </Text>
         </View>
       </View>
@@ -53,10 +74,10 @@ export const WindWidget = () => {
             </Text>
             <View className="flex-row items-baseline gap-1 mt-0.5">
               <Text className="text-white tracking-tight" style={{ fontFamily: 'Inter_200ExtraLight', fontSize: 42, lineHeight: 48 }}>
-                18.5
+                {speed?.toFixed(1) || '0.0'}
               </Text>
               <Text className="text-primary text-[16px]" style={{ fontFamily: 'Inter_300Light' }}>
-                km/h
+                {speedUnit}
               </Text>
             </View>
           </View>
@@ -67,15 +88,15 @@ export const WindWidget = () => {
                 Peak Gust
               </Text>
               <Text className="text-on-surface-variant text-[10px] uppercase tracking-widest" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>
-                NW (315°)
+                {gustDirText}
               </Text>
             </View>
             <View className="flex-row items-baseline gap-1">
               <Text className="text-white text-[22px]" style={{ fontFamily: 'SpaceGrotesk_600SemiBold' }}>
-                28.4
+                {gust?.toFixed(1) || '0.0'}
               </Text>
               <Text className="text-on-surface-variant text-[12px]" style={{ fontFamily: 'Inter_400Regular' }}>
-                km/h
+                {speedUnit}
               </Text>
             </View>
           </View>
@@ -101,7 +122,7 @@ export const WindWidget = () => {
               style={animatedNeedleStyle}
             >
               <View className="w-full flex-row items-center justify-between px-2.5">
-                {/* Arrow Head (CSS Triangle pointing left because rotation pushes it) */}
+                {/* Arrow Head */}
                 <View 
                   style={{
                     width: 0,
