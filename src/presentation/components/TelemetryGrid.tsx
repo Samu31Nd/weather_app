@@ -140,9 +140,9 @@ export const TelemetryGrid = ({ data }: TelemetryGridProps) => {
 
               return (
                 <>
-                  <Path d={pathStr} fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth={1.8} className="text-[#0284c7] dark:text-[#38bdf8]" />
+                  <Path d={pathStr} fill="none" stroke={isDark ? '#38bdf8' : '#0284c7'} strokeLinecap="round" strokeWidth={1.8} />
                   <Path d={fillPathStr} fill="url(#baroGrad)" />
-                  <Circle cx={100} cy={endY} fill="currentColor" r={2.5} className="text-[#0284c7] dark:text-[#38bdf8]" />
+                  <Circle cx={100} cy={endY} fill={isDark ? '#38bdf8' : '#0284c7'} r={2.5} />
                 </>
               );
             })()}

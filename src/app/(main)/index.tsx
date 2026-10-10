@@ -5,6 +5,7 @@ import { HeaderControls } from "../../presentation/components/HeaderControls";
 import { TelemetryStrip } from "../../presentation/components/TelemetryStrip";
 import { TelemetryGrid } from "../../presentation/components/TelemetryGrid";
 import { WindWidget } from "../../presentation/components/WindWidget";
+import { ForecastWidget } from "../../presentation/components/ForecastWidget";
 import { WeatherEntity } from "../../core/domain/models/WeatherEntity";
 import { useDependencies } from "../../infrastructure/di/DependencyProvider";
 
@@ -29,7 +30,7 @@ export default function HomeRoute() {
 
     loadWeather();
     // Refresh every 10 seconds
-    const interval = setInterval(loadWeather, 100000);
+    const interval = setInterval(loadWeather, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -60,6 +61,7 @@ export default function HomeRoute() {
     >
       <HeaderControls lastFetched={lastFetched} />
       <HeroWidget data={weatherData} />
+      <ForecastWidget data={weatherData} />
       <TelemetryStrip />
       <TelemetryGrid data={weatherData} />
       <WindWidget data={weatherData} />
