@@ -4,8 +4,13 @@ import {
   useWindowDimensions,
   useColorScheme,
 } from "react-native";
-import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import type { ComponentProps } from "react";
+import type { Tabs } from "expo-router";
 import { Home, Calendar, Settings } from "lucide-react-native";
+
+type BottomTabBarProps = Parameters<
+  NonNullable<ComponentProps<typeof Tabs>["tabBar"]>
+>[0];
 
 export const ResponsiveNavBar = ({ state, navigation }: BottomTabBarProps) => {
   const { width } = useWindowDimensions();

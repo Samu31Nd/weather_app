@@ -306,8 +306,8 @@ export function HistoricalCharts() {
             grid: { horizontal: true, vertical: false },
             slotProps: {
                 legend: {
-                    direction: 'row' as const,
-                    position: { vertical: 'top' as const, horizontal: 'middle' as const },
+                    direction: 'horizontal' as const,
+                    position: { vertical: 'top' as const, horizontal: 'center' as const },
                     padding: { bottom: 16 },
                 },
             },

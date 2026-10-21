@@ -15,7 +15,6 @@ export default function MainLayout() {
       <Tabs
         screenOptions={{
           headerShown: false,
-          unmountOnBlur: true,
           sceneStyle: { backgroundColor: 'transparent' }, // allows the background to show through
         }}
         tabBar={(props) => <ResponsiveNavBar {...props} />}

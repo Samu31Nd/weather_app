@@ -219,4 +219,6 @@ export const translations = {
   },
 } as const
 
-export type Translations = typeof translations.en
+type Widen<T> = { readonly [K in keyof T]: T[K] extends string ? string : Widen<T[K]> }
+
+export type Translations = Widen<typeof translations.en>
