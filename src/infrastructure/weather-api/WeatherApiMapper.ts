@@ -24,15 +24,16 @@ function parseHistoricalRange(data: string[] | undefined): HistoricalRange {
     }
   }
 
+  // Station order is [low, high, lowTime, highTime, dayHigh, dayLow, monthHigh, monthLow]
   return {
     low: parseValue(data[0]),
     high: parseValue(data[1]),
     lowTime: data[2] || '--:--',
     highTime: data[3] || '--:--',
-    dayLow: parseValue(data[4]),
-    dayHigh: parseValue(data[5]),
-    monthLow: parseValue(data[6]),
-    monthHigh: parseValue(data[7]),
+    dayHigh: parseValue(data[4]),
+    dayLow: parseValue(data[5]),
+    monthHigh: parseValue(data[6]),
+    monthLow: parseValue(data[7]),
   }
 }
 
