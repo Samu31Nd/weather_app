@@ -15,6 +15,15 @@ Un monorepo con npm workspaces y dos apps que comparten la lógica:
 | `packages/tokens` | *(fase 2)* Paleta clara/oscura, tipografía y escalas de tamaño del diseño. | |
 | `packages/i18n` | *(fase 2)* Catálogos es/en y formateo. | |
 
+## Especificación (`docs/`)
+
+**Lee `docs/` antes de programar una fase.** Ahí están la visión, los requerimientos (`RF-APP-NN`, `RNF-APP-NN`),
+los casos de uso (`CU-NN`), la arquitectura, el modelo de dominio, los flujos, el diccionario de datos, la
+interfaz, las pruebas con su matriz de trazabilidad, el despliegue y los ADR.
+- Los PR y las cabeceras de los tests citan esos IDs.
+- Si un cambio contradice `docs/`, actualiza `docs/` en el mismo PR.
+- La tesis tomará después una versión resumida de esto.
+
 ## Reglas de arquitectura
 
 - **Hexagonal.** Las dependencias van hacia dentro: `apps/* → packages/core`; `core` nunca importa de las apps
@@ -65,7 +74,10 @@ commitean valores reales.
     - Los datos llegan con 1 día de retraso.
     - `days` corta a medianoche UTC; mejor usar `date_start`.
     - `presion_hpa` en realidad está en mmHg.
-    - En las filas de la captura automática, `wind_dir` y `hi_dir` vienen intercambiados.
+    - Desde el 20-oct la presión de las dos fuentes viene reducida a nivel del mar (~770 mmHg). `bartr` es el
+      código Davis de tendencia (−60…60), no un delta.
+    - En las filas de la captura automática, `wind_dir` y `hi_dir` vienen intercambiados (por confirmar).
+  - La lista completa con su corrección está en `docs/06-datos.md`.
 - No copiar secretos de `proj-files` (`terraform.tfvars`, `*.tfstate`, `backups/`).
 
 ## Diseño
@@ -95,11 +107,12 @@ en las claves `wx-*`. La UI también trae "actualizar datos" y el aviso "hace N 
 ## Estado por fase
 
 Plan completo: `~/.claude/plans/tenemos-mucho-codigo-en-jaunty-fiddle.md`. Actualiza esta tabla al cerrar cada
-fase.
+fase. Orden: 0 → D → 0b → 1 … 6.
 
 | Fase | Entregables | Rama / PR | Estado |
 |------|-------------|-----------|--------|
 | 0. Base del monorepo | npm workspaces; `apps/mobile` (git mv) y `apps/web` (subtree con historial); `ignoreBuildErrors` fuera; sobrantes borrados; las dos apps compilan | `refactor/monorepo-base` | ✅ Hecho |
+| D. Documentación técnica | `docs/`: visión, RF/RNF, casos de uso, arquitectura C4, dominio, flujos, datos, interfaz, pruebas y trazabilidad, despliegue, ADR 0001–0008 | `docs/especificacion-tecnica` | 🔄 En revisión |
 | 0b. CI/CD | `ci.yml` (filtros por ruta + `ci-ok` requerido), `staging.yml` (comentario `cicd/deploy-staging-web` o `cicd/deploy-staging-app`), `cleanup-pr.yml`, `release.yml`; Cloud Run + WIF; `eas.json` | — | ⏳ Pendiente |
 | 1. `packages/core` | entidades y mappers unificados, bugs de datos corregidos, `ResolveSkyScene`, DI, tests documentados | — | ⏳ Pendiente |
 | 2. Tokens, tema, i18n, tamaño de fuente, preferencias | `packages/tokens`, `packages/i18n`, `UserPreferences` + adaptadores, tema web con CSS vars | — | ⏳ Pendiente |
@@ -117,4 +130,4 @@ Notas de la fase 0:
   - web: tipo `Translations` demasiado literal y la leyenda de MUI X v9;
   - móvil: `ResponsiveNavBar` importaba `@react-navigation/bottom-tabs`, que no está instalado, y
     `unmountOnBlur` ya no existe.
-- `apps/web/.env` no se copió automáticamente; cópialo a mano desde `weather-dashboard`.
+- Se verificó en dev el 21-oct: `/api/weather` y `/api/weather/historical` responden 200 con datos reales.
