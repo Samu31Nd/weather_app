@@ -40,14 +40,13 @@ crudas en información que se entiende al primer vistazo y sirve para estudiar e
 - Escena del cielo animada.
 - Preferencias de tema, idioma, unidades y tamaño de texto.
 - Descargas.
-- CI/CD con staging por PR.
 
 **No incluye:**
 - **Cuentas ni login.** La app es de solo lectura y los datos son públicos.
 - **Predicción numérica** (ARIMA/SARIMA): se investigó en la tesis, pero no se implementa. El único pronóstico es
   el cualitativo que calcula la consola (`forrule`).
 - **Escritura o corrección de datos.** Eso lo hace el pipeline de `proj-files`.
-- **Publicación en tiendas y APK de producción.** Se generan al final y a mano (ver [ADR-0005](adr/0005-movil-ota-apk-al-final.md)).
+- **Publicación en tiendas de aplicaciones.**
 - **Sensores que la estación no tiene:** UV, radiación solar y ET.
 
 ## Actores
@@ -56,10 +55,9 @@ crudas en información que se entiende al primer vistazo y sirve para estudiar e
 |-------|-------|--------------|
 | Comunidad ESCOM | Alumnos, docentes y personal | Ver el clima actual y entenderlo rápido, sobre todo desde el móvil |
 | Estudiante / investigador | Quien estudia o usa los datos | Rangos de fechas, gráficas comparables, KPIs y descarga |
-| Mantenedor | Equipo del TT | Desplegar staging y producción, revisar el estado de la estación (batería, señal, conexión), diagnosticar caídas. Trabaja desde GitHub y CI, no desde una cuenta en la app |
 
-Actores de sistema (externos): la **consola Davis** (dato en vivo), la **Cloud Function `obtener-datos-clima`**
-(histórico), **GitHub Actions** (CI/CD), **Cloud Run** (hosting web) y **EAS** (actualizaciones móviles).
+Actores de sistema (externos): la **consola Davis** (dato en vivo) y la **Cloud Function `obtener-datos-clima`**
+(histórico).
 
 ## Restricciones
 

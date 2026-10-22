@@ -17,7 +17,7 @@ procesamiento de los datos; lo que no entre en el cuerpo irá a anexos.
 | [06 · Datos](06-datos.md) | Diccionario de datos, rarezas y regla de la escena del cielo |
 | [07 · Interfaz](07-interfaz.md) | Pantallas, navegación, preferencias y accesibilidad |
 | [08 · Calidad y pruebas](08-calidad-pruebas.md) | Estrategia de pruebas y matriz de trazabilidad |
-| [09 · Despliegue](09-despliegue.md) | Entornos, CI/CD, costos y rollback |
+| [09 · Despliegue](09-despliegue.md) | *Anexo operativo:* entornos, CI/CD, costos y rollback |
 | [adr/](adr/) | Registro de decisiones de arquitectura |
 
 ## Convenciones

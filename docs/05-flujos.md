@@ -100,33 +100,3 @@ stateDiagram-v2
   SinConexion --> Cargando: reintentar
 ```
 
-## Staging por comentario y release (CU-09, CU-10)
-
-```mermaid
-sequenceDiagram
-  autonumber
-  actor M as Mantenedor
-  participant GH as GitHub (PR)
-  participant A as Actions
-  participant CR as Cloud Run
-  participant E as EAS Update
-
-  M->>GH: comenta "cicd/deploy-staging-web" o "cicd/deploy-staging-app"
-  GH->>A: issue_comment
-  A->>A: ¿autor con permisos? ¿ci-ok en verde en el head del PR?
-  alt web
-    A->>CR: deploy weather-web-staging --tag pr-N --no-traffic
-    CR-->>A: https://pr-N---weather-web-staging-….run.app
-  else app
-    A->>E: eas update --branch pr-N
-    E-->>A: QR / URL de Expo Go
-  end
-  A->>GH: comenta el enlace y registra el Deployment
-  M->>GH: merge a main
-  GH->>A: push a main → CI → release
-  A->>CR: weather-web 100 % del tráfico (si cambió web)
-  A->>E: eas update --channel production (si cambió móvil)
-  GH->>A: pull_request closed
-  A->>CR: quita el tag pr-N
-  A->>E: borra la rama pr-N
-```

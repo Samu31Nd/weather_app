@@ -99,10 +99,9 @@ Cada requerimiento indica:
 | RNF-APP-10 | Privacidad | La app no usa cookies de rastreo ni analítica con datos personales. Las preferencias solo se guardan en el dispositivo | Seguridad – Confidencialidad | — |
 | RNF-APP-11 | Mantenibilidad | Arquitectura hexagonal: `packages/core` no depende de React ni de APIs de plataforma, y las dependencias apuntan hacia el dominio. Ningún archivo pasa de 300 líneas sin justificarlo | Mantenibilidad – Modularidad | RNF-07 |
 | RNF-APP-12 | Capacidad de prueba | Cobertura de líneas de `packages/core` ≥ 80 %. Cada RF tiene al menos una prueba en la matriz de trazabilidad. Cada archivo de test documenta qué regla cubre | Mantenibilidad – Capacidad de prueba | — |
-| RNF-APP-13 | Calidad de entrega | Nada entra a `main` sin pasar el CI (typecheck, lint, tests, build). Producción se despliega solo desde `main`. El rollback toma menos de 5 min | Mantenibilidad – Modificabilidad | — |
-| RNF-APP-14 | Internacionalización | Todo texto visible sale de un catálogo es/en con las mismas claves. Fechas y horas se muestran en America/Mexico_City. Números con el formato del idioma | Usabilidad – Operabilidad | — |
-| RNF-APP-15 | Portabilidad | La lógica de dominio y de cálculo se escribe una sola vez y la usan las dos apps sin cambios | Portabilidad – Adaptabilidad | — |
-| RNF-APP-16 | Consistencia visual | La UI respeta los tokens del diseño (paleta clara/oscura, tipografía IBM Plex, espaciado) en las dos plataformas | Usabilidad – Estética de la interfaz | — |
+| RNF-APP-13 | Internacionalización | Todo texto visible sale de un catálogo es/en con las mismas claves. Fechas y horas se muestran en America/Mexico_City. Números con el formato del idioma | Usabilidad – Operabilidad | — |
+| RNF-APP-14 | Portabilidad | La lógica de dominio y de cálculo se escribe una sola vez y la usan las dos apps sin cambios | Portabilidad – Adaptabilidad | — |
+| RNF-APP-15 | Consistencia visual | La UI respeta los tokens del diseño (paleta clara/oscura, tipografía IBM Plex, espaciado) en las dos plataformas | Usabilidad – Estética de la interfaz | — |
 
 ## Diferencias con el cap. 6 de la tesis
 
@@ -112,6 +111,5 @@ Para actualizar después el cap. 6:
   Pasa a ser parte de cada tarjeta y no un módulo aparte.
 - La tesis no tiene requerimientos sobre:
   - datos en vivo: RF-APP-01 a RF-APP-12;
-  - preferencias, i18n y accesibilidad: RF-APP-22 a RF-APP-26, RNF-APP-05 y RNF-APP-14;
-  - entrega continua: RNF-APP-13.
+  - preferencias, i18n y accesibilidad: RF-APP-22 a RF-APP-26, RNF-APP-05 y RNF-APP-13.
 - **RNF-10** se mantiene como RNF-APP-06.

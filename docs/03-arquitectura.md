@@ -9,19 +9,15 @@ Se sigue el modelo C4 de forma ligera: contexto → contenedores → componentes
 flowchart TB
   comunidad["👤 Comunidad ESCOM"]
   investigador["👤 Estudiante / investigador"]
-  mantenedor["👤 Mantenedor"]
 
   app["<b>App de la estación</b><br/>web (Next.js) y móvil (Expo)"]
 
   consola[("Consola Davis<br/>wflexp.json · HTTP")]
   fn["Cloud Function<br/>obtener-datos-clima"]
   pipeline["Pipeline ELT en GCP<br/>(proj-files)"]
-  github["GitHub<br/>repo + Actions"]
 
   comunidad -->|consulta el clima| app
   investigador -->|consulta histórico, descarga| app
-  mantenedor -->|PR, comentarios cicd/*| github
-  github -->|despliega| app
   app -->|dato en vivo, cada 60 s| consola
   app -->|histórico, HTTPS| fn
   pipeline -->|llena la BD que lee| fn
@@ -39,14 +35,10 @@ flowchart LR
     phone["App móvil<br/>Expo / React Native"]
   end
 
-  subgraph cloudrun["Cloud Run (GCP)"]
+  subgraph servidor["Servidor web"]
     next["Servidor Next.js<br/>SSR + route handlers"]
     proxy["/api/live<br/>proxy del dato en vivo"]
     next --- proxy
-  end
-
-  subgraph expo["EAS (Expo)"]
-    ota["Expo Updates<br/>canales production / pr-N"]
   end
 
   consola[("Consola Davis<br/>HTTP, sin CORS")]
@@ -59,7 +51,6 @@ flowchart LR
   phone -->|"HTTPS /api/live (por defecto)"| proxy
   phone -.->|"HTTP directo (opcional, red local)"| consola
   phone -->|HTTPS| fn
-  phone -->|descarga JS| ota
 ```
 
 - **Por qué hay proxy.** La consola solo habla HTTP y no manda cabeceras CORS. Un navegador servido por HTTPS no
@@ -158,4 +149,6 @@ reloj fijo) en lugar de los adaptadores reales.
 
 ## Despliegue
 
-Ver [09 · Despliegue](09-despliegue.md) para el diagrama de entornos.
+La arquitectura no depende de dónde se publique cada app. El servidor web solo necesita un runtime de Node que
+pueda hacer HTTP saliente. El hosting y la entrega actuales se describen en el anexo operativo
+[09 · Despliegue](09-despliegue.md).

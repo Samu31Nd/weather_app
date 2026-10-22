@@ -17,4 +17,4 @@ web de Next ya tenía el histórico, los route handlers de proxy y Tailwind web 
 - Se escriben dos UIs, pero cada una aprovecha su plataforma: en web, CSS, media queries y `prefers-*`; en móvil,
   reanimated y gestos.
 - El tema web deja de depender de react-native-web.
-- La consistencia visual se cuida con tokens compartidos y con los artboards del diseño (RNF-APP-16).
+- La consistencia visual se cuida con tokens compartidos y con los artboards del diseño (RNF-APP-15).

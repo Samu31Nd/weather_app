@@ -10,7 +10,6 @@ como etiquetas en las flechas.
 flowchart LR
   comunidad["👤 Comunidad ESCOM"]
   investigador["👤 Estudiante / investigador"]
-  mantenedor["👤 Mantenedor"]
 
   subgraph app["App de la estación (web + móvil)"]
     CU01(["CU-01 Consultar condiciones actuales"])
@@ -23,14 +22,8 @@ flowchart LR
     CU08(["CU-08 Resolver escena del cielo"])
   end
 
-  subgraph ops["Entrega (GitHub)"]
-    CU09(["CU-09 Desplegar staging de un PR"])
-    CU10(["CU-10 Publicar a producción"])
-  end
-
   consola[["⚙ Consola Davis"]]
   historico[["⚙ Cloud Function histórico"]]
-  ci[["⚙ GitHub Actions"]]
 
   comunidad --- CU01
   comunidad --- CU02
@@ -40,9 +33,8 @@ flowchart LR
   investigador --- CU05
   investigador --- CU03
   investigador --- CU06
-  mantenedor --- CU07
-  mantenedor --- CU09
-  mantenedor --- CU10
+  comunidad --- CU07
+  investigador --- CU07
 
   CU01 -. «include» .-> CU08
   CU02 -. «extend» .-> CU01
@@ -51,8 +43,6 @@ flowchart LR
 
   CU01 --- consola
   CU04 --- historico
-  CU09 --- ci
-  CU10 --- ci
 ```
 
 El investigador también puede hacer todo lo que hace la comunidad (CU-01 y CU-02). Esa herencia no se dibuja
@@ -132,7 +122,9 @@ para no saturar el diagrama.
   4. La preferencia se guarda en el dispositivo.
 
 ### CU-07 Revisar estado de la estación
-- **Actor:** Mantenedor (lo ve cualquiera, pero le sirve a él).
+- **Actores:** Comunidad ESCOM, Estudiante/investigador.
+- **Para qué:** saber si se puede confiar en el dato. Por ejemplo, con batería baja o mala señal las lecturas
+  pueden atrasarse o faltar.
 - **Cubre:** RF-APP-12.
 - **Flujo:**
   1. En "Ahora", el pie de la pantalla muestra la batería, la señal y el tiempo encendida.
@@ -144,28 +136,3 @@ para no saturar el diagrama.
 - **Cubre:** RF-APP-03.
 - **Flujo:** se aplican, en orden, las capas de la regla `skyMap` ([06 · Datos](06-datos.md#escena-del-cielo)).
 
-### CU-09 Desplegar staging de un PR
-- **Actor:** Mantenedor.
-- **Cubre:** RNF-APP-13.
-- **Precondición:** el PR está abierto y su CI está en verde.
-- **Flujo:**
-  1. El mantenedor comenta `cicd/deploy-staging-web` o `cicd/deploy-staging-app`.
-  2. Actions verifica sus permisos y el CI.
-  3. Actions despliega una revisión etiquetada `pr-N` (web) o una actualización OTA en la rama `pr-N` (móvil).
-  4. Actions comenta en el PR la URL o el QR.
-- **Flujos alternos:**
-  - **A1. CI en rojo.** Actions responde que primero hay que arreglarlo.
-  - **A2. El autor no tiene permisos.** Se ignora el comentario.
-- **Postcondición:** el staging existe hasta que se cierra el PR. Al cerrarlo se borra.
-
-### CU-10 Publicar a producción
-- **Actor:** Mantenedor.
-- **Cubre:** RNF-APP-13.
-- **Flujo:**
-  1. El mantenedor hace merge del PR a `main`.
-  2. Actions vuelve a correr el CI.
-  3. Actions despliega solo la app afectada: Cloud Run `weather-web` y/o la actualización OTA en el canal
-     `production`.
-  4. Actions crea el tag y el release.
-- **Alterno:** si el despliegue falla, la versión anterior sigue sirviendo. El rollback se describe en
-  [09 · Despliegue](09-despliegue.md).

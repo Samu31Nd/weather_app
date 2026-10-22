@@ -1,4 +1,8 @@
-# 09 · Despliegue
+# 09 · Despliegue (anexo operativo)
+
+Este anexo es para el equipo que opera el sistema. Explica cómo se construye, publica y revierte cada app.
+No forma parte de la especificación funcional: la app no depende de él, y cambiar de hosting no cambia nada de los
+documentos 00–08.
 
 GitHub Actions orquesta todos los despliegues. Cloud Run (web) y EAS Update (móvil) solo son los lugares donde
 queda publicada cada app.

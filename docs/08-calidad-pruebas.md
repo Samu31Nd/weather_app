@@ -72,5 +72,4 @@ archivo de test.
 | RNF-APP-09 | CU-01 | `/api/live` | test del proxy (host fijo, sin reenviar cabeceras) | 3 |
 | RNF-APP-11 | — | `packages/core` | lint `no-restricted-imports` | 1 |
 | RNF-APP-12 | — | `packages/core` | umbral de cobertura en CI | 0b, 1 |
-| RNF-APP-13 | CU-09, 10 | workflows | PR de prueba | 0b |
-| RNF-APP-14 | — | `packages/i18n` | test: es y en tienen las mismas claves | 2 |
+| RNF-APP-13 | — | `packages/i18n` | test: es y en tienen las mismas claves | 2 |
