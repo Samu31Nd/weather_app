@@ -112,8 +112,8 @@ fase. Orden: 0 → D → 0b → 1 … 6.
 | Fase | Entregables | Rama / PR | Estado |
 |------|-------------|-----------|--------|
 | 0. Base del monorepo | npm workspaces; `apps/mobile` (git mv) y `apps/web` (subtree con historial); `ignoreBuildErrors` fuera; sobrantes borrados; las dos apps compilan | `refactor/monorepo-base` | ✅ Hecho |
-| D. Documentación técnica | `docs/`: visión, RF/RNF, casos de uso, arquitectura C4, dominio, flujos, datos, interfaz, pruebas y trazabilidad, anexo de despliegue, ADR 0001–0008. Actores: solo usuarios (sin mantenedor); CI/CD solo en el anexo 09 | `docs/especificacion-tecnica` | 🔄 En revisión |
-| 0b. CI/CD | `ci.yml` (filtros por ruta + `ci-ok` requerido), `staging.yml` (comentario `cicd/deploy-staging-web` o `cicd/deploy-staging-app`), `cleanup-pr.yml`, `release.yml`; Cloud Run + WIF; `eas.json` | — | ⏳ Pendiente |
+| D. Documentación técnica | `docs/`: visión, RF/RNF, casos de uso, arquitectura C4, dominio, flujos, datos, interfaz, pruebas y trazabilidad, anexo de despliegue, ADR 0001–0008. Actores: solo usuarios (sin mantenedor); CI/CD solo en el anexo 09 | `docs/especificacion-tecnica` (#3) | ✅ Hecho |
+| 0b. CI/CD | `ci.yml` (filtros por ruta + `ci-ok` requerido), `staging.yml` (comentario `cicd/deploy-staging-web` o `cicd/deploy-staging-app`), `cleanup-pr.yml`, `release.yml`; Cloud Run + WIF (`proj-files/infra/web_hosting.tf`); `eas.json` + `expo-updates`; imagen *standalone* de Next | `feat/ci-cd` | 🔄 En revisión |
 | 1. `packages/core` | entidades y mappers unificados, bugs de datos corregidos, `ResolveSkyScene`, DI, tests documentados | — | ⏳ Pendiente |
 | 2. Tokens, tema, i18n, tamaño de fuente, preferencias | `packages/tokens`, `packages/i18n`, `UserPreferences` + adaptadores, tema web con CSS vars | — | ⏳ Pendiente |
 | 3. Web · Ahora + carga | dashboard según diseño, escena del cielo SVG/CSS, proxy `/api/live`, MUI fuera | — | ⏳ Pendiente |
