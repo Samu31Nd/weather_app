@@ -52,7 +52,7 @@ para no saturar el diagrama.
 
 ### CU-01 Consultar condiciones actuales
 - **Actor:** Comunidad ESCOM (y cualquier actor).
-- **Cubre:** RF-APP-01, 03–12, 28, 29.
+- **Cubre:** RF-APP-01, 02, 03.
 - **Precondición:** ninguna; no hay login.
 - **Flujo principal:**
   1. El usuario abre la app.
@@ -81,7 +81,7 @@ para no saturar el diagrama.
 
 ### CU-03 Interpretar una variable
 - **Actores:** Comunidad ESCOM, Estudiante/investigador.
-- **Cubre:** RF-APP-08, 27; RNF-APP-06.
+- **Cubre:** RF-APP-04; RNF-APP-04.
 - **Flujo:**
   1. El usuario abre la ayuda de una tarjeta.
   2. El sistema muestra qué es la variable, cómo leerla y qué indica el valor actual. Por ejemplo: "punto de
@@ -89,7 +89,7 @@ para no saturar el diagrama.
 
 ### CU-04 Consultar histórico
 - **Actor:** Estudiante / investigador.
-- **Cubre:** RF-APP-13–19, 21; RNF-APP-01, 06.
+- **Cubre:** RF-APP-06, 07, 08; RNF-APP-03, 04.
 - **Flujo principal:**
   1. El usuario abre "Histórico".
   2. El sistema propone los últimos 7 días con resolución por hora.
@@ -105,7 +105,7 @@ para no saturar el diagrama.
 
 ### CU-05 Descargar datos
 - **Actor:** Estudiante / investigador.
-- **Cubre:** RF-APP-20.
+- **Cubre:** RF-APP-09.
 - **Precondición:** hay una consulta de histórico con datos.
 - **Flujo:**
   1. El usuario elige CSV o JSON.
@@ -114,7 +114,7 @@ para no saturar el diagrama.
 
 ### CU-06 Configurar preferencias
 - **Actores:** todos.
-- **Cubre:** RF-APP-22–26.
+- **Cubre:** RF-APP-10.
 - **Flujo:**
   1. El usuario abre ajustes.
   2. Cambia el tema, el idioma, las unidades o el tamaño de texto.
@@ -125,7 +125,7 @@ para no saturar el diagrama.
 - **Actores:** Comunidad ESCOM, Estudiante/investigador.
 - **Para qué:** saber si se puede confiar en el dato. Por ejemplo, con batería baja o mala señal las lecturas
   pueden atrasarse o faltar.
-- **Cubre:** RF-APP-12.
+- **Cubre:** RF-APP-05.
 - **Flujo:**
   1. En "Ahora", el pie de la pantalla muestra la batería, la señal y el tiempo encendida.
   2. Si la batería o la señal están por debajo de un umbral, el valor se resalta.

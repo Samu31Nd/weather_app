@@ -95,7 +95,7 @@ flowchart TB
 | `HISTORY_API_URL` | variable | entornos | URL de la Cloud Function. Es pública |
 | `LIVE_PROXY_URL` | variable | entorno móvil | URL de `/api/live` en producción, para la app móvil |
 
-## Costos estimados (RNF-APP-04)
+## Costos estimados (RNF-APP-11)
 
 | Recurso | Uso esperado | Capa gratuita | Costo esperado |
 |---------|--------------|---------------|----------------|

@@ -25,7 +25,7 @@ Verificado contra los endpoints reales el 2026-10-21.
 | Estación | `stnname`, `bat`, `rssi`, `uptime`, `loctime` | V · dBm · s · epoch |
 
 **Datos que no se usan:**
-- `mac`, `ip` y `ssid` son datos internos y no se muestran nunca (RF-APP-12).
+- `mac`, `ip` y `ssid` son datos internos y no se muestran nunca (RF-APP-05).
 - `uv`, `solar`, `thsw`, `et*`, `xt*`, etc. corresponden a sensores que la estación no tiene.
 
 ## Histórico · Cloud Function `obtener-datos-clima`
@@ -85,7 +85,7 @@ reemplazar la escena que eligió una anterior.
 Hay 21 escenas. Cada una tiene su artboard `project/Sky*.dc.html` y un caso de prueba que la produce
 (RF-APP-03).
 
-## Interpretación de variables (RF-APP-08, RF-APP-27)
+## Interpretación de variables (RF-APP-04)
 
 Los umbrales que se usen en los textos de ayuda se documentan aquí antes de implementarlos:
 
