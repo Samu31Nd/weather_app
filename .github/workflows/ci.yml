@@ -1,0 +1,80 @@
+# Checks de cada PR (y de main, llamado desde release.yml). El único check requerido en la protección de rama es `ci-ok`.
+name: ci
+
+on:
+  pull_request:
+  workflow_call:
+
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      web: ${{ steps.filter.outputs.web }}
+      mobile: ${{ steps.filter.outputs.mobile }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            shared: &shared
+              - 'packages/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - '.github/workflows/**'
+            web:
+              - *shared
+              - 'apps/web/**'
+            mobile:
+              - *shared
+              - 'apps/mobile/**'
+
+  web:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck --workspace=web
+      - run: npm test --workspace=web --if-present
+      - run: npm run build --workspace=web
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+
+  mobile:
+    needs: changes
+    if: needs.changes.outputs.mobile == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck --workspace=mobile
+      - run: npm test --workspace=mobile --if-present
+      - name: Bundle check (Android)
+        working-directory: apps/mobile
+        run: npx expo export --platform android --output-dir "$RUNNER_TEMP/expo-export"
+
+  ci-ok:
+    needs: [changes, web, mobile]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Todos los jobs pasaron o se omitieron
+        run: |
+          echo '${{ toJSON(needs) }}' | jq -e 'to_entries | all(.value.result == "success" or .value.result == "skipped")'

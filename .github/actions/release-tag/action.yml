@@ -1,0 +1,22 @@
+name: release-tag
+description: Crea el tag <prefix>-vAAAA.MM.DD[.n] sobre el commit actual y su GitHub Release.
+
+inputs:
+  prefix:
+    description: web | mobile
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PREFIX: ${{ inputs.prefix }}
+      run: |
+        base="$PREFIX-v$(TZ=America/Mexico_City date +%Y.%m.%d)"
+        tag="$base"; n=1
+        while gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" > /dev/null 2>&1; do
+          n=$((n + 1)); tag="$base.$n"
+        done
+        gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "$tag" --generate-notes

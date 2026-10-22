@@ -44,6 +44,12 @@
         "projectId": "34e752dc-b497-4f29-af65-ae86f04d62d3"
       }
     },
-    "owner": "samu31nds-team"
+    "owner": "samu31nds-team",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/34e752dc-b497-4f29-af65-ae86f04d62d3"
+    }
   }
 }

@@ -86,14 +86,23 @@ flowchart TB
 
 ## Configuración
 
-| Nombre | Tipo | Dónde | Uso |
-|--------|------|-------|-----|
-| `EXPO_TOKEN` | secreto | repo | Token del robot user de EAS |
-| `GCP_WIF_PROVIDER` | variable | repo | Proveedor OIDC (salida de Terraform) |
-| `GCP_DEPLOY_SA` | variable | repo | Cuenta de servicio de despliegue |
-| `LIVE_STATION_URL` | variable | entornos | URL de `wflexp.json`. Solo la ve el servidor web, nunca el cliente |
-| `HISTORY_API_URL` | variable | entornos | URL de la Cloud Function. Es pública |
-| `LIVE_PROXY_URL` | variable | entorno móvil | URL de `/api/live` en producción, para la app móvil |
+| Nombre | Tipo | Uso |
+|--------|------|-----|
+| `EXPO_TOKEN` | secreto | Token del robot user de EAS (rol Developer) |
+| `GCP_WIF_PROVIDER` | variable | Proveedor OIDC (`terraform output web_wif_provider`) |
+| `GCP_DEPLOY_SA` | variable | Cuenta de servicio que despliega (`web_deployer_sa`) |
+| `GCP_RUNTIME_SA` | variable | Cuenta de servicio con la que corre la web (`web_runtime_sa`) |
+| `WEB_REGISTRY` | variable | Repositorio de imágenes (`web_registry`) |
+| `NEXT_PUBLIC_API_URL` | variable | URL base de la consola. Se pasa al build y en la fase 3 pasa a ser solo del servidor |
+| `NEXT_PUBLIC_API_CLOUD_URL` | variable | URL de la Cloud Function de histórico |
+| `MOBILE_WEATHER_STATION_URL` | variable | URL del dato en vivo para la app móvil. En la fase 4 apunta a `/api/live` |
+
+Los archivos son:
+- `.github/workflows/{ci,staging,cleanup-pr,release}.yml`;
+- `.github/actions/release-tag`;
+- `apps/web/Dockerfile`, una imagen *standalone* de Next construida desde la raíz;
+- `apps/mobile/eas.json`;
+- `proj-files/infra/web_hosting.tf`.
 
 ## Costos estimados (RNF-APP-11)
 

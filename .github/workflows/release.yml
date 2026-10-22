@@ -1,0 +1,104 @@
+# Producción: al hacer merge a main se vuelve a correr el CI y se publica solo la app que cambió.
+name: release
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  id-token: write
+
+env:
+  REGION: us-central1
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      web: ${{ steps.filter.outputs.web }}
+      mobile: ${{ steps.filter.outputs.mobile }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            shared: &shared
+              - 'packages/**'
+              - 'package-lock.json'
+            web:
+              - *shared
+              - 'apps/web/**'
+            mobile:
+              - *shared
+              - 'apps/mobile/**'
+
+  web:
+    needs: [ci, changes]
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: production-web
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Construir y desplegar web en producción
+        id: deploy
+        env:
+          IMAGE: ${{ vars.WEB_REGISTRY }}/web:${{ github.sha }}
+        run: |
+          gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
+          docker build -f apps/web/Dockerfile \
+            --build-arg NEXT_PUBLIC_API_URL='${{ vars.NEXT_PUBLIC_API_URL }}' \
+            --build-arg NEXT_PUBLIC_API_CLOUD_URL='${{ vars.NEXT_PUBLIC_API_CLOUD_URL }}' \
+            -t "$IMAGE" .
+          docker push "$IMAGE"
+          gcloud run deploy weather-web --region "$REGION" --image "$IMAGE" \
+            --service-account '${{ vars.GCP_RUNTIME_SA }}' --quiet
+          gcloud run services update-traffic weather-web --region "$REGION" --to-latest --quiet
+          echo "url=$(gcloud run services describe weather-web --region "$REGION" --format='value(status.url)')" >> "$GITHUB_OUTPUT"
+      - name: Tag y release
+        uses: ./.github/actions/release-tag
+        with:
+          prefix: web
+
+  mobile:
+    needs: [ci, changes]
+    if: needs.changes.outputs.mobile == 'true'
+    runs-on: ubuntu-latest
+    environment: production-mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Publicar EAS Update en el canal production
+        working-directory: apps/mobile
+        env:
+          EXPO_PUBLIC_WEATHER_STATION_URL: ${{ vars.MOBILE_WEATHER_STATION_URL }}
+          MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          npm ci --no-audit --no-fund
+          eas update --channel production --message "${MESSAGE%%$'\n'*}" --non-interactive
+      - name: Tag y release
+        uses: ./.github/actions/release-tag
+        with:
+          prefix: mobile

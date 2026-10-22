@@ -1,0 +1,75 @@
+# Al cerrar o mergear un PR se borra todo su staging: tag y revisiones en Cloud Run, rama de EAS Update
+# y deployments de GitHub.
+name: cleanup-pr
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: read
+  deployments: write
+  id-token: write
+
+env:
+  REGION: us-central1
+  PR: ${{ github.event.pull_request.number }}
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ¿Hubo staging web?
+        id: check
+        run: |
+          n=$(gh api "repos/$GITHUB_REPOSITORY/deployments?environment=pr-$PR-web" --jq length)
+          echo "exists=$([ "$n" -gt 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - if: steps.check.outputs.exists == 'true'
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+      - if: steps.check.outputs.exists == 'true'
+        uses: google-github-actions/setup-gcloud@v2
+      - name: Quitar tag y borrar revisiones del PR
+        if: steps.check.outputs.exists == 'true'
+        run: |
+          gcloud run services update-traffic weather-web-staging --region "$REGION" --remove-tags "pr-$PR" --quiet || true
+          for rev in $(gcloud run revisions list --service weather-web-staging --region "$REGION" \
+              --format='value(metadata.name)' --filter="metadata.name~-pr-$PR-"); do
+            gcloud run revisions delete "$rev" --region "$REGION" --quiet || true
+          done
+
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ¿Hubo staging app?
+        id: check
+        run: |
+          n=$(gh api "repos/$GITHUB_REPOSITORY/deployments?environment=pr-$PR-app" --jq length)
+          echo "exists=$([ "$n" -gt 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - if: steps.check.outputs.exists == 'true'
+        uses: actions/checkout@v4
+      - if: steps.check.outputs.exists == 'true'
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Borrar la rama de EAS Update
+        if: steps.check.outputs.exists == 'true'
+        working-directory: apps/mobile
+        run: eas branch:delete "pr-$PR" --non-interactive || true
+
+  deployments:
+    needs: [web, app]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Marcar deployments del PR como inactivos
+        run: |
+          for target in web app; do
+            for id in $(gh api "repos/$GITHUB_REPOSITORY/deployments?environment=pr-$PR-$target" --jq '.[].id'); do
+              gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses" -f state=inactive > /dev/null
+            done
+          done
