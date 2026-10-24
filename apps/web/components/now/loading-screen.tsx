@@ -5,10 +5,11 @@
 // se avisa y se ofrece reintentar.
 
 import { LOADING_LAST_WAITING_STEP, LOADING_STEP_INTERVAL_MS, LOADING_VARIABLES, loadingProgress } from '@tt/core'
-import { STATION_ILLUSTRATION_CSS, STATION_ILLUSTRATION_SVG, STATION_ILLUSTRATION_VIEWBOX } from '@tt/sky-art'
+import { STATION_ILLUSTRATION_CSS, STATION_ILLUSTRATION_VIEWBOX } from '@tt/sky-art'
 import { useEffect, useState } from 'react'
 import { usePreferences } from '@/components/providers/app-providers'
 import { StationLogo } from '@/components/shell/station-logo'
+import { STATION_ILLUSTRATION_MARKUP } from '@/lib/art/markup'
 
 const SOFT_BACKGROUND = { temp: 'bg-wx-temp-soft border-wx-temp-soft', wind: 'bg-wx-wind-soft border-wx-wind-soft', rain: 'bg-wx-rain-soft border-wx-rain-soft', pres: 'bg-wx-pres-soft border-wx-pres-soft' }
 
@@ -50,7 +51,7 @@ export function LoadingScreen({ done, failed, onRetry }: { done: boolean; failed
             role="img"
             aria-label={t.loading.illustration}
             className="relative h-auto w-full max-w-[360px] overflow-visible"
-            dangerouslySetInnerHTML={{ __html: STATION_ILLUSTRATION_SVG }}
+            dangerouslySetInnerHTML={STATION_ILLUSTRATION_MARKUP}
           />
         </div>
 

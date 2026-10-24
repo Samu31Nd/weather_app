@@ -3,6 +3,7 @@
 
 import type { SkyScene as SkySceneId } from '@tt/core'
 import { SKY_SCENE_ART, SKY_SCENE_CSS } from '@tt/sky-art'
+import { SKY_SCENE_MARKUP } from '@/lib/art/markup'
 
 export function SkyScene({ scene, label, chip }: { scene: SkySceneId; label: string; chip: string }) {
   const art = SKY_SCENE_ART[scene]
@@ -16,7 +17,7 @@ export function SkyScene({ scene, label, chip }: { scene: SkySceneId; label: str
         aria-label={label}
         className={`absolute inset-0 block size-full ${art.rootClass}`}
         // El arte es contenido propio, extraído del canvas de diseño y verificado en @tt/sky-art (sin scripts).
-        dangerouslySetInnerHTML={{ __html: art.body }}
+        dangerouslySetInnerHTML={SKY_SCENE_MARKUP[scene]}
       />
       <span className="absolute left-4 top-3.5 rounded-full bg-[rgba(239,241,245,0.86)] px-2.5 py-[5px] text-xs font-medium text-[#4c4f69]">
         {chip}
