@@ -1,11 +1,12 @@
 'use client'
 
 // Dato en vivo para "Ahora" (RF-APP-02): consulta al montar, cada 60 s y a pedido; cuenta los segundos desde la
-// última actualización y calcula la vigencia con `liveStatus` de @tt/core.
+// última actualización y calcula la vigencia con `liveStatus` de @tt/core. Arranca con la última lectura guardada
+// en el provider, si la hay.
 
 import { type LiveReading, type LiveStatus, liveStatus } from '@tt/core'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useCore } from '@/components/providers/app-providers'
+import { useCore, useLiveSnapshot } from '@/components/providers/app-providers'
 
 export const REFRESH_INTERVAL_MS = 60_000
 
@@ -20,8 +21,9 @@ export interface LiveWeatherState {
 
 export function useLiveWeather(): LiveWeatherState {
   const core = useCore()
-  const [reading, setReading] = useState<LiveReading | null>(null)
-  const [lastSuccessAt, setLastSuccessAt] = useState<Date | null>(null)
+  const snapshot = useLiveSnapshot()
+  const [reading, setReading] = useState<LiveReading | null>(() => snapshot.current?.reading ?? null)
+  const [lastSuccessAt, setLastSuccessAt] = useState<Date | null>(() => snapshot.current?.receivedAt ?? null)
   const [lastFailed, setLastFailed] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const [now, setNow] = useState(() => core.clock.now())
@@ -34,8 +36,10 @@ export function useLiveWeather(): LiveWeatherState {
     core.getLiveWeather
       .execute()
       .then((next) => {
+        const receivedAt = core.clock.now()
+        snapshot.current = { reading: next, receivedAt }
         setReading(next)
-        setLastSuccessAt(core.clock.now())
+        setLastSuccessAt(receivedAt)
         setLastFailed(false)
       })
       .catch(() => setLastFailed(true))
@@ -44,7 +48,7 @@ export function useLiveWeather(): LiveWeatherState {
         setRefreshing(false)
         setNow(core.clock.now())
       })
-  }, [core])
+  }, [core, snapshot])
 
   useEffect(() => {
     refresh()

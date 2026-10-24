@@ -64,8 +64,9 @@ export function NowScreen() {
   )
 }
 
+/** La carga solo se ve la primera vez: si ya hay lectura al montar (se volvió de otra página), abre directo. */
 function useRevealAfterFirstReading(hasReading: boolean): boolean {
-  const [revealed, setRevealed] = useState(false)
+  const [revealed, setRevealed] = useState(hasReading)
   useEffect(() => {
     if (!hasReading || revealed) return
     const timer = setTimeout(() => setRevealed(true), REVEAL_DELAY_MS)

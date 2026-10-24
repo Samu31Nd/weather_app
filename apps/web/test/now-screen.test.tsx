@@ -56,6 +56,18 @@ describe('pantalla "Ahora"', () => {
     expect(screen.getAllByText('°C').length).toBeGreaterThan(0)
   })
 
+  it('al volver de otra página abre el panel sin repetir la pantalla de carga', async () => {
+    const repository = workingConsole()
+    const core = createCore({ liveRepository: repository, clock: { now: () => NOW } })
+    const page = (showNow: boolean) => <AppProviders core={core}>{showNow ? <NowScreen /> : <p>Histórico</p>}</AppProviders>
+    const { rerender } = render(page(true))
+    await waitForDashboard()
+    rerender(page(false))
+    rerender(page(true))
+    expect(screen.queryByText('Preparando tu estación')).toBeNull()
+    expect(screen.getByRole('region', { name: 'Condiciones actuales' })).toBeTruthy()
+  })
+
   it('cambia a inglés y a unidades imperiales desde la cabecera', async () => {
     renderNow(workingConsole())
     await waitForDashboard()
