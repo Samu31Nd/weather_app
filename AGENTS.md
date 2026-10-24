@@ -55,6 +55,7 @@ npm run mobile              # Expo dev server (apps/mobile)
 npm run typecheck           # tsc en todos los workspaces
 npm test                    # tests en todos los workspaces
 npm run build --workspace=web
+npm run build:android        # APK local (no usa el cupo de EAS Build)
 ```
 
 Cada app lee su propio `.env`. Las plantillas son `apps/mobile/.env.example` y `apps/web/.env.template`; nunca se
@@ -113,13 +114,13 @@ fase. Orden: 0 → D → 0b → 1 … 6.
 |------|-------------|-----------|--------|
 | 0. Base del monorepo | npm workspaces; `apps/mobile` (git mv) y `apps/web` (subtree con historial); `ignoreBuildErrors` fuera; sobrantes borrados; las dos apps compilan | `refactor/monorepo-base` | ✅ Hecho |
 | D. Documentación técnica | `docs/`: visión, RF/RNF, casos de uso, arquitectura C4, dominio, flujos, datos, interfaz, pruebas y trazabilidad, anexo de despliegue, ADR 0001–0008. Actores: solo usuarios (sin mantenedor); CI/CD solo en el anexo 09 | `docs/especificacion-tecnica` (#3) | ✅ Hecho |
-| 0b. CI/CD | `ci.yml` (filtros por ruta + `ci-ok` requerido), `staging.yml` (comentario `cicd/deploy-staging-web` o `cicd/deploy-staging-app`), `cleanup-pr.yml`, `release.yml`; Cloud Run + WIF (`proj-files/infra/web_hosting.tf`); `eas.json` + `expo-updates`; imagen *standalone* de Next | `feat/ci-cd` | 🔄 En revisión |
+| 0b. CI/CD | `ci.yml` (filtros por ruta + `ci-ok` requerido), `staging.yml` (comentario `cicd/deploy-staging-web` o `cicd/deploy-staging-app`), `cleanup-pr.yml`, `release.yml`; Cloud Run + WIF (`proj-files/infra/web_hosting.tf`); `eas.json` + `expo-updates`; imagen *standalone* de Next | `feat/ci-cd` (#4) | ✅ Hecho |
 | 1. `packages/core` | entidades y mappers unificados, bugs de datos corregidos, `ResolveSkyScene`, DI, tests documentados | — | ⏳ Pendiente |
 | 2. Tokens, tema, i18n, tamaño de fuente, preferencias | `packages/tokens`, `packages/i18n`, `UserPreferences` + adaptadores, tema web con CSS vars | — | ⏳ Pendiente |
 | 3. Web · Ahora + carga | dashboard según diseño, escena del cielo SVG/CSS, proxy `/api/live`, MUI fuera | — | ⏳ Pendiente |
 | 4. Móvil · Ahora + carga | widgets rehechos, escena del cielo con reanimated | — | ⏳ Pendiente |
 | 5. Histórico | casos de uso de series/KPIs, gráficas SVG propias, CSV/JSON | — | ⏳ Pendiente |
-| 6. Cierre | archivar `weather-dashboard`, README, notas para los caps. 6 y 7 de `documentTT`, diagrama UML de casos de uso exportable (PlantUML) | — | ⏳ Pendiente |
+| 6. Cierre | ~~archivar `weather-dashboard`~~ (hecho 24-oct, Vercel retirado), README, notas para los caps. 6 y 7 de `documentTT`, diagrama UML de casos de uso exportable (PlantUML) | — | ⏳ Pendiente |
 
 Notas de la fase 0:
 - Se usa **npm workspaces** en lugar de pnpm, que el plan proponía. Así no hace falta instalar herramientas
@@ -132,6 +133,13 @@ Notas de la fase 0:
     `unmountOnBlur` ya no existe.
 - Se verificó en dev el 21-oct: `/api/weather` y `/api/weather/historical` responden 200 con datos reales.
 
+Notas de la fase 0b:
+- Producción web: `https://weather-web-nspsuyfpwa-uc.a.run.app`. Móvil: canal `production` de EAS Update.
+- `main` está protegida: exige `ci-ok`, no permite bypass a administradores y las ramas se borran al mergear.
+- En CI no existe `expo-env.d.ts`, que se genera en local. La referencia a los tipos de Expo vive versionada en
+  `apps/mobile/src/types/expo.d.ts`.
+- El push de cambios en `.github/workflows/` necesita SSH o un `gh` con el scope `workflow`.
+- La alerta de presupuesto (1 USD) está pendiente: la debe crear el administrador de facturación desde la consola.
 Notas de la migración a Expo SDK 58 (24-oct):
 - Expo Go solo abre proyectos del SDK más reciente; por eso se migró de 57 a 58 (RN 0.88, React 19.3).
 - Hay que regenerar `package-lock.json` desde cero al cambiar de SDK. Si no, npm deja copias viejas de

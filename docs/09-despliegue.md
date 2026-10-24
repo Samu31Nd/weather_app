@@ -114,6 +114,20 @@ Los archivos son:
 | EAS Update | Pocos usuarios activos | Plan gratuito | 0 USD |
 | EAS Build | Solo el APK final, a mano | Cupo mensual gratuito | 0 USD |
 
+## APK de Android (local y a pedido)
+
+El CI nunca compila binarios: solo publica EAS Updates, que no gastan el cupo de builds. El APK se compila en la
+máquina de quien lo necesite, sin límite:
+
+```bash
+npm run build:android   # eas build --platform android --profile production --local
+```
+
+- Requiere JDK 17 y el Android SDK (por ejemplo, con Android Studio).
+- Genera el `.apk` en `apps/mobile/`.
+- Solo hace falta un APK nuevo si cambian las dependencias nativas o la versión de la app
+  (`runtimeVersion: appVersion`). Los demás cambios llegan por EAS Update al canal `production`.
+
 ## Rollback
 
 - **Web:** `gcloud run services update-traffic weather-web --to-revisions=<anterior>=100`. Tarda menos de 1 min.
