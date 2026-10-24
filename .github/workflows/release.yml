@@ -91,6 +91,7 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
       - name: Publicar EAS Update en el canal production
+        id: update
         working-directory: apps/mobile
         env:
           EXPO_PUBLIC_WEATHER_STATION_URL: ${{ vars.MOBILE_WEATHER_STATION_URL }}
@@ -98,8 +99,18 @@ jobs:
           MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           npm ci --no-audit --no-fund
-          eas update --channel production --message "${MESSAGE%%$'\n'*}" --non-interactive
+          eas update --channel production --message "${MESSAGE%%$'\n'*}" --non-interactive --json > "$RUNNER_TEMP/update.json"
+          group=$(jq -r '.[0].group' "$RUNNER_TEMP/update.json")
+          project=$(jq -r '.expo.extra.eas.projectId' app.json)
+          page="https://expo.dev/accounts/samu31nds-team/projects/tt-b033/updates/$group"
+          qr="https://qr.expo.dev/eas-update?slug=exp&projectId=$project&groupId=$group"
+          exp="exp://u.expo.dev/$project/group/$group"
+          # El QR abre la actualización en Expo Go; la app instalada (APK) la recibe sola en el canal production.
+          notes=$'### Actualización móvil\n\nAbrir en Expo Go:\n\n![QR]('"$qr"$')\n\nO pegar este enlace en Expo Go (*Enter URL manually*): `'"$exp"$'`\n\n[Detalle en expo.dev]('"$page"$')'
+          echo "$notes" >> "$GITHUB_STEP_SUMMARY"
+          { echo 'notes<<EOF'; echo "$notes"; echo 'EOF'; } >> "$GITHUB_OUTPUT"
       - name: Tag y release
         uses: ./.github/actions/release-tag
         with:
           prefix: mobile
+          notes: ${{ steps.update.outputs.notes }}

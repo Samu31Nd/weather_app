@@ -122,8 +122,8 @@ fase. Orden: 0 → D → 0b → 1 … 6.
 | 2. Tokens, tema, i18n, tamaño de fuente, preferencias | `@tt/tokens`, `@tt/i18n`, `@tt/sky-art`; en `@tt/core`: `UserPreferences`, `KeyValuePreferencesRepository` (claves `wx-*`), modelo de vista `CurrentConditions`, `liveStatus`, geometría de indicadores; tema web con variables CSS | `feat/design-web-now` (#8) | ✅ Hecho |
 | 3. Web · Ahora + carga | `/` según los artboards `Dashboard` y `LoadingWeb` (claro/oscuro, es/en, métrico/imperial, tamaño s/m/l), escena del cielo, proxy `/api/live`, tests web; `/historico` provisional; MUI sigue solo en el histórico | `feat/design-web-now` (#8) | ✅ Hecho |
 | 4. Móvil · Ahora + carga | "Ahora" y carga según `MobileNow`/`LoadingMobile` (claro/oscuro, es/en, métrico/imperial, tamaño s/m/l) con la hoja de ajustes; 21 escenas y la ilustración animadas con reanimated (ADR-0010); textos derivados y avance de carga compartidos con la web; jest-expo; íconos cuadrados; UI vieja, uniwind y axios fuera | `feat/mobile-now` (#9) | ✅ Hecho |
-| 5. Histórico | En `@tt/core`: periodos y resoluciones en hora de CDMX, `buildHistoryView` (agregación, huecos, rosa, indicadores), `historyCharts` (escalas y trazos SVG), `historyArt`, `exportHistory` (CSV/JSON); textos en `@tt/i18n`. Web `/historico` según `Main` y móvil según `MobileHistory` (acordeones, hoja de compartir). Fuera MUI, recharts, shadcn y `/api/weather/historical` (la web pasa de 50+ a 7 dependencias) | `feat/history` | 🔄 En revisión |
-| 6. Cierre | ~~archivar `weather-dashboard`~~ (hecho 24-oct, Vercel retirado), README, notas para los caps. 6 y 7 de `documentTT`, diagrama UML de casos de uso exportable (PlantUML) | — | ⏳ Pendiente |
+| 5. Histórico | En `@tt/core`: periodos y resoluciones en hora de CDMX, `buildHistoryView` (agregación, huecos, rosa, indicadores), `historyCharts` (escalas y trazos SVG), `historyArt`, `exportHistory` (CSV/JSON); textos en `@tt/i18n`. Web `/historico` según `Main` y móvil según `MobileHistory` (acordeones, hoja de compartir). Fuera MUI, recharts, shadcn y `/api/weather/historical` (la web pasa de 50+ a 7 dependencias) | `feat/history` (#11) | ✅ Hecho |
+| 6. Cierre | ~~archivar `weather-dashboard`~~ (hecho 24-oct, Vercel retirado); README del monorepo; `docs/10-notas-tesis.md` (qué cambia en los caps. 6 y 7 y de dónde sale el texto); diagrama UML de casos de uso en `docs/diagramas/casos-de-uso.puml`; QR de la actualización móvil de producción en el release y el resumen de `release.yml` | `docs/cierre` | 🔄 En revisión |
 
 Notas de la fase 0:
 - Se usa **npm workspaces** en lugar de pnpm, que el plan proponía. Así no hace falta instalar herramientas
@@ -201,3 +201,13 @@ Notas de la fase 5 (25-oct):
   `@tt/react` con los hooks que reciban el núcleo como parámetro.
 - El push de esta rama necesita SSH: agrega `EXPO_PUBLIC_HISTORY_API_URL` a `staging.yml` y `release.yml`.
 - PR #10 (`fix/web-sky-animation`, mergeado antes de esta rama): las animaciones web se reiniciaban cada segundo porque `dangerouslySetInnerHTML` recibía un objeto nuevo en cada render.
+
+Notas de la fase 6 (25-oct):
+- El diagrama PlantUML no se exportó aquí (no hay PlantUML instalado). Se exporta con
+  `plantuml -tsvg docs/diagramas/casos-de-uso.puml`, la extensión de PlantUML de VS Code o plantuml.com.
+- El push de esta rama necesita SSH: modifica `release.yml` y la acción `release-tag`.
+- **Pendientes fuera del plan:** auditoría de accesibilidad con axe (web) y TalkBack (móvil) para cerrar
+  RNF-APP-05; corregir `wind_dir`/`hi_dir` en el pipeline (D5), que ya afecta la rosa del histórico; zona horaria
+  de la consola en UTC−6 (D12); alerta de presupuesto en GCP.
+- **Ideas para después:** fases de la luna calculadas por fecha (la consola no las publica en `wflexp.json`) y un
+  widget de Android para el APK.

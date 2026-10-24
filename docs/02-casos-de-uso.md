@@ -57,7 +57,7 @@ para no saturar el diagrama.
 - **Flujo principal:**
   1. El usuario abre la app.
   2. Se muestra la pantalla de carga.
-  3. El sistema consulta el dato en vivo: en web a través del proxy, en móvil directo o por el proxy.
+  3. El sistema consulta el dato en vivo: en web y en móvil a través del proxy `/api/live` (en desarrollo, el móvil puede ir directo a la consola).
   4. El sistema lo convierte a las unidades elegidas y resuelve la escena del cielo (CU-08).
   5. Se muestran las tarjetas.
   6. Cada 60 s el sistema repite desde el paso 3 sin bloquear la UI.

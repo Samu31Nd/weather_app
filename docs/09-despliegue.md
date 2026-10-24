@@ -74,6 +74,12 @@ flowchart TB
 - Producción **solo se publica desde `main`** y solo para la app que cambió (filtro de rutas: `apps/web/**`,
   `apps/mobile/**` y `packages/**`, que afecta a las dos).
 - Los releases se marcan con `web-vAAAA.MM.DD[.n]` y `mobile-vAAAA.MM.DD[.n]`.
+- **QR de producción móvil:** el release `mobile-v…` y el resumen del job de `release.yml` traen el QR de la
+  actualización para abrirla en Expo Go, y también el enlace `exp://u.expo.dev/<proyecto>/group/<grupo>` para
+  pegarlo en Expo Go (*Enter URL manually*) cuando no se puede escanear. El comentario de staging trae lo mismo. La app instalada (APK) no lo necesita: recibe sola las actualizaciones del
+  canal `production`.
+- Los workflows que se disparan por comentario corren con la versión de `main`. Si un PR agrega una variable al
+  despliegue (como `EXPO_PUBLIC_HISTORY_API_URL`), su staging no la recibe hasta que se mergea.
 
 ## Infraestructura
 
@@ -93,9 +99,9 @@ flowchart TB
 | `GCP_DEPLOY_SA` | variable | Cuenta de servicio que despliega (`web_deployer_sa`) |
 | `GCP_RUNTIME_SA` | variable | Cuenta de servicio con la que corre la web (`web_runtime_sa`) |
 | `WEB_REGISTRY` | variable | Repositorio de imágenes (`web_registry`) |
-| `NEXT_PUBLIC_API_URL` | variable | URL base de la consola. Se pasa al build y en la fase 3 pasa a ser solo del servidor |
-| `NEXT_PUBLIC_API_CLOUD_URL` | variable | URL de la Cloud Function de histórico |
-| `MOBILE_WEATHER_STATION_URL` | variable | URL del dato en vivo para la app móvil. En la fase 4 apunta a `/api/live` |
+| `NEXT_PUBLIC_API_URL` | variable | URL base de la consola. Se pasa al build y la usa el proxy `/api/live` del servidor |
+| `NEXT_PUBLIC_API_CLOUD_URL` | variable | URL de la Cloud Function de histórico, para la web y (como `EXPO_PUBLIC_HISTORY_API_URL`) para el móvil |
+| `MOBILE_WEATHER_STATION_URL` | variable | URL del dato en vivo para la app móvil: el proxy `https://weather-web-…run.app/api/live` (ADR-0007) |
 
 Los archivos son:
 - `.github/workflows/{ci,staging,cleanup-pr,release}.yml`;

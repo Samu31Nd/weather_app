@@ -5,6 +5,10 @@ inputs:
   prefix:
     description: web | mobile
     required: true
+  notes:
+    description: Texto que va antes de las notas generadas (p. ej. el QR de la actualización móvil).
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -13,10 +17,11 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
         PREFIX: ${{ inputs.prefix }}
+        NOTES: ${{ inputs.notes }}
       run: |
         base="$PREFIX-v$(TZ=America/Mexico_City date +%Y.%m.%d)"
         tag="$base"; n=1
         while gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" > /dev/null 2>&1; do
           n=$((n + 1)); tag="$base.$n"
         done
-        gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "$tag" --generate-notes
+        gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "$tag" --generate-notes --notes "$NOTES"

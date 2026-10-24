@@ -18,6 +18,8 @@ procesamiento de los datos; lo que no entre en el cuerpo irá a anexos.
 | [07 · Interfaz](07-interfaz.md) | Pantallas, navegación, preferencias y accesibilidad |
 | [08 · Calidad y pruebas](08-calidad-pruebas.md) | Estrategia de pruebas y matriz de trazabilidad |
 | [09 · Despliegue](09-despliegue.md) | *Anexo operativo:* entornos, CI/CD, costos y rollback |
+| [10 · Notas para la tesis](10-notas-tesis.md) | Qué cambia en los caps. 6 y 7 de `documentTT` y de dónde sale el texto |
+| [diagramas/](diagramas/) | Diagrama UML de casos de uso en PlantUML, exportable para la tesis |
 | [adr/](adr/) | Registro de decisiones de arquitectura |
 
 ## Convenciones

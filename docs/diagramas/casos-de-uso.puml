@@ -1,0 +1,47 @@
+@startuml casos-de-uso
+' Diagrama UML de casos de uso de la app (web + móvil). Fuente: docs/02-casos-de-uso.md.
+' Exportar para la tesis: plantuml -tsvg docs/diagramas/casos-de-uso.puml (o -tpng).
+
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontName "IBM Plex Sans"
+skinparam usecase {
+  BackgroundColor #eff1f5
+  BorderColor #5c5f77
+}
+left to right direction
+
+actor "Comunidad ESCOM" as comunidad
+actor "Estudiante /\ninvestigador" as investigador
+actor "Consola Davis" as consola <<sistema>>
+actor "Cloud Function\nde histórico" as historico <<sistema>>
+
+investigador --|> comunidad
+
+rectangle "App de la estación (web + móvil)" {
+  usecase "CU-01 Consultar\ncondiciones actuales" as CU01
+  usecase "CU-02 Actualizar datos" as CU02
+  usecase "CU-03 Interpretar\nuna variable" as CU03
+  usecase "CU-04 Consultar histórico" as CU04
+  usecase "CU-05 Descargar datos" as CU05
+  usecase "CU-06 Configurar\npreferencias" as CU06
+  usecase "CU-07 Revisar estado\nde la estación" as CU07
+  usecase "CU-08 Resolver escena\ndel cielo" as CU08
+}
+
+comunidad -- CU01
+comunidad -- CU02
+comunidad -- CU03
+comunidad -- CU06
+comunidad -- CU07
+investigador -- CU04
+investigador -- CU05
+
+CU01 ..> CU08 : <<include>>
+CU02 ..> CU01 : <<extend>>
+CU07 ..> CU01 : <<extend>>
+CU05 ..> CU04 : <<extend>>
+
+CU01 -- consola
+CU04 -- historico
+@enduml
