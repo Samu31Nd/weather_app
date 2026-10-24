@@ -1,14 +1,14 @@
 // Humedad (RF-APP-01, RF-APP-04): anillo de humedad relativa, rango de hoy, punto de rocío y su interpretación.
 
 import { type CurrentConditions, ringDashArray } from '@tt/core'
+import { humidityInsightText, valueText } from '@tt/i18n'
 import { Card, CardHeader, LabelValueRow } from '@/components/shell/card'
 import { usePreferences } from '@/components/providers/app-providers'
-import { valueText } from './values'
 
 export function HumidityCard({ humidity, units }: { humidity: CurrentConditions['humidity']; units: CurrentConditions['units'] }) {
   const { t, format } = usePreferences()
   const v = valueText(units, format)
-  const insight = humidity.insight === null ? null : t.humidity.insight[humidity.insight](format.number(humidity.spread, 1))
+  const insight = humidityInsightText(humidity, t, format)
   return (
     <Card label={t.hero.humidity}>
       <CardHeader

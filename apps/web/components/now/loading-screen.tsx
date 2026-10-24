@@ -4,16 +4,12 @@
 // Los pasos avanzan solos mientras se espera; al llegar la respuesta se completan. Si la consola no responde,
 // se avisa y se ofrece reintentar.
 
+import { LOADING_LAST_WAITING_STEP, LOADING_STEP_INTERVAL_MS, LOADING_VARIABLES, loadingProgress } from '@tt/core'
+import { STATION_ILLUSTRATION_CSS, STATION_ILLUSTRATION_SVG, STATION_ILLUSTRATION_VIEWBOX } from '@tt/sky-art'
 import { useEffect, useState } from 'react'
 import { usePreferences } from '@/components/providers/app-providers'
 import { StationLogo } from '@/components/shell/station-logo'
-import { STATION_ILLUSTRATION_SVG } from './loading-art'
-import './loading.css'
 
-const LAST_WAITING_STEP = 4
-const DONE_STEP = 5
-const STEP_INTERVAL_MS = 700
-const VARIABLES = ['temp', 'wind', 'rain', 'pres'] as const
 const SOFT_BACKGROUND = { temp: 'bg-wx-temp-soft border-wx-temp-soft', wind: 'bg-wx-wind-soft border-wx-wind-soft', rain: 'bg-wx-rain-soft border-wx-rain-soft', pres: 'bg-wx-pres-soft border-wx-pres-soft' }
 
 export function LoadingScreen({ done, failed, onRetry }: { done: boolean; failed: boolean; onRetry: () => void }) {
@@ -22,20 +18,19 @@ export function LoadingScreen({ done, failed, onRetry }: { done: boolean; failed
 
   useEffect(() => {
     if (done || failed) return
-    const timer = setInterval(() => setWaitingStep((step) => Math.min(step + 1, LAST_WAITING_STEP)), STEP_INTERVAL_MS)
+    const timer = setInterval(() => setWaitingStep((step) => Math.min(step + 1, LOADING_LAST_WAITING_STEP)), LOADING_STEP_INTERVAL_MS)
     return () => clearInterval(timer)
   }, [done, failed])
 
-  const step = done ? DONE_STEP : waitingStep
-  const percent = Math.round((step / DONE_STEP) * 100)
-  const spin = done ? '2.6s' : step === 0 ? '1.6s' : '0.9s'
+  const { step, percent, variables, rainVisible, spinMs } = loadingProgress(waitingStep, done)
 
   return (
     <div
       className="wx-load-root wx-zoom relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,var(--sky1),var(--sky2))]"
-      data-rain-on={step >= LAST_WAITING_STEP}
-      style={{ ['--spin' as string]: spin }}
+      data-rain-on={rainVisible}
+      style={{ ['--spin' as string]: `${spinMs}ms` }}
     >
+      <style>{STATION_ILLUSTRATION_CSS}</style>
       <svg viewBox="0 0 1000 200" preserveAspectRatio="none" aria-hidden="true" className="absolute inset-x-0 bottom-0 h-[220px] w-full">
         <path d="M0 120C160 70 320 80 480 112S800 60 1000 96V200H0z" fill="var(--hill)" />
         <path d="M0 160C200 128 380 136 560 156S860 128 1000 140V200H0z" fill="var(--hill2)" />
@@ -51,7 +46,7 @@ export function LoadingScreen({ done, failed, onRetry }: { done: boolean; failed
         <div className="relative flex flex-[0_1_420px] justify-center">
           <div aria-hidden="true" className="absolute left-1/2 top-[42%] size-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,var(--halo)_0%,transparent_70%)]" />
           <svg
-            viewBox="0 0 320 450"
+            viewBox={STATION_ILLUSTRATION_VIEWBOX}
             role="img"
             aria-label={t.loading.illustration}
             className="relative h-auto w-full max-w-[360px] overflow-visible"
@@ -90,9 +85,9 @@ export function LoadingScreen({ done, failed, onRetry }: { done: boolean; failed
             </button>
           ) : (
             <ul className="flex flex-wrap gap-2">
-              {VARIABLES.map((variable, index) => {
-                const received = step > index + 1 || done
-                const receiving = step === index + 1 && !done
+              {LOADING_VARIABLES.map((variable) => {
+                const received = variables[variable] === 'received'
+                const receiving = variables[variable] === 'receiving'
                 return (
                   <li
                     key={variable}

@@ -13,6 +13,7 @@ export const es = {
     navNow: 'Ahora',
     navHistory: 'Histórico',
     footNote: 'Datos de la consola Davis · se actualizan cada 60 s',
+    historySoon: 'El histórico de la estación llega en la siguiente versión de la app.',
   },
   settings: {
     language: 'Idioma',
@@ -23,6 +24,14 @@ export const es = {
     textSizes: { s: 'Letra pequeña', m: 'Letra mediana', l: 'Letra grande' },
     toLight: 'Cambiar a tema claro',
     toDark: 'Cambiar a tema oscuro',
+    title: 'Ajustes',
+    done: 'Listo',
+    close: 'Cerrar',
+    theme: 'Tema',
+    themes: { system: 'Sistema', light: 'Claro', dark: 'Oscuro' },
+    unitNames: { metric: 'Métrico', imperial: 'Imperial' },
+    textSizeNames: { s: 'Pequeña', m: 'Mediana', l: 'Grande' },
+    languageNames: { es: 'Español', en: 'English' },
   },
   live: {
     live: 'En vivo',

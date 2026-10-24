@@ -13,8 +13,8 @@ e iOS y exponer la IP en el bundle.
   - timeout de 8 s;
   - caché de unos 10 s;
   - no reenvía las cabeceras del cliente.
-- El móvil usa ese mismo proxy por defecto. La conexión directa queda como opción de desarrollo por variable de
-  entorno.
+- El móvil usa ese mismo proxy por defecto (`EXPO_PUBLIC_WEATHER_STATION_URL`). La conexión directa queda como
+  opción de desarrollo en `.env`: Expo Go permite HTTP, y el APK no lleva excepción de *cleartext*.
 
 ## Consecuencias
 - Hay HTTPS de punta a punta para el cliente, la IP de la consola no queda expuesta y no hay excepciones de

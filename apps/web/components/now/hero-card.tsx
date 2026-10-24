@@ -2,9 +2,9 @@
 // sensación térmica, interior y los cuatro indicadores rápidos (RF-APP-01, RF-APP-03).
 
 import type { CurrentConditions } from '@tt/core'
+import { indoorText, valueText } from '@tt/i18n'
 import { usePreferences } from '@/components/providers/app-providers'
 import { SkyScene } from './sky-scene'
-import { valueText } from './values'
 
 export function HeroCard({ view }: { view: CurrentConditions }) {
   const { t, format } = usePreferences()
@@ -79,19 +79,7 @@ export function HeroCard({ view }: { view: CurrentConditions }) {
 function IndoorStrip({ indoor }: { indoor: CurrentConditions['indoor'] }) {
   const { t, format, preferences } = usePreferences()
   const v = valueText(preferences.units, format)
-  const comfort = indoor.comfort
-  const comfortable = comfort?.thermal === 'comfortable' && comfort.moisture === 'comfortable'
-  const comfortLabel =
-    comfort === null
-      ? null
-      : comfortable
-        ? t.indoor.comfortable
-        : comfort.thermal !== 'comfortable'
-          ? t.indoor[comfort.thermal]
-          : t.indoor[comfort.moisture as 'dry' | 'humid']
-  const delta = indoor.differenceFromOutdoor
-  const difference =
-    delta === null ? null : Math.abs(delta) < 0.5 ? t.indoor.same : delta > 0 ? t.indoor.warmer(format.number(Math.abs(delta), 1)) : t.indoor.cooler(format.number(Math.abs(delta), 1))
+  const { comfort: comfortLabel, comfortable, difference } = indoorText(indoor, t, format)
 
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2.5 rounded-[14px] bg-wx-in-soft px-3.5 py-3">

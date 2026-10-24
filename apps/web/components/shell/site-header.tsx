@@ -4,6 +4,7 @@
 // texto, idioma, tema y reloj de Ciudad de México.
 
 import type { LiveStatus } from '@tt/core'
+import { liveText } from '@tt/i18n'
 import Link from 'next/link'
 import { usePreferences } from '@/components/providers/app-providers'
 import { Segmented } from './segmented'
@@ -104,15 +105,9 @@ export function SiteHeader({ active, live, now, stationName }: {
 
 function LiveBadge({ live }: { live: LiveIndicator }) {
   const { t, format } = usePreferences()
-  const healthy = live.status === 'ok' || live.status === 'loading'
-  const label = live.status === 'stale' ? t.live.stale : healthy ? t.live.live : t.live.offline
-  const detail =
-    live.status === 'offlineWithData'
-      ? t.live.offlineSince(format.time(live.observedAt))
-      : live.secondsSinceUpdate === null || live.secondsSinceUpdate < 2
-        ? t.live.justUpdated
-        : t.live.secondsAgo(live.secondsSinceUpdate)
-  const dot = healthy ? 'bg-wx-green' : live.status === 'stale' ? 'bg-wx-yellow' : 'bg-wx-red'
+  const { tone, label, detail } = liveText(live, t, format)
+  const healthy = tone === 'ok'
+  const dot = healthy ? 'bg-wx-green' : tone === 'stale' ? 'bg-wx-yellow' : 'bg-wx-red'
   return (
     <div role="status" className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs ${healthy ? 'bg-wx-ok-soft' : 'bg-wx-sun-soft'}`}>
       <span className="relative inline-block size-2">

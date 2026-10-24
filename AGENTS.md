@@ -9,12 +9,12 @@ Un monorepo con npm workspaces y dos apps que comparten la lógica:
 
 | Ruta | Qué es | Notas |
 |------|--------|-------|
-| `apps/mobile` | App Expo 58 (expo-router, uniwind, reanimated, react-native-svg) | Ver `apps/mobile/AGENTS.md`. Leer la doc versionada de Expo antes de tocar código. |
+| `apps/mobile` | App Expo 58 (expo-router, reanimated, react-native-svg) | Ver `apps/mobile/AGENTS.md`. Leer la doc versionada de Expo antes de tocar código. |
 | `apps/web` | App Next.js 16 (App Router, Tailwind 4) | Importada de `weather-dashboard` con su historial (`git log HEAD^2` del commit de import). Ver `apps/web/AGENTS.md`. |
 | `packages/core` | `@tt/core`: dominio, puertos, casos de uso y adaptadores HTTP. TS puro: sin React ni APIs de plataforma. | Ver `packages/core/AGENTS.md`. |
 | `packages/tokens` | `@tt/tokens`: paleta Catppuccin clara/oscura del diseño (+ variantes `*-text` con contraste AA), tipografía y hoja de variables CSS. | Test de contraste WCAG. |
-| `packages/i18n` | `@tt/i18n`: catálogos es/en (mismas claves, verificado por test), formateador en hora de CDMX y frase del pronóstico. | |
-| `packages/sky-art` | `@tt/sky-art`: SVG y animaciones de las 21 escenas, extraídos del canvas con `npm run extract`. | ADR-0009. |
+| `packages/i18n` | `@tt/i18n`: catálogos es/en (mismas claves, verificado por test), formateador en hora de CDMX, frase del pronóstico y textos derivados que comparten las dos apps (`presenters.ts`). | |
+| `packages/sky-art` | `@tt/sky-art`: SVG y animaciones CSS de las 21 escenas y de la ilustración de carga, extraídos del canvas con `npm run extract`; las mismas animaciones como datos para móvil. | ADR-0009, ADR-0010. |
 
 ## Especificación (`docs/`)
 
@@ -41,7 +41,7 @@ interfaz, las pruebas con su matriz de trazabilidad, el despliegue y los ADR.
 
 - **core:** Vitest (unitarios con tablas y de integración de adaptadores con MSW y fixtures reales).
 - **web:** Vitest + Testing Library.
-- **móvil:** jest-expo + Testing Library.
+- **móvil:** jest-expo + Testing Library (`test/setup.ts` sustituye reanimated por una versión estática).
 - **Cómo se documenta cada archivo de test:**
   - un comentario de cabecera que dice qué regla cubre y de dónde sale (nota del diseño, doc de datos, bug);
   - `describe`/`it` en español, redactados como comportamiento ("convierte °F a °C con un decimal").
@@ -118,10 +118,10 @@ fase. Orden: 0 → D → 0b → 1 … 6.
 | 0. Base del monorepo | npm workspaces; `apps/mobile` (git mv) y `apps/web` (subtree con historial); `ignoreBuildErrors` fuera; sobrantes borrados; las dos apps compilan | `refactor/monorepo-base` | ✅ Hecho |
 | D. Documentación técnica | `docs/`: visión, RF/RNF, casos de uso, arquitectura C4, dominio, flujos, datos, interfaz, pruebas y trazabilidad, anexo de despliegue, ADR 0001–0008. Actores: solo usuarios (sin mantenedor); CI/CD solo en el anexo 09 | `docs/especificacion-tecnica` (#3) | ✅ Hecho |
 | 0b. CI/CD | `ci.yml` (filtros por ruta + `ci-ok` requerido), `staging.yml` (comentario `cicd/deploy-staging-web` o `cicd/deploy-staging-app`), `cleanup-pr.yml`, `release.yml`; Cloud Run + WIF (`proj-files/infra/web_hosting.tf`); `eas.json` + `expo-updates`; imagen *standalone* de Next | `feat/ci-cd` (#4) | ✅ Hecho |
-| 1. `packages/core` | `@tt/core` con dominio, mappers con las rarezas corregidas, `ResolveCurrentSky`, `GetHistory` por tramos, `createCore`; 191 tests documentados, cobertura ~99 %, tests de contrato; job `core` en el CI; las dos apps ya importan `@tt/core` | `feat/core` | 🔄 En revisión |
-| 2. Tokens, tema, i18n, tamaño de fuente, preferencias | `@tt/tokens`, `@tt/i18n`, `@tt/sky-art`; en `@tt/core`: `UserPreferences`, `KeyValuePreferencesRepository` (claves `wx-*`), modelo de vista `CurrentConditions`, `liveStatus`, geometría de indicadores; tema web con variables CSS | `feat/design-web-now` | 🔄 En revisión |
-| 3. Web · Ahora + carga | `/` según los artboards `Dashboard` y `LoadingWeb` (claro/oscuro, es/en, métrico/imperial, tamaño s/m/l), escena del cielo, proxy `/api/live`, tests web; `/historico` provisional; MUI sigue solo en el histórico | `feat/design-web-now` | 🔄 En revisión |
-| 4. Móvil · Ahora + carga | widgets rehechos, escena del cielo con reanimated | — | ⏳ Pendiente |
+| 1. `packages/core` | `@tt/core` con dominio, mappers con las rarezas corregidas, `ResolveCurrentSky`, `GetHistory` por tramos, `createCore`; 191 tests documentados, cobertura ~99 %, tests de contrato; job `core` en el CI; las dos apps ya importan `@tt/core` | `feat/core` (#7) | ✅ Hecho |
+| 2. Tokens, tema, i18n, tamaño de fuente, preferencias | `@tt/tokens`, `@tt/i18n`, `@tt/sky-art`; en `@tt/core`: `UserPreferences`, `KeyValuePreferencesRepository` (claves `wx-*`), modelo de vista `CurrentConditions`, `liveStatus`, geometría de indicadores; tema web con variables CSS | `feat/design-web-now` (#8) | ✅ Hecho |
+| 3. Web · Ahora + carga | `/` según los artboards `Dashboard` y `LoadingWeb` (claro/oscuro, es/en, métrico/imperial, tamaño s/m/l), escena del cielo, proxy `/api/live`, tests web; `/historico` provisional; MUI sigue solo en el histórico | `feat/design-web-now` (#8) | ✅ Hecho |
+| 4. Móvil · Ahora + carga | "Ahora" y carga según `MobileNow`/`LoadingMobile` (claro/oscuro, es/en, métrico/imperial, tamaño s/m/l) con la hoja de ajustes; 21 escenas y la ilustración animadas con reanimated (ADR-0010); textos derivados y avance de carga compartidos con la web; jest-expo; íconos cuadrados; UI vieja, uniwind y axios fuera | `feat/mobile-now` | 🔄 En revisión |
 | 5. Histórico | casos de uso de series/KPIs, gráficas SVG propias, CSV/JSON | — | ⏳ Pendiente |
 | 6. Cierre | ~~archivar `weather-dashboard`~~ (hecho 24-oct, Vercel retirado), README, notas para los caps. 6 y 7 de `documentTT`, diagrama UML de casos de uso exportable (PlantUML) | — | ⏳ Pendiente |
 
@@ -174,3 +174,14 @@ Notas de las fases 2 y 3 (24-oct):
 - Capturas: Brave *headless* sirve para revisar la UI (`--virtual-time-budget` avanza los temporizadores), pero
   dejó de responder durante la sesión; `/historico` se revisa en el staging.
 - El push de esta rama necesita SSH: modifica `.github/workflows/ci.yml` (job `packages`).
+
+Notas de la fase 4 (24-oct):
+- Lógica movida a los paquetes para que web y móvil no la dupliquen: textos derivados (`@tt/i18n/presenters`),
+  avance de la pantalla de carga (`loadingProgress`), ícono del pronóstico (`forecastIcon`) y la ilustración de carga
+  (`@tt/sky-art`). El hook `useLiveWeather` sigue copiado en cada app: es React y los paquetes no lo usan.
+- Animaciones en móvil: `sampleMotion`/`motionMatrix` llevan `'worklet'` y viven en `@tt/sky-art`. Se verificó en
+  el bundle de Android que reanimated las transforma (`sampleMotion_motionTs1`…). Falta verlas en un dispositivo.
+- El móvil lee el dato en vivo del proxy `/api/live` de la web (ADR-0007). La variable `MOBILE_WEATHER_STATION_URL`
+  del repo debe apuntar a `https://weather-web-nspsuyfpwa-uc.a.run.app/api/live`.
+- TypeScript 6 ya no incluye `@types` automáticamente: el `tsconfig` móvil declara `"types": ["jest"]`.
+- El mock oficial de reanimated 4 falla en jest (carga el módulo nativo); `test/setup.ts` usa uno estático.
