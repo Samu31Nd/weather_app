@@ -13,3 +13,4 @@ se borra: si cambia, se escribe un ADR nuevo que la **reemplaza** y se marca el 
 | [0006](0006-graficas-svg-propias.md) | Gráficas en SVG propio con geometría compartida | Aceptada |
 | [0007](0007-proxy-dato-en-vivo.md) | Proxy para el dato en vivo, también para el móvil | Aceptada |
 | [0008](0008-documentar-antes-de-codificar.md) | Especificación en `docs/` antes del código y antes del LaTeX | Aceptada |
+| [0009](0009-arte-del-diseno-por-extraccion.md) | El arte del diseño se extrae del canvas con un script, no se copia a mano | Aceptada |

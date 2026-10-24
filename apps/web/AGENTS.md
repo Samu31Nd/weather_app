@@ -1,42 +1,54 @@
 # AGENTS.md — apps/web
 
-Web app of the monorepo (see the root `AGENTS.md` for rules, phases and data sources).
+App web (Next.js 16, App Router, Tailwind 4). Las reglas generales, los requerimientos y las fases están en el
+`AGENTS.md` raíz y en `docs/`.
 
-## Overview
+## Rutas
 
-Weather dashboard (Next.js 16 App Router, React 19, Tailwind 4) for a Davis WeatherLink station. It shows near-real-time conditions and historical charts. UI text is Spanish/English (`lib/language/translations.ts`); the README is in Spanish.
+| Ruta | Qué es | Estado |
+|------|--------|--------|
+| `/` | "Ahora": carga → dashboard del artboard `Dashboard` | Nuevo (fase 3) |
+| `/historico` | Gráficas previas (MUI) con la cabecera nueva, adaptadas a las preferencias nuevas | Provisional hasta la fase 5 |
+| `/api/live` | Proxy del dato en vivo: solo la consola configurada, caché de 10 s y sin MAC/IP/SSID | `lib/live/live-proxy.ts` |
+| `/api/weather/historical` | Proxy previo del histórico (lo usa `/historico`) | Hasta la fase 5 |
 
-## Commands
+## Estructura
 
-Run from the repo root (npm workspaces):
+- `app/layout.tsx`: fuentes IBM Plex, hoja de tokens (`themeStylesheet()` de `@tt/tokens`) y script de arranque
+  que aplica tema, idioma y tamaño desde las claves `wx-*` antes del primer pintado.
+- `components/providers/app-providers.tsx`: `useCore()` (composition root, `lib/core.ts`) y `usePreferences()`
+  (preferencias, catálogo `t` y formateador `format` de `@tt/i18n`).
+- `hooks/use-live-weather.ts`: consulta cada 60 s y a pedido; vigencia con `liveStatus` de `@tt/core`.
+- `components/now/`: una tarjeta por bloque del artboard. Reciben el modelo de vista `CurrentConditions` de
+  `@tt/core` (ya en las unidades elegidas) y solo lo dibujan.
+- `components/shell/`: cabecera común, tarjeta y controles segmentados.
+- `components/app-provider.tsx` y `components/weather/components/*`: histórico previo (MUI); se borran en la fase 5.
+
+## Estilos
+
+- Colores: las utilidades `bg-wx-*`, `text-wx-*` y `border-wx-*` mapean los tokens del diseño (ver
+  `app/globals.css`). **No usar variantes `dark:`**: las variables cambian solas con la clase `.dark` de `<html>`.
+- Para texto de color usar las variantes `*-text` (`text-wx-temp-text`…), que cumplen 4.5:1 en tema claro.
+- Cifras: clase `num` (IBM Plex Mono, tabulares). Tamaño de texto: el contenedor lleva `wx-zoom`.
+
+## Comandos
+
+Desde la raíz del repo:
 
 ```bash
-npm run web                          # dev server on :3000
+npm run web                          # dev server en :3000
 npm run build --workspace=web
 npm run typecheck --workspace=web
+npm test --workspace=web             # Vitest + Testing Library (jsdom)
 ```
 
-`next build` now fails on type errors (`ignoreBuildErrors` was removed).
+## Entorno
 
-## Environment
+- `LIVE_STATION_URL`: URL de `wflexp.json`. Solo la usa el servidor. Si falta, se usa `NEXT_PUBLIC_API_URL` +
+  `wflexp.json`.
+- `NEXT_PUBLIC_API_CLOUD_URL`: Cloud Function de histórico.
 
-Copy `.env.template` to `.env.local`:
+## Docker
 
-- `NEXT_PUBLIC_API_URL` — base URL of the station (must end with `/`; code appends `wflexp.json` and `webdl.php?action=text`).
-- `NEXT_PUBLIC_API_CLOUD_URL` — Cloud Function endpoint serving historical views.
-
-## Architecture
-
-Two data paths, both going through Next.js API routes under `app/api/weather/` that act as a proxy (avoids CORS) and as the entry point to a hexagonal-style layering in `lib/`:
-
-- `lib/domain/` — entities and the `WeatherRepository` port.
-- `lib/application/` — use cases (`GetWeatherUseCase`) plus unit-conversion/format helpers (values are stored imperial: °F, mph, inHg, in; conversion to metric happens at display time).
-- `lib/infrastructure/` — adapters (axios), DTOs, and DTO→entity mappers.
-
-**Real-time** (`/api/weather`): `weatherApiAdapter` fetches `wflexp.json` from the station → `weather.mapper` → `WeatherEntity`. Client side, `components/weather/weather-provider.tsx` polls it with SWR.
-
-**Historical** (`/api/weather/historical`): query params `view` (`vw_clean_weather|vw_temperatura|vw_viento|vw_lluvia|vw_presion`) and `mode` (`specific_date|date_range|last_n_days`) plus `specific_date`, `date_start`, `date_end`, `days`. The route validates them, calls `cloudApiAdapter` (which translates to the Cloud API's `vista`/date params), and picks the mapper by view. Adding a view means touching `HistoricalView` in the domain entity, the DTO/mapper in `cloud-api.*`, and the `switch` in the route (`GetHistoricalWeatherUseCase` exists but the route does not use it). The large commented-out block in the route is the old CSV-scraping implementation, kept for reference.
-
-**Client-side caching**: `components/weather/components/historical-charts.tsx` checks `lib/cache/cache.ts` (localStorage, 24h TTL, cleanup of entries >7 days) keyed by `generateHistoricalCacheKey` before calling the historical route. The CSV download button bypasses the route and hits the station's `webdl.php` directly from the browser; the JSON download exports the processed Cloud API data.
-
-**UI state**: `components/app-provider.tsx` holds language, metric/imperial, theme, current view (`dashboard` | `charts` — a single-page app switching views in `app/page.tsx`, not separate routes), and sidebar state; it also builds the MUI theme. Historical charts use MUI X Charts; `components/ui/` is shadcn/Radix (generated, avoid hand-editing). `recharts` is also installed, with `components/ui/chart.tsx`.
+`apps/web/Dockerfile` se construye **desde la raíz** y copia `packages/`. Si se agrega un paquete compartido,
+también hay que agregar su `package.json` al `Dockerfile`.
