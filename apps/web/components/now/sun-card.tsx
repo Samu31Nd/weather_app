@@ -1,6 +1,7 @@
 // El sol hoy (RF-APP-01): amanecer, mediodía solar, ocaso y la posición del sol sobre su arco.
 
 import { type CurrentConditions, sunArcPath, sunArcPoint } from '@tt/core'
+import { sunBadgeText } from '@tt/i18n'
 import { Badge, Card, CardHeader } from '@/components/shell/card'
 import { usePreferences } from '@/components/providers/app-providers'
 
@@ -8,12 +9,7 @@ export function SunCard({ sun }: { sun: CurrentConditions['sun'] }) {
   const { t, format } = usePreferences()
   const progress = sun.progress
   const position = progress === null ? null : sunArcPoint(progress)
-  const badge =
-    sun.minutesToNextEvent === null
-      ? null
-      : sun.isDay
-        ? t.sun.daylightLeft(format.duration(sun.minutesToNextEvent))
-        : t.sun.sunriseIn(format.duration(sun.minutesToNextEvent))
+  const badge = sunBadgeText(sun, t, format)
   const elapsed = progress === null ? null : sunArcPath(progress)
 
   return (

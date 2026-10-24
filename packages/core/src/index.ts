@@ -23,6 +23,7 @@ export { ResolveCurrentSky } from './application/resolve-current-sky'
 export { GetPreferences, UpdatePreferences } from './application/preferences'
 export * from './application/current-conditions'
 export * from './application/live-status'
+export * from './application/loading-progress'
 
 export { HttpError, type HttpOptions } from './adapters/http'
 export { HttpLiveWeatherRepository } from './adapters/davis-live/http-live-weather.repository'

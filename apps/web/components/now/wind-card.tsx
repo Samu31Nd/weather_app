@@ -1,9 +1,9 @@
 // Viento (RF-APP-01): brújula con aguja y ráfaga, velocidad actual, promedios y escala de Beaufort.
 
 import type { CurrentConditions } from '@tt/core'
+import { valueText } from '@tt/i18n'
 import { Card, CardHeader } from '@/components/shell/card'
 import { usePreferences } from '@/components/providers/app-providers'
-import { valueText } from './values'
 
 const BEAUFORT_CELLS = 9 // el diseño muestra 0–8; de 9 en adelante se marca la última celda
 

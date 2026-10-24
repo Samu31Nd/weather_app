@@ -2,9 +2,9 @@
 // si un extremo del mes o del año no es creíble (lecturas sin corregir, rareza D3).
 
 import { type CurrentConditions, PRESSURE_GAUGE_HPA, displayPressure, gaugeAngle, gaugeArcPath, hPaToInHg } from '@tt/core'
+import { valueText } from '@tt/i18n'
 import { Badge, Card, CardHeader, LabelValueRow } from '@/components/shell/card'
 import { usePreferences } from '@/components/providers/app-providers'
-import { valueText } from './values'
 
 export function PressureCard({ pressure, units }: { pressure: CurrentConditions['pressure']; units: CurrentConditions['units'] }) {
   const { t, format } = usePreferences()

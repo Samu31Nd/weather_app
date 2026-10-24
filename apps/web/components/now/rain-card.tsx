@@ -1,9 +1,9 @@
 // Lluvia (RF-APP-01): intensidad actual y acumulados por ventana de tiempo, a todo el ancho.
 
 import type { CurrentConditions } from '@tt/core'
+import { valueText } from '@tt/i18n'
 import { Badge, Card, CardHeader } from '@/components/shell/card'
 import { usePreferences } from '@/components/providers/app-providers'
-import { valueText } from './values'
 
 export function RainCard({ rain, units }: { rain: CurrentConditions['rain']; units: CurrentConditions['units'] }) {
   const { t, format } = usePreferences()
