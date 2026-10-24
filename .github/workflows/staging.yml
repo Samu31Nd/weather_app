@@ -1,0 +1,127 @@
+# Staging bajo demanda: comentar en un PR "cicd/deploy-staging-web" o "cicd/deploy-staging-app".
+# Este archivo se ejecuta siempre desde main, así que un PR no puede modificarlo.
+name: staging
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  deployments: write
+  checks: read
+  id-token: write
+
+env:
+  REGION: us-central1
+
+jobs:
+  deploy:
+    if: >-
+      github.event.issue.pull_request &&
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association) &&
+      (github.event.comment.body == 'cicd/deploy-staging-web' || github.event.comment.body == 'cicd/deploy-staging-app')
+    runs-on: ubuntu-latest
+    concurrency:
+      group: staging-${{ github.event.issue.number }}-${{ github.event.comment.body }}
+      cancel-in-progress: true
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR: ${{ github.event.issue.number }}
+      TARGET: ${{ github.event.comment.body == 'cicd/deploy-staging-web' && 'web' || 'app' }}
+    steps:
+      - name: Acusar recibo
+        run: gh api "repos/$GITHUB_REPOSITORY/issues/comments/${{ github.event.comment.id }}/reactions" -f content=eyes
+
+      - name: Resolver el commit del PR y exigir CI en verde
+        id: pr
+        run: |
+          sha=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json headRefOid,state --jq 'select(.state=="OPEN") | .headRefOid')
+          if [ -z "$sha" ]; then echo "El PR no está abierto"; exit 1; fi
+          conclusion=$(gh api "repos/$GITHUB_REPOSITORY/commits/$sha/check-runs?check_name=ci-ok" --jq '.check_runs[0].conclusion // "pendiente"')
+          if [ "$conclusion" != "success" ]; then
+            gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "⛔ Staging de **$TARGET** no desplegado: \`ci-ok\` está en \`$conclusion\` para \`${sha:0:7}\`."
+            exit 1
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "short=${sha:0:7}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pr.outputs.sha }}
+
+      # ---------- web ----------
+      - if: env.TARGET == 'web'
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+      - if: env.TARGET == 'web'
+        uses: google-github-actions/setup-gcloud@v2
+      - name: Construir y desplegar web en staging
+        if: env.TARGET == 'web'
+        id: web
+        env:
+          IMAGE: ${{ vars.WEB_REGISTRY }}/web:pr-${{ github.event.issue.number }}-${{ steps.pr.outputs.short }}
+          SHORT: ${{ steps.pr.outputs.short }}
+        run: |
+          gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
+          docker build -f apps/web/Dockerfile \
+            --build-arg NEXT_PUBLIC_API_URL='${{ vars.NEXT_PUBLIC_API_URL }}' \
+            --build-arg NEXT_PUBLIC_API_CLOUD_URL='${{ vars.NEXT_PUBLIC_API_CLOUD_URL }}' \
+            -t "$IMAGE" .
+          docker push "$IMAGE"
+          gcloud run deploy weather-web-staging --region "$REGION" --image "$IMAGE" \
+            --service-account '${{ vars.GCP_RUNTIME_SA }}' \
+            --revision-suffix "pr-$PR-$SHORT-$GITHUB_RUN_ATTEMPT" \
+            --tag "pr-$PR" --no-traffic --quiet
+          url=$(gcloud run services describe weather-web-staging --region "$REGION" --format=json \
+            | jq -r --arg t "pr-$PR" '.status.traffic[] | select(.tag==$t) | .url')
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      # ---------- app ----------
+      - if: env.TARGET == 'app'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - if: env.TARGET == 'app'
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Publicar EAS Update en la rama pr-N
+        if: env.TARGET == 'app'
+        id: app
+        working-directory: apps/mobile
+        env:
+          EXPO_PUBLIC_WEATHER_STATION_URL: ${{ vars.MOBILE_WEATHER_STATION_URL }}
+        run: |
+          npm ci --no-audit --no-fund
+          eas update --branch "pr-$PR" --message "PR #$PR (${{ steps.pr.outputs.short }})" --non-interactive --json > "$RUNNER_TEMP/update.json"
+          group=$(jq -r '.[0].group' "$RUNNER_TEMP/update.json")
+          project=$(jq -r '.expo.extra.eas.projectId' app.json)
+          echo "url=https://expo.dev/accounts/samu31nds-team/projects/tt-b033/updates/$group" >> "$GITHUB_OUTPUT"
+          echo "qr=https://qr.expo.dev/eas-update?slug=exp&projectId=$project&groupId=$group" >> "$GITHUB_OUTPUT"
+
+      # ---------- resultado ----------
+      - name: Registrar el deployment y comentar
+        env:
+          URL: ${{ steps.web.outputs.url || steps.app.outputs.url }}
+          QR: ${{ steps.app.outputs.qr }}
+          SHA: ${{ steps.pr.outputs.sha }}
+        run: |
+          id=$(jq -n --arg ref "$SHA" --arg env "pr-$PR-$TARGET" \
+            '{ref: $ref, environment: $env, transient_environment: true, auto_merge: false, required_contexts: []}' \
+            | gh api "repos/$GITHUB_REPOSITORY/deployments" --input - --jq .id)
+          gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses" -f state=success -f environment_url="$URL" > /dev/null
+          body="🚀 Staging de **$TARGET** listo para \`${SHA:0:7}\`: $URL"
+          if [ -n "$QR" ]; then body="$body"$'\n\n'"Escanea con Expo Go:"$'\n\n'"![QR]($QR)"; fi
+          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "$body"
+
+      - name: Avisar si falló
+        if: failure() && steps.pr.outputs.sha != ''
+        run: |
+          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "❌ Falló el staging de **$TARGET**: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
