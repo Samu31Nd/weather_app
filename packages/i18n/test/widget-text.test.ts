@@ -24,7 +24,7 @@ describe('widget con datos', () => {
     expect(text.temperature).toBe('18°')
     expect(text.condition).toBe('Parcialmente nublado')
     expect(text.station).toMatch(/^Liz · \d{2}:\d{2}$/)
-    expect(text.summary).toBe('Parcialmente nublado, 18°')
+    expect(text.summary).toBe('Parcialmente nublado, 18°. Toca para abrir la app')
     expect(text.stale).toBe(false)
   })
 

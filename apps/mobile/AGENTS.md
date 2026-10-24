@@ -29,6 +29,11 @@ Los ajustes (idioma, tema, tamaño de letra, unidades) son una hoja que se abre 
   de `@tt/core`; la descarga se entrega con la hoja de compartir (`src/lib/share-file.ts`, expo-file-system y
   expo-sharing).
 - `src/components/ui/`: `Txt` (tipografía, color y escala), `Card`, `Segmented`, `IconButton`, íconos.
+- `src/widget/`: widget de Android (ADR-0011). `weather-widget.tsx` dibuja el 2×2 y el 4×2, `widget-content.tsx`
+  arma los textos con el núcleo, `task-handler.ts` responde a Android y `register.ts` registra y redibuja. **Nada
+  fuera de `register.ts` importa `react-native-android-widget` en tiempo de ejecución**, y ese módulo solo se carga
+  si `WIDGETS_AVAILABLE`: en Expo Go la librería no tiene módulo nativo y falla al importarse.
+- `index.ts`: entrada de la app; registra los widgets (solo en el APK) y arranca Expo Router.
 - `src/components/shell/`: cabecera, hoja de ajustes y barra de pestañas.
 
 ## Estilos

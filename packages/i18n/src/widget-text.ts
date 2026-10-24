@@ -24,8 +24,9 @@ export interface WidgetText {
   readonly facts: ReadonlyArray<{ readonly label: string; readonly value: string }>
   /** "Liz · 14:30" */
   readonly station: string
-  /** Para el lector de pantalla: "Despejado, 24°". */
+  /** Para el lector de pantalla: "Despejado, 24°. Toca para abrir la app". */
   readonly summary: string
+  readonly refreshLabel: string
 }
 
 const degrees = (format: Formatter, value: number | null) => (value === null ? format.number(null) : `${format.number(value, 0)}°`)
@@ -64,7 +65,8 @@ export function widgetText(view: CurrentConditions, stationName: string, t: Cata
       { label: t.hero.rainToday, value: view.rain.today === null ? format.number(null) : `${format.number(view.rain.today, rainDecimals)} ${symbols.rain}` },
     ],
     station: w.station(stationName, time),
-    summary: `${condition}, ${temperature}`,
+    summary: w.openApp(`${condition}, ${temperature}`),
+    refreshLabel: w.refresh,
   }
 }
 
@@ -101,6 +103,7 @@ export function widgetOfflineText(
       { label: t.hero.rainToday, value: noData },
     ],
     station: w.station(last?.stationName ?? 'Liz', format.time(options.now)),
-    summary: `${w.conditions.offline}, ${temperature}`,
+    summary: w.openApp(`${w.conditions.offline}, ${temperature}`),
+    refreshLabel: w.refresh,
   }
 }
