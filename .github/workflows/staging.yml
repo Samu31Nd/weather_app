@@ -106,12 +106,14 @@ jobs:
           project=$(jq -r '.expo.extra.eas.projectId' app.json)
           echo "url=https://expo.dev/accounts/samu31nds-team/projects/tt-b033/updates/$group" >> "$GITHUB_OUTPUT"
           echo "qr=https://qr.expo.dev/eas-update?slug=exp&projectId=$project&groupId=$group" >> "$GITHUB_OUTPUT"
+          echo "exp=exp://u.expo.dev/$project/group/$group" >> "$GITHUB_OUTPUT"
 
       # ---------- resultado ----------
       - name: Registrar el deployment y comentar
         env:
           URL: ${{ steps.web.outputs.url || steps.app.outputs.url }}
           QR: ${{ steps.app.outputs.qr }}
+          EXP: ${{ steps.app.outputs.exp }}
           SHA: ${{ steps.pr.outputs.sha }}
         run: |
           id=$(jq -n --arg ref "$SHA" --arg env "pr-$PR-$TARGET" \
@@ -119,7 +121,9 @@ jobs:
             | gh api "repos/$GITHUB_REPOSITORY/deployments" --input - --jq .id)
           gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses" -f state=success -f environment_url="$URL" > /dev/null
           body="🚀 Staging de **$TARGET** listo para \`${SHA:0:7}\`: $URL"
-          if [ -n "$QR" ]; then body="$body"$'\n\n'"Escanea con Expo Go:"$'\n\n'"![QR]($QR)"; fi
+          if [ -n "$QR" ]; then
+            body="$body"$'\n\n'"Escanea con Expo Go:"$'\n\n'"![QR]($QR)"$'\n\n'"O pega este enlace en Expo Go (*Enter URL manually*): \`$EXP\`"
+          fi
           gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "$body"
 
       - name: Avisar si falló

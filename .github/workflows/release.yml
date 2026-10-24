@@ -104,8 +104,9 @@ jobs:
           project=$(jq -r '.expo.extra.eas.projectId' app.json)
           page="https://expo.dev/accounts/samu31nds-team/projects/tt-b033/updates/$group"
           qr="https://qr.expo.dev/eas-update?slug=exp&projectId=$project&groupId=$group"
+          exp="exp://u.expo.dev/$project/group/$group"
           # El QR abre la actualización en Expo Go; la app instalada (APK) la recibe sola en el canal production.
-          notes=$'### Actualización móvil\n\nAbrir en Expo Go:\n\n![QR]('"$qr"$')\n\n[Detalle en expo.dev]('"$page"$')'
+          notes=$'### Actualización móvil\n\nAbrir en Expo Go:\n\n![QR]('"$qr"$')\n\nO pegar este enlace en Expo Go (*Enter URL manually*): `'"$exp"$'`\n\n[Detalle en expo.dev]('"$page"$')'
           echo "$notes" >> "$GITHUB_STEP_SUMMARY"
           { echo 'notes<<EOF'; echo "$notes"; echo 'EOF'; } >> "$GITHUB_OUTPUT"
       - name: Tag y release

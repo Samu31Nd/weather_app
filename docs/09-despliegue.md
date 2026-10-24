@@ -75,7 +75,8 @@ flowchart TB
   `apps/mobile/**` y `packages/**`, que afecta a las dos).
 - Los releases se marcan con `web-vAAAA.MM.DD[.n]` y `mobile-vAAAA.MM.DD[.n]`.
 - **QR de producción móvil:** el release `mobile-v…` y el resumen del job de `release.yml` traen el QR de la
-  actualización para abrirla en Expo Go. La app instalada (APK) no lo necesita: recibe sola las actualizaciones del
+  actualización para abrirla en Expo Go, y también el enlace `exp://u.expo.dev/<proyecto>/group/<grupo>` para
+  pegarlo en Expo Go (*Enter URL manually*) cuando no se puede escanear. El comentario de staging trae lo mismo. La app instalada (APK) no lo necesita: recibe sola las actualizaciones del
   canal `production`.
 - Los workflows que se disparan por comentario corren con la versión de `main`. Si un PR agrega una variable al
   despliegue (como `EXPO_PUBLIC_HISTORY_API_URL`), su staging no la recibe hasta que se mergea.
