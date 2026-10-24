@@ -98,6 +98,7 @@ jobs:
         working-directory: apps/mobile
         env:
           EXPO_PUBLIC_WEATHER_STATION_URL: ${{ vars.MOBILE_WEATHER_STATION_URL }}
+          EXPO_PUBLIC_HISTORY_API_URL: ${{ vars.NEXT_PUBLIC_API_CLOUD_URL }}
         run: |
           npm ci --no-audit --no-fund
           eas update --branch "pr-$PR" --message "PR #$PR (${{ steps.pr.outputs.short }})" --non-interactive --json > "$RUNNER_TEMP/update.json"
