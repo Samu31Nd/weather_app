@@ -34,15 +34,7 @@
         }
       ],
       "expo-font",
-      "expo-status-bar",
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "usesCleartextTraffic": true
-          }
-        }
-      ]
+      "expo-status-bar"
     ],
     "experiments": {
       "typedRoutes": true,

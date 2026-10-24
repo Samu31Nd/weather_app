@@ -1,38 +1,53 @@
-# Expo HAS CHANGED
+# AGENTS.md — apps/mobile
 
-Read the exact versioned docs at https://docs.expo.dev/versions/v58.0.0/ before writing any code.
+App móvil (Expo SDK 58, Expo Router, react-native-svg, reanimated 4). Las reglas generales, los requerimientos y
+las fases están en el `AGENTS.md` raíz y en `docs/`.
 
-## About this repository
+**Expo cambia rápido:** lee la documentación versionada (<https://docs.expo.dev/versions/v58.0.0/>) antes de tocar
+APIs de Expo. Ejemplo: en Expo Router 58, `tabBar` recibe `emitter` + `navigateToTab` en vez de `navigation`.
 
-This is a repository that contains the first version of a expo app developing a weather app. It's in work in progress.
+## Rutas
 
-## Rules
+| Ruta | Qué es | Estado |
+|------|--------|--------|
+| `src/app/(tabs)/index.tsx` | "Ahora": carga → panel del artboard `MobileNow` | Fase 4 |
+| `src/app/(tabs)/historico.tsx` | Aviso de que el histórico llega después | Provisional hasta la fase 5 |
 
-- This repository uses the good practices of Clean Code.
-- This repository implements Hexagonal Architecture.
+Los ajustes (idioma, tema, tamaño de letra, unidades) son una hoja que se abre desde la cabecera, no una pestaña.
 
-## Current Context & Architecture (Updated)
+## Estructura
 
-### 1. Hexagonal Architecture (Live Data)
-- **Domain:** `WeatherEntity.ts` defines the clean data structure (outdoor, indoor, wind, barometer, rain, astronomy).
-- **Infrastructure:** `WeatherApiAdapter.ts` fetches raw JSON from the Davis Weather station (`http://148.204.57.118/wflexp.json`). `WeatherApiMapper.ts` maps raw fields (like `sunrt`, `bartr`) into the `WeatherEntity`.
-- **Application:** `GetLiveWeatherUseCase.ts` acts as the port bridge and is injected globally via `DependencyProvider.tsx`.
-- **UI Polling:** The main layout (`index.tsx`) polls this use case and stores `WeatherEntity` in state.
+- `src/lib/core.ts`: composition root (`createMobileCore`), con AsyncStorage para las preferencias.
+- `src/providers/app-providers.tsx`: `useCore()`, `useLiveSnapshot()` (última lectura, para no repetir la carga
+  al volver de otra pestaña) y `usePreferences()` (preferencias, catálogo `t`, formateador, `palette` y
+  `textScale`).
+- `src/hooks/use-live-weather.ts`: consulta cada 60 s y a pedido. Es la misma lógica que el hook web.
+- `src/components/now/`: una tarjeta por bloque del artboard. Reciben el modelo de vista `CurrentConditions` de
+  `@tt/core`; los textos derivados salen de `@tt/i18n` (`valueText`, `windText`, `rainText`…).
+- `src/components/art/svg-art.tsx`: dibuja el arte de `@tt/sky-art` y lo anima con reanimated (ADR-0010).
+- `src/components/ui/`: `Txt` (tipografía, color y escala), `Card`, `Segmented`, íconos.
+- `src/components/shell/`: cabecera, hoja de ajustes y barra de pestañas.
 
-### 2. UI & Presentation Layer
-- **Component Stack:** `HeroWidget`, `HeaderControls`, `TelemetryStrip`, `TelemetryGrid`, `WindWidget`, `SolarTrajectory`.
-- **Global Context:** `UnitContext.tsx` handles metric/imperial switching globally with pure math converters (`convertTemp`, `convertSpeed`).
-- **Animations:** Heavy use of `react-native-reanimated` for sliding tabs, pulsing status dots, and expanding UI drawers.
-- **Mathematical SVGs (`react-native-svg`):**
-  - **Barometer:** Parses the 3-hour trend to draw an accurate Bezier sparkline.
-  - **Solar Trajectory:** Computes `astronomy.sunrise`/`sunset` strings against device time to calculate the sun's exact SVG coordinates along a daytime arc.
-  - **Wind Widget:** Uses Reanimated `withTiming` to smoothly rotate a compass needle to the exact heading on every data fetch.
+## Estilos
 
-### 3. Styling & Theming (Tailwind v4 / `uniwind`)
-- **Theme Logic:** `uniwind` computes styles at build-time. Because CSS variables inside `@media (prefers-color-scheme)` didn't update dynamically across the app upon a manual state toggle, we **DO NOT** use CSS variables for colors.
-- **The Solution:** Every widget explicitly defines its colors using Tailwind `dark:` variants (e.g., `bg-[#f1f5f9] dark:bg-[#1c1f2a]`). This forces React Native to dynamically invert the styles on every render.
-- **Manual Toggle:** `HeaderControls.tsx` has a Sun/Moon toggle. It uses `Appearance.setColorScheme('dark'|'light')`. `uniwind` flawlessly tracks this native API to instantly flip the entire app layout. (Web manual toggle is bypassed to rely on browser OS settings).
+- Colores: siempre de `palette` (`@tt/tokens`), nunca hexadecimales sueltos. El tema cambia la paleta completa.
+- Texto: usar `Txt`, que pone IBM Plex (Sans o Mono con `mono`), el color y la escala s/m/l. En React Native cada
+  peso es una familia distinta (`src/theme/fonts.ts`); no usar `fontWeight`.
+- Para texto de color usar las variantes `*-text` (contraste AA en tema claro).
 
-### 4. Remaining / Future Work
-- Database integration for persistent historical data.
-- The "Historical & Forecast" screens (and widgets) have not been started yet.
+## Comandos
+
+Desde la raíz del repo:
+
+```bash
+npm run mobile                          # Expo dev server (Expo Go)
+npm run typecheck --workspace=mobile
+npm test --workspace=mobile             # jest-expo + Testing Library
+npm run build:android                   # APK local (eas build --local)
+```
+
+## Entorno
+
+- `EXPO_PUBLIC_WEATHER_STATION_URL`: el proxy `/api/live` de la web (ADR-0007). En desarrollo puede apuntar directo a
+  la consola: Expo Go permite HTTP. El APK no lleva excepción de *cleartext*.
+- `EXPO_PUBLIC_HISTORY_API_URL`: Cloud Function de histórico (fase 5).
