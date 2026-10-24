@@ -69,10 +69,10 @@ Va en el mismo orden en las dos plataformas. La web lo acomoda en una cuadrícul
 
 | Preferencia | Valores | Por defecto | Clave en almacenamiento | Efecto |
 |-------------|---------|-------------|-------------------------|--------|
-| Tema | sistema / claro / oscuro | sistema | `wx-theme` | Web: clase en `<html>` y variables CSS ([ADR-0002](adr/0002-next-y-expo.md)). Móvil: `Appearance.setColorScheme` |
+| Tema | sistema / claro / oscuro | sistema | `wx-theme` | Web: clase en `<html>` y variables CSS ([ADR-0002](adr/0002-next-y-expo.md)). Móvil: paleta de `@tt/tokens` según el tema, con `useColorScheme` para "sistema" |
 | Idioma | es / en | es | `wx-lang` | Catálogo de `packages/i18n`. Web: además `<html lang>` |
 | Unidades | métrico / imperial | métrico | `wx-units` | Conversión al mostrar |
-| Tamaño de texto | s / m / l | m | `wx-size` | Web: `--font-scale`. Móvil: `FontScaleContext`, multiplicado por el `fontScale` del sistema |
+| Tamaño de texto | s / m / l | m | `wx-size` | Web: `zoom` del contenedor `.wx-zoom`. Móvil: `Txt` multiplica cada tamaño (0.9 / 1 / 1.15) y React Native aplica además el tamaño de letra del sistema |
 
 ## Sistema visual
 

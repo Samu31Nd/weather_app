@@ -20,4 +20,5 @@ diseño. Además, sus clases (`.drift`, `.rain`, `.spin`) e ids chocarían con l
 - Si el diseño cambia, se vuelve a descargar del canvas y se corre `npm run extract --workspace=@tt/sky-art`.
 - El SVG se inyecta como contenido propio (`dangerouslySetInnerHTML`). El test garantiza que no trae scripts ni
   manejadores de eventos.
-- En móvil (fase 4) el mismo SVG se dibuja con `react-native-svg`; las animaciones se reescriben con reanimated.
+- En móvil el mismo SVG se dibuja con `react-native-svg` y las animaciones se reproducen como datos
+  ([ADR-0010](0010-animaciones-como-datos.md)).
