@@ -5,9 +5,11 @@ import { HttpHistoryRepository } from './adapters/cloud-history/http-history.rep
 import { HttpLiveWeatherRepository } from './adapters/davis-live/http-live-weather.repository'
 import type { HttpOptions } from './adapters/http'
 import { GetHistory } from './application/get-history'
+import { GetPreferences, UpdatePreferences } from './application/preferences'
+import { KeyValuePreferencesRepository } from './adapters/key-value-preferences.repository'
 import { GetLiveWeather } from './application/get-live-weather'
 import { ResolveCurrentSky } from './application/resolve-current-sky'
-import { type Clock, type HistoryRepository, type LiveWeatherRepository, systemClock } from './ports'
+import { type Clock, type HistoryRepository, type KeyValueStorage, type LiveWeatherRepository, type PreferencesRepository, systemClock } from './ports'
 
 export interface CoreConfig {
   /** URL del JSON en vivo: el proxy `/api/live` de la web o la consola directa. */
@@ -18,12 +20,18 @@ export interface CoreConfig {
   readonly clock?: Clock
   readonly liveRepository?: LiveWeatherRepository
   readonly historyRepository?: HistoryRepository
+  /** Almacén de preferencias (`localStorage`, AsyncStorage); sin él, se guardan solo en memoria. */
+  readonly storage?: KeyValueStorage
+  readonly preferencesRepository?: PreferencesRepository
 }
 
 export interface Core {
   readonly getLiveWeather: GetLiveWeather
   readonly getHistory: GetHistory
   readonly resolveCurrentSky: ResolveCurrentSky
+  readonly getPreferences: GetPreferences
+  readonly updatePreferences: UpdatePreferences
+  readonly clock: Clock
 }
 
 export function createCore(config: CoreConfig): Core {
@@ -31,14 +39,24 @@ export function createCore(config: CoreConfig): Core {
   const liveRepository = config.liveRepository ?? new HttpLiveWeatherRepository(required(config.liveUrl, 'liveUrl'), config.http)
   const historyRepository =
     config.historyRepository ?? new HttpHistoryRepository(required(config.historyUrl, 'historyUrl'), config.http)
+  const preferencesRepository =
+    config.preferencesRepository ?? new KeyValuePreferencesRepository(config.storage ?? inMemoryStorage())
   return {
     getLiveWeather: new GetLiveWeather(liveRepository),
     getHistory: new GetHistory(historyRepository),
     resolveCurrentSky: new ResolveCurrentSky(clock),
+    getPreferences: new GetPreferences(preferencesRepository),
+    updatePreferences: new UpdatePreferences(preferencesRepository),
+    clock,
   }
 }
 
 function required(value: string | undefined, name: string): string {
   if (!value) throw new Error(`Falta la configuración \`${name}\` del núcleo.`)
   return value
+}
+
+function inMemoryStorage(): KeyValueStorage {
+  const values = new Map<string, string>()
+  return { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => void values.set(key, value) }
 }
