@@ -133,6 +133,8 @@ npm run build:android   # eas build --platform android --profile production --lo
 - Genera el `.apk` en `apps/mobile/`.
 - Solo hace falta un APK nuevo si cambian las dependencias nativas o la versión de la app
   (`runtimeVersion: appVersion`). Los demás cambios llegan por EAS Update al canal `production`.
+- El widget de Android (ADR-0011) es código nativo: solo aparece en el APK, y agregar o cambiar widgets en
+  `app.json` requiere generar un APK nuevo.
 
 ## Rollback
 
