@@ -167,6 +167,16 @@
   --color-wx-pole-hi: var(--pole-hi);
   --color-wx-cup: var(--cup);
   --color-wx-cup-hi: var(--cup-hi);
+  --color-wx-temp-band: var(--temp-band);
+  --color-wx-pres-band: var(--pres-band);
+  --color-wx-cum-fill: var(--cum-fill);
+  --color-wx-rose-0: var(--rose-0);
+  --color-wx-rose-1: var(--rose-1);
+  --color-wx-rose-2: var(--rose-2);
+  --color-wx-crosshair: var(--crosshair);
+  --color-wx-art-sun: var(--art-sun);
+  --color-wx-art-cloud: var(--art-cloud);
+  --color-wx-art-hill: var(--art-hill);
 }
 
 @layer base {
