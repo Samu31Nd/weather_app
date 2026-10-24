@@ -4,10 +4,11 @@
 import type { LiveStatus } from '@tt/core'
 import { liveText } from '@tt/i18n'
 import { useEffect } from 'react'
-import { Pressable, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import Animated, {
   Easing, cancelAnimation, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withTiming,
 } from 'react-native-reanimated'
+import { IconButton } from '@/components/ui/icon-button'
 import { RefreshIcon, SlidersIcon, StationLogo } from '@/components/ui/icons'
 import { Txt } from '@/components/ui/txt'
 import { usePreferences } from '@/providers/app-providers'
@@ -53,22 +54,6 @@ export function AppHeader({ stationName, live, onOpenSettings }: { stationName: 
   )
 }
 
-function IconButton({ label, onPress, disabled = false, children }: { label: string; onPress: () => void; disabled?: boolean; children: React.ReactNode }) {
-  const { palette } = usePreferences()
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ disabled, busy: disabled }}
-      disabled={disabled}
-      onPress={onPress}
-      style={[styles.button, { borderColor: palette.bd, backgroundColor: palette.sf, opacity: disabled ? 0.75 : 1 }]}
-    >
-      {children}
-    </Pressable>
-  )
-}
-
 /** Punto de estado; en vivo late como el `.pulse` del diseño. */
 function LiveDot({ color, pulsing }: { color: string; pulsing: boolean }) {
   const reduceMotion = useReducedMotion()
@@ -107,7 +92,6 @@ const styles = StyleSheet.create({
   live: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   shrink: { flexShrink: 1 },
   actions: { flexDirection: 'row', gap: 6 },
-  button: { width: 44, height: 44, borderRadius: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   dot: { width: 7, height: 7 },
   round: { borderRadius: 4 },
 })
