@@ -11,7 +11,10 @@ Este modelo une los dos `WeatherEntity` que existen hoy: `apps/mobile/src/core/d
 - **Presión.** La consola entrega inHg y el histórico mmHg. Se guarda en hPa. La UI ofrece hPa y mmHg en métrico,
   e inHg en imperial.
 - **"Sin dato" es `null`, nunca 0.** Los mappers traducen `---`, `""` y `null` a `null`.
-- **Las fechas son instantes** (`Date`) creados en America/Mexico_City desde `fecha` + `hora` o desde `loctime`.
+- **Las fechas son instantes** (`Date`) creados en America/Mexico_City (UTC−6 fijo) desde `fecha` + `hora` o desde
+  `loctime`, nunca desde `utctime` (sale 1 h atrasado, rareza D12).
+- **Implementación:** `packages/core/src`. Los nombres de campos finales (`seaLevelHPa`, `extremes.*.today/month/year`,
+  `avg2MinKmh`, …) están en `domain/live-reading.ts` y `domain/history.ts`; el diagrama de abajo es la vista general.
 
 ## Diagrama de clases
 
@@ -186,8 +189,8 @@ classDiagram
 | Caso de uso | Firma | Depende de | RF |
 |-------------|-------|------------|----|
 | `GetLiveWeather` | `() → Promise<LiveReading>` | `LiveWeatherRepository` | RF-APP-01, 02 |
-| `ResolveSkyScene` | `(reading: LiveReading \| null, now: Date) → SkyScene` | reglas de dominio | RF-APP-03 |
-| `GetHistory` | `(range: DateRange) → Promise<HistorySeries>`: parte en tramos de 10 días o menos, une, quita duplicados y ordena | `HistoryRepository` | RF-APP-06 |
+| `ResolveCurrentSky` | `(reading: LiveReading \| null) → SkyScene`, con la hora del `Clock` | reglas de dominio | RF-APP-03 |
+| `GetHistory` | `(range: DateRange) → Promise<HistorySample[]>`: parte en tramos de 10 días o menos, une, quita duplicados y ordena | `HistoryRepository` | RF-APP-06 |
 | `BuildChartSeries` | `(series, resolution, units) → ChartSeries` | dominio + `charts/` | RF-APP-07 |
 | `SummarizeHistory` | `(series) → HistorySummary` | dominio | RF-APP-08 |
 | `ExportHistory` | `(series, format: csv\|json, units) → Blob-like string` | dominio | RF-APP-09 |

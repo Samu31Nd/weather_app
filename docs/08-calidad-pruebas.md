@@ -4,7 +4,7 @@
 
 | Capa | Herramienta | Qué se prueba | Dobles |
 |------|-------------|---------------|--------|
-| Dominio (`core/domain`) | Vitest | Reglas puras: conversiones, Beaufort, rumbos, sensación térmica, decodificación del pronóstico, escena del cielo, KPIs, remuestreo, geometría de gráficas | Ninguno: entradas y salidas |
+| Dominio (`core/domain`) | Vitest | Reglas puras (y `test/architecture.test.ts`: el núcleo solo importa archivos propios): conversiones, Beaufort, rumbos, sensación térmica, decodificación del pronóstico, escena del cielo, KPIs, remuestreo, geometría de gráficas | Ninguno: entradas y salidas |
 | Aplicación (`core/application`) | Vitest | Orquestación: partir rangos, unir y quitar duplicados, validar preferencias | Repositorios en memoria, `Clock` fijo |
 | Adaptadores (`core/adapters`) | Vitest + MSW | Integración HTTP: mapeo de fixtures reales, `---`, errores, timeouts, reintentos | MSW sirve los fixtures de `packages/core/test/fixtures/` |
 | Contrato | Vitest (`npm run test:contract`) | Que las fuentes reales siguen dando la forma esperada. No corre en cada PR | Ninguno: endpoints reales. Se activa con `CONTRACT=1` |
@@ -33,6 +33,14 @@ describe('ResolveSkyScene · lluvia', () => {
 - Los fixtures tienen un `README.md` que dice de dónde salieron (endpoint y fecha) y que confirma que no traen
   datos internos: la MAC, la IP y el SSID van anonimizados.
 
+## Cómo correrlas
+
+```bash
+npm test --workspace=@tt/core          # unitarias + integración, con cobertura
+npm run test:contract --workspace=@tt/core   # contra las fuentes reales (no corre en el CI)
+npx vitest --root packages/core        # modo watch
+```
+
 ## Umbrales
 
 - Cobertura de líneas de `packages/core` ≥ 80 % (RNF-APP-09). El CI falla si baja de ahí.
@@ -45,21 +53,21 @@ archivo de test.
 
 | RF / RNF | CU | Componente | Prueba | Fase |
 |----------|----|------------|--------|------|
-| RF-APP-01 | CU-01 | mapper de `core/adapters/davis-live` · reglas de `core/domain` (sensación, Beaufort, rumbos, sol, confort) · tarjetas de "Ahora" | — | 1, 3, 4 |
+| RF-APP-01 | CU-01 | mapper de `core/adapters/davis-live` · reglas de `core/domain` (sensación, Beaufort, rumbos, sol, confort) · tarjetas de "Ahora" | `packages/core/test/adapters/davis-live.mapper.test.ts`, `domain/{units,wind,thermal,time-and-sun}.test.ts` | 1, 3, 4 |
 | RF-APP-02 | CU-01, 02 | `useLiveWeather` y máquina de estados de "Ahora" (web y móvil) · pantallas de carga | — | 3, 4 |
-| RF-APP-03 | CU-08 | `core/domain/sky-scene` · `core/domain/forecast` · escena web y móvil | — | 1, 3, 4 |
-| RF-APP-04 | CU-03 | `core/domain/interpretation` · textos de ayuda en `packages/i18n` | — | 1, 2 |
-| RF-APP-05 | CU-07 | mapper (descarta MAC/IP/SSID) · tarjeta de estado | — | 1, 3, 4 |
-| RF-APP-06 | CU-04 | `GetHistory` (tramos, unión, orden) · controles de periodo | — | 1, 5 |
+| RF-APP-03 | CU-08 | `core/domain/sky-scene` · `core/domain/forecast` · escena web y móvil | `packages/core/test/domain/sky-scene.test.ts` (21 escenas), `domain/forecast.test.ts`, `application/use-cases.test.ts` | 1, 3, 4 |
+| RF-APP-04 | CU-03 | `core/domain/interpretation` · textos de ayuda en `packages/i18n` | `packages/core/test/domain/thermal.test.ts` (bandas y confort; los textos llegan en la fase 2) | 1, 2 |
+| RF-APP-05 | CU-07 | mapper (descarta MAC/IP/SSID) · tarjeta de estado | `packages/core/test/adapters/davis-live.mapper.test.ts` (sin MAC/IP/SSID) | 1, 3, 4 |
+| RF-APP-06 | CU-04 | `GetHistory` (tramos, unión, orden) · controles de periodo | `packages/core/test/domain/history.test.ts`, `application/use-cases.test.ts`, `adapters/http.test.ts` | 1, 5 |
 | RF-APP-07 | CU-04 | `core/domain/resample` · `core/charts` · gráficas web y móvil | — | 5 |
 | RF-APP-08 | CU-04 | `SummarizeHistory` | — | 5 |
 | RF-APP-09 | CU-05 | `ExportHistory` | — | 5 |
 | RF-APP-10 | CU-06 | `UserPreferences` · adaptadores de almacenamiento · providers de tema, idioma y tamaño | — | 2 |
-| RNF-APP-01 | CU-01, 04 | mappers de `core/adapters` | tests de mappers con fixtures reales | 1 |
-| RNF-APP-02 | CU-01, 04 | adaptadores HTTP (reintentos) · estados de pantalla | tests de adaptadores con MSW | 1, 3, 4 |
+| RNF-APP-01 | CU-01, 04 | mappers de `core/adapters` | `packages/core/test/adapters/*.mapper.test.ts` con fixtures reales; `test/contract/` contra las fuentes | 1 |
+| RNF-APP-02 | CU-01, 04 | adaptadores HTTP (reintentos) · estados de pantalla | `packages/core/test/adapters/http.test.ts` (reintentos, timeout, 4xx/5xx, tope de filas) | 1, 3, 4 |
 | RNF-APP-05 | — | todas las UI | auditoría axe (web) | 3–5 |
 | RNF-APP-07 | — | `packages/i18n` | test: es y en tienen las mismas claves | 2 |
-| RNF-APP-08 | — | `packages/core` | lint `no-restricted-imports` | 1 |
-| RNF-APP-09 | — | `packages/core` | umbral de cobertura en CI | 0b, 1 |
+| RNF-APP-08 | — | `packages/core` | `packages/core/test/architecture.test.ts` (regla de dependencias) | 1 |
+| RNF-APP-09 | — | `packages/core` | umbral de cobertura en `packages/core/vitest.config.ts` (job `core` del CI) | 0b, 1 |
 | RNF-APP-10 | CU-01 | `/api/live` | test del proxy (host fijo, sin reenviar cabeceras) | 3 |
 | RNF-APP-11 | CU-01 | `/api/live` (caché) · caché de sesión del histórico | test: dos consultas en < 10 s llegan una sola vez a la consola | 3, 5 |

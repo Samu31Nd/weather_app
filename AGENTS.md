@@ -11,7 +11,7 @@ Un monorepo con npm workspaces y dos apps que comparten la lógica:
 |------|--------|-------|
 | `apps/mobile` | App Expo 58 (expo-router, uniwind, reanimated, react-native-svg) | Ver `apps/mobile/AGENTS.md`. Leer la doc versionada de Expo antes de tocar código. |
 | `apps/web` | App Next.js 16 (App Router, Tailwind 4) | Importada de `weather-dashboard` con su historial (`git log HEAD^2` del commit de import). Ver `apps/web/AGENTS.md`. |
-| `packages/core` | *(fase 1)* Dominio, puertos, casos de uso y adaptadores HTTP. TS puro: sin React ni APIs de plataforma. | |
+| `packages/core` | `@tt/core`: dominio, puertos, casos de uso y adaptadores HTTP. TS puro: sin React ni APIs de plataforma. | Ver `packages/core/AGENTS.md`. |
 | `packages/tokens` | *(fase 2)* Paleta clara/oscura, tipografía y escalas de tamaño del diseño. | |
 | `packages/i18n` | *(fase 2)* Catálogos es/en y formateo. | |
 
@@ -44,7 +44,9 @@ interfaz, las pruebas con su matriz de trazabilidad, el despliegue y los ADR.
 - **Cómo se documenta cada archivo de test:**
   - un comentario de cabecera que dice qué regla cubre y de dónde sale (nota del diseño, doc de datos, bug);
   - `describe`/`it` en español, redactados como comportamiento ("convierte °F a °C con un decimal").
-- El detalle está en `docs/testing.md` *(fase 1)*.
+- Las herramientas de prueba (vitest, vite, msw) van en la raíz del monorepo; npm no resuelve bien el *hoisting* de
+  vite si quedan en el paquete.
+- El detalle está en `docs/08-calidad-pruebas.md`.
 
 ## Comandos
 
@@ -115,7 +117,7 @@ fase. Orden: 0 → D → 0b → 1 … 6.
 | 0. Base del monorepo | npm workspaces; `apps/mobile` (git mv) y `apps/web` (subtree con historial); `ignoreBuildErrors` fuera; sobrantes borrados; las dos apps compilan | `refactor/monorepo-base` | ✅ Hecho |
 | D. Documentación técnica | `docs/`: visión, RF/RNF, casos de uso, arquitectura C4, dominio, flujos, datos, interfaz, pruebas y trazabilidad, anexo de despliegue, ADR 0001–0008. Actores: solo usuarios (sin mantenedor); CI/CD solo en el anexo 09 | `docs/especificacion-tecnica` (#3) | ✅ Hecho |
 | 0b. CI/CD | `ci.yml` (filtros por ruta + `ci-ok` requerido), `staging.yml` (comentario `cicd/deploy-staging-web` o `cicd/deploy-staging-app`), `cleanup-pr.yml`, `release.yml`; Cloud Run + WIF (`proj-files/infra/web_hosting.tf`); `eas.json` + `expo-updates`; imagen *standalone* de Next | `feat/ci-cd` (#4) | ✅ Hecho |
-| 1. `packages/core` | entidades y mappers unificados, bugs de datos corregidos, `ResolveSkyScene`, DI, tests documentados | — | ⏳ Pendiente |
+| 1. `packages/core` | `@tt/core` con dominio, mappers con las rarezas corregidas, `ResolveCurrentSky`, `GetHistory` por tramos, `createCore`; 191 tests documentados, cobertura ~99 %, tests de contrato; job `core` en el CI; las dos apps ya importan `@tt/core` | `feat/core` | 🔄 En revisión |
 | 2. Tokens, tema, i18n, tamaño de fuente, preferencias | `packages/tokens`, `packages/i18n`, `UserPreferences` + adaptadores, tema web con CSS vars | — | ⏳ Pendiente |
 | 3. Web · Ahora + carga | dashboard según diseño, escena del cielo SVG/CSS, proxy `/api/live`, MUI fuera | — | ⏳ Pendiente |
 | 4. Móvil · Ahora + carga | widgets rehechos, escena del cielo con reanimated | — | ⏳ Pendiente |
@@ -147,3 +149,13 @@ Notas de la migración a Expo SDK 58 (24-oct):
 - Expo Router 58 cambió la API de `tabBar`: ahora recibe `emitter` + `navigateToTab` en vez de `navigation`.
 - `expo-doctor` avisa que `icon.png` y `android-icon-foreground.png` no son cuadrados (512×504). Hay que
   arreglarlos antes de generar el APK.
+
+Notas de la fase 1 (24-oct):
+- **Hallazgos en datos reales** (detalle en `docs/06-datos.md`):
+  - **D1:** `hl*` = [hoy mín, hoy máx, horas, mes máx, mes mín, año máx, año mín]. Los dos mappers previos estaban mal.
+  - **D12:** el reloj de pared de la consola es correcto, pero su zona horaria está en UTC−5. `utctime` sale 1 h
+    atrasado y `sunrt`/`sunst` 1 h adelantados. Conviene corregirlo en la consola.
+  - **D5:** el intercambio `wind_dir`/`hi_dir` se arregla en el pipeline, no en la app.
+- La UI vieja de las dos apps **todavía no usa** `LiveReading`. Pasa a usar el núcleo cuando se rehaga en las fases
+  3 y 4; por ahora solo comparten `compassPointFromDegrees`, como prueba de que Next y Metro empaquetan `@tt/core`.
+- El push de esta rama necesita SSH: modifica `.github/workflows/ci.yml` (job `core`).
