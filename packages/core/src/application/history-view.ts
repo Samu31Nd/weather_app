@@ -13,6 +13,7 @@ import type { DateRange, HistorySample } from '../domain/history'
 import { type Resolution, bucketStart, nextBucket } from '../domain/history-period'
 import { type PressureTrend, isPlausibleSeaLevelPressure, pressureTrendFromChange } from '../domain/pressure'
 import { CALM_THRESHOLD_KMH, COMPASS_POINTS, type CompassPoint } from '../domain/wind'
+import { type HistoryArt, historyArt } from '../charts/history-art'
 
 export interface MeanRange {
   readonly mean: number
@@ -101,6 +102,8 @@ export interface HistoryView {
   readonly emptyBuckets: number
   readonly rose: WindRose
   readonly summary: HistorySummary
+  /** Ilustraciones de cada sección; no dependen de las unidades elegidas. */
+  readonly art: HistoryArt
 }
 
 /** Lluvia mínima que registra el pluviómetro: un "día con lluvia" junta al menos esto. */
@@ -114,6 +117,7 @@ export function buildHistoryView(
   const { resolution, units, range } = options
   const clean = samples.map(withPlausiblePressure)
   const buckets = aggregate(clean, resolution, range, units)
+  const summary = summarize(clean, range, units)
   return {
     units,
     resolution,
@@ -122,7 +126,8 @@ export function buildHistoryView(
     buckets,
     emptyBuckets: buckets.filter((bucket) => bucket.empty).length,
     rose: windRose(clean),
-    summary: summarize(clean, range, units),
+    summary,
+    art: historyArt(units === 'metric' ? summary : summarize(clean, range, 'metric')),
   }
 }
 
