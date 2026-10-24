@@ -77,8 +77,9 @@ Va en el mismo orden en las dos plataformas. La web lo acomoda en una cuadrícul
 ## Sistema visual
 
 - **Tipografía:** IBM Plex Sans para el texto y IBM Plex Mono para cifras y unidades.
-- **Tokens** en `packages/tokens`: paleta clara y oscura, espaciado, radios y escalas de texto, tomados de los
-  artboards.
+- **Tokens** en `packages/tokens`: paleta clara y oscura (Catppuccin Latte y Mocha) tomada de los artboards.
+  En tema claro el texto de color usa variantes `*-text` más oscuras, para alcanzar 4.5:1.
+- **Escenas del cielo** en `packages/sky-art`, extraídas de los artboards `Sky*` con un script ([ADR-0009](adr/0009-arte-del-diseno-por-extraccion.md)).
 - **Iconos:** de trazo, sin emoji.
 - **Gráficas:** SVG propio, con geometría compartida desde `packages/core/charts`
   ([ADR-0006](adr/0006-graficas-svg-propias.md)).

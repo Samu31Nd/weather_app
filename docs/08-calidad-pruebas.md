@@ -54,7 +54,7 @@ archivo de test.
 | RF / RNF | CU | Componente | Prueba | Fase |
 |----------|----|------------|--------|------|
 | RF-APP-01 | CU-01 | mapper de `core/adapters/davis-live` · reglas de `core/domain` (sensación, Beaufort, rumbos, sol, confort) · tarjetas de "Ahora" | `packages/core/test/adapters/davis-live.mapper.test.ts`, `domain/{units,wind,thermal,time-and-sun}.test.ts` | 1, 3, 4 |
-| RF-APP-02 | CU-01, 02 | `useLiveWeather` y máquina de estados de "Ahora" (web y móvil) · pantallas de carga | — | 3, 4 |
+| RF-APP-02 | CU-01, 02 | `useLiveWeather` y máquina de estados de "Ahora" (web y móvil) · pantallas de carga | `apps/web/test/now-screen.test.tsx` (carga → panel, reintento); `packages/core/test/application/live-status.test.ts` | 3, 4 |
 | RF-APP-03 | CU-08 | `core/domain/sky-scene` · `core/domain/forecast` · escena web y móvil | `packages/core/test/domain/sky-scene.test.ts` (21 escenas), `domain/forecast.test.ts`, `application/use-cases.test.ts` | 1, 3, 4 |
 | RF-APP-04 | CU-03 | `core/domain/interpretation` · textos de ayuda en `packages/i18n` | `packages/core/test/domain/thermal.test.ts` (bandas y confort; los textos llegan en la fase 2) | 1, 2 |
 | RF-APP-05 | CU-07 | mapper (descarta MAC/IP/SSID) · tarjeta de estado | `packages/core/test/adapters/davis-live.mapper.test.ts` (sin MAC/IP/SSID) | 1, 3, 4 |
@@ -62,12 +62,12 @@ archivo de test.
 | RF-APP-07 | CU-04 | `core/domain/resample` · `core/charts` · gráficas web y móvil | — | 5 |
 | RF-APP-08 | CU-04 | `SummarizeHistory` | — | 5 |
 | RF-APP-09 | CU-05 | `ExportHistory` | — | 5 |
-| RF-APP-10 | CU-06 | `UserPreferences` · adaptadores de almacenamiento · providers de tema, idioma y tamaño | — | 2 |
+| RF-APP-10 | CU-06 | `UserPreferences` · adaptadores de almacenamiento · providers de tema, idioma y tamaño | `packages/core/test/domain/preferences.test.ts`, `adapters/key-value-preferences.test.ts`; `apps/web/test/preferences-dom.test.ts`, `now-screen.test.tsx` (idioma, unidades, tema) | 2 |
 | RNF-APP-01 | CU-01, 04 | mappers de `core/adapters` | `packages/core/test/adapters/*.mapper.test.ts` con fixtures reales; `test/contract/` contra las fuentes | 1 |
 | RNF-APP-02 | CU-01, 04 | adaptadores HTTP (reintentos) · estados de pantalla | `packages/core/test/adapters/http.test.ts` (reintentos, timeout, 4xx/5xx, tope de filas) | 1, 3, 4 |
-| RNF-APP-05 | — | todas las UI | auditoría axe (web) | 3–5 |
-| RNF-APP-07 | — | `packages/i18n` | test: es y en tienen las mismas claves | 2 |
+| RNF-APP-05 | — | todas las UI | `packages/tokens/test/tokens.test.ts` (contraste AA en ambos temas), `packages/sky-art/test` (movimiento reducido); auditoría axe pendiente | 2–5 |
+| RNF-APP-07 | — | `packages/i18n` | `packages/i18n/test/catalogs.test.ts` (paridad es/en), `format.test.ts`, `forecast-text.test.ts` | 2 |
 | RNF-APP-08 | — | `packages/core` | `packages/core/test/architecture.test.ts` (regla de dependencias) | 1 |
 | RNF-APP-09 | — | `packages/core` | umbral de cobertura en `packages/core/vitest.config.ts` (job `core` del CI) | 0b, 1 |
-| RNF-APP-10 | CU-01 | `/api/live` | test del proxy (host fijo, sin reenviar cabeceras) | 3 |
-| RNF-APP-11 | CU-01 | `/api/live` (caché) · caché de sesión del histórico | test: dos consultas en < 10 s llegan una sola vez a la consola | 3, 5 |
+| RNF-APP-10 | CU-01 | `/api/live` | `apps/web/test/live-proxy.test.ts` (URL fija, sin MAC/IP/SSID); `now-screen.test.tsx` | 3 |
+| RNF-APP-11 | CU-01 | `/api/live` (caché) · caché de sesión del histórico | `apps/web/test/live-proxy.test.ts` (caché de 10 s) | 3, 5 |
