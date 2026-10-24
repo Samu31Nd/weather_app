@@ -10,7 +10,7 @@ oscuro y otro en tema claro. Los datos que muestran los artboards son simulados.
 |----------|-----|-------|--------------|
 | Carga | `LoadingWeb`, `LoadingWebClaro` | `LoadingMobile`, `LoadingMobileClaro` | CU-01 |
 | Ahora | `Dashboard`, `DashboardClaro` | `MobileNow`, `MobileNowClaro` | CU-01, 02, 03, 07 |
-| Histórico | `Main`, `MainClaro` (componente `WeatherHistory`) | `MobileHistory`, `MobileHistoryClaro` | CU-04, 05 |
+| Histórico | `Main`, `MainClaro` | `MobileHistory`, `MobileHistoryClaro` | CU-04, 05 |
 | Ajustes | Controles en la cabecera | Hoja modal `m.settings` | CU-06 |
 | Escena del cielo | 21 artboards `Sky*` (640×220) | Los mismos, adaptados | CU-08 |
 
@@ -63,7 +63,14 @@ Va en el mismo orden en las dos plataformas. La web lo acomoda en una cuadrícul
   - Viento: velocidad y ráfaga, más la rosa de los vientos.
   - Lluvia: barras por intervalo y acumulado.
   - Presión: valor, banda y tendencia.
-- En web se puede elegir qué variables se muestran.
+- En web se puede elegir qué variables se muestran; en móvil cada sección es un acordeón (abre la temperatura) y
+  la descarga incluye las secciones abiertas.
+- El periodo termina a la medianoche de hoy en CDMX: el histórico llega con un día de retraso (D7). Hay datos desde
+  el 19-abr-2026, así que "últimos N días" se recorta a lo disponible.
+- La resolución se limita a lo que da de 4 a 800 puntos; las demás aparecen deshabilitadas con el motivo.
+- La presión usa las unidades de las preferencias (hPa o inHg). El selector mmHg/hPa del artboard no se
+  implementó: mmHg ya aparece como lectura alterna en "Ahora".
+- La descarga web baja el archivo; la móvil lo entrega por la hoja de compartir del sistema.
 
 ## Preferencias
 

@@ -121,8 +121,8 @@ fase. Orden: 0 → D → 0b → 1 … 6.
 | 1. `packages/core` | `@tt/core` con dominio, mappers con las rarezas corregidas, `ResolveCurrentSky`, `GetHistory` por tramos, `createCore`; 191 tests documentados, cobertura ~99 %, tests de contrato; job `core` en el CI; las dos apps ya importan `@tt/core` | `feat/core` (#7) | ✅ Hecho |
 | 2. Tokens, tema, i18n, tamaño de fuente, preferencias | `@tt/tokens`, `@tt/i18n`, `@tt/sky-art`; en `@tt/core`: `UserPreferences`, `KeyValuePreferencesRepository` (claves `wx-*`), modelo de vista `CurrentConditions`, `liveStatus`, geometría de indicadores; tema web con variables CSS | `feat/design-web-now` (#8) | ✅ Hecho |
 | 3. Web · Ahora + carga | `/` según los artboards `Dashboard` y `LoadingWeb` (claro/oscuro, es/en, métrico/imperial, tamaño s/m/l), escena del cielo, proxy `/api/live`, tests web; `/historico` provisional; MUI sigue solo en el histórico | `feat/design-web-now` (#8) | ✅ Hecho |
-| 4. Móvil · Ahora + carga | "Ahora" y carga según `MobileNow`/`LoadingMobile` (claro/oscuro, es/en, métrico/imperial, tamaño s/m/l) con la hoja de ajustes; 21 escenas y la ilustración animadas con reanimated (ADR-0010); textos derivados y avance de carga compartidos con la web; jest-expo; íconos cuadrados; UI vieja, uniwind y axios fuera | `feat/mobile-now` | 🔄 En revisión |
-| 5. Histórico | casos de uso de series/KPIs, gráficas SVG propias, CSV/JSON | — | ⏳ Pendiente |
+| 4. Móvil · Ahora + carga | "Ahora" y carga según `MobileNow`/`LoadingMobile` (claro/oscuro, es/en, métrico/imperial, tamaño s/m/l) con la hoja de ajustes; 21 escenas y la ilustración animadas con reanimated (ADR-0010); textos derivados y avance de carga compartidos con la web; jest-expo; íconos cuadrados; UI vieja, uniwind y axios fuera | `feat/mobile-now` (#9) | ✅ Hecho |
+| 5. Histórico | En `@tt/core`: periodos y resoluciones en hora de CDMX, `buildHistoryView` (agregación, huecos, rosa, indicadores), `historyCharts` (escalas y trazos SVG), `historyArt`, `exportHistory` (CSV/JSON); textos en `@tt/i18n`. Web `/historico` según `Main` y móvil según `MobileHistory` (acordeones, hoja de compartir). Fuera MUI, recharts, shadcn y `/api/weather/historical` (la web pasa de 50+ a 7 dependencias) | `feat/history` | 🔄 En revisión |
 | 6. Cierre | ~~archivar `weather-dashboard`~~ (hecho 24-oct, Vercel retirado), README, notas para los caps. 6 y 7 de `documentTT`, diagrama UML de casos de uso exportable (PlantUML) | — | ⏳ Pendiente |
 
 Notas de la fase 0:
@@ -185,3 +185,19 @@ Notas de la fase 4 (24-oct):
   del repo debe apuntar a `https://weather-web-nspsuyfpwa-uc.a.run.app/api/live`.
 - TypeScript 6 ya no incluye `@types` automáticamente: el `tsconfig` móvil declara `"types": ["jest"]`.
 - El mock oficial de reanimated 4 falla en jest (carga el módulo nativo); `test/setup.ts` usa uno estático.
+
+Notas de la fase 5 (25-oct):
+- **Periodo:** termina a la medianoche de hoy en CDMX, porque el histórico llega con un día de retraso (D7). Hay
+  datos desde el **19-abr-2026** (`HISTORY_FIRST_DAY`); "últimos N días" se recorta a eso. 90 días son 9 consultas
+  en paralelo de ~0.5 s cada una.
+- **Agregación:** días, semanas (lun–dom) y meses en hora de CDMX. Un intervalo sin lecturas queda vacío y se dibuja
+  como corte. Las presiones fuera de 740–790 mmHg (sin corregir, D3) se descartan.
+- **Diferencias con el artboard:** la presión usa las unidades de las preferencias (sin selector mmHg/hPa) y la
+  tendencia sale del cambio en 3 h con los umbrales Davis. La descarga exporta lo que se ve (resolución y variables
+  visibles); se ajustó el criterio de RF-APP-09 en `docs/01-requerimientos.md`.
+- **shadcn redefinía los radios de Tailwind** (`--radius: 1rem`): `rounded-md` daba 14 px. Al quitarlo, "Ahora"
+  usa los radios estándar, que coinciden con el diseño.
+- El hook `useHistory` está copiado en web y móvil, como `useLiveWeather`. Si crecen, conviene un paquete
+  `@tt/react` con los hooks que reciban el núcleo como parámetro.
+- El push de esta rama necesita SSH: agrega `EXPO_PUBLIC_HISTORY_API_URL` a `staging.yml` y `release.yml`.
+- PR #10 (`fix/web-sky-animation`, mergeado antes de esta rama): las animaciones web se reiniciaban cada segundo porque `dangerouslySetInnerHTML` recibía un objeto nuevo en cada render.
