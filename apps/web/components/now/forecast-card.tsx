@@ -1,6 +1,6 @@
 // Pronóstico de la consola (RF-APP-03): frase compuesta por partes en el idioma elegido, con su ícono.
 
-import type { Forecast } from '@tt/core'
+import { type Forecast, forecastIcon } from '@tt/core'
 import { forecastText } from '@tt/i18n'
 import { usePreferences } from '@/components/providers/app-providers'
 
@@ -38,17 +38,14 @@ export function ForecastCard({ forecast }: { forecast: Forecast }) {
 }
 
 function ForecastIcon({ forecast }: { forecast: Forecast }) {
-  const sky = forecast.kind === 'forecast' ? forecast.sky : null
-  const showSun = sky === 'mostlyClear' || sky === 'partlyCloudy' || sky === 'clearing'
-  const showCloud = sky !== null && sky !== 'mostlyClear'
-  const showRain = forecast.kind === 'forecast' && forecast.precipitation !== null && forecast.precipitation.outlook !== 'ending'
+  const icon = forecastIcon(forecast)
   return (
     <svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true">
-      {showSun ? <circle cx="31" cy="15" r="8" fill="#fab387" /> : null}
-      {showCloud ? (
+      {icon.sun ? <circle cx="31" cy="15" r="8" fill="#fab387" /> : null}
+      {icon.cloud ? (
         <path d="M11 32h22a7.5 7.5 0 0 0 0-15 10 10 0 0 0-19-2.5A8.5 8.5 0 0 0 11 32z" fill="var(--sf)" stroke="var(--blue)" strokeWidth="2" strokeLinejoin="round" />
       ) : null}
-      {showRain ? (
+      {icon.rain ? (
         <g stroke="var(--blue)" strokeWidth="2.2" strokeLinecap="round">
           <path d="M15 37l-2 5" />
           <path d="M23 37l-2 5" />

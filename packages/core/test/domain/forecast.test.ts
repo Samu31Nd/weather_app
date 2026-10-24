@@ -4,7 +4,7 @@
  * Requerimientos: RF-APP-03.
  */
 import { describe, expect, it } from 'vitest'
-import { CALIBRATING_RULE, decodeForecast } from '../../src/domain/forecast'
+import { CALIBRATING_RULE, decodeForecast, forecastIcon } from '../../src/domain/forecast'
 import { DAVIS_FORECAST_RULES } from '../../src/domain/forecast-rules'
 
 describe('decodificación del pronóstico', () => {
@@ -46,5 +46,20 @@ describe('decodificación del pronóstico', () => {
     { regla: 12, esperado: { sky: 'increasingClouds', precipitation: { windowHours: '24 to 48' } } },
   ])('descompone la regla $regla', ({ regla, esperado }) => {
     expect(decodeForecast(regla)).toMatchObject(esperado)
+  })
+})
+
+describe('ícono del pronóstico', () => {
+  it('mayormente nublado sin lluvia (regla 135): solo la nube', () => {
+    expect(forecastIcon(decodeForecast(135))).toEqual({ sun: false, cloud: true, rain: false })
+  })
+
+  it('calibrando o sin pronóstico no dibuja nada', () => {
+    expect(forecastIcon(decodeForecast(193))).toEqual({ sun: false, cloud: false, rain: false })
+  })
+
+  it('la lluvia que termina ya no lleva gotas', () => {
+    const ending = { kind: 'forecast', rule: 0, sky: 'clearing', temperature: null, precipitation: { outlook: 'ending', withinHours: null, heavyAtTimes: false }, wind: null } as never
+    expect(forecastIcon(ending)).toEqual({ sun: true, cloud: true, rain: false })
   })
 })

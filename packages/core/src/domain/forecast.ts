@@ -91,3 +91,19 @@ function parseWind(text: string): ForecastWind {
     shiftToWestOrNorth: /wind shift to the W, NW, or N/.test(text),
   }
 }
+
+/** Partes del ícono del pronóstico (sol, nube, lluvia), igual en web y móvil. */
+export interface ForecastIcon {
+  readonly sun: boolean
+  readonly cloud: boolean
+  readonly rain: boolean
+}
+
+export function forecastIcon(forecast: Forecast): ForecastIcon {
+  const sky = forecast.kind === 'forecast' ? forecast.sky : null
+  return {
+    sun: sky === 'mostlyClear' || sky === 'partlyCloudy' || sky === 'clearing',
+    cloud: sky !== null && sky !== 'mostlyClear',
+    rain: forecast.kind === 'forecast' && forecast.precipitation !== null && forecast.precipitation.outlook !== 'ending',
+  }
+}
