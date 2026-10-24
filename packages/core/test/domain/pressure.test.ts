@@ -5,7 +5,7 @@
  * Requerimientos: RF-APP-01, RNF-APP-01.
  */
 import { describe, expect, it } from 'vitest'
-import { isPlausibleSeaLevelPressure, pressureTrendFromDavisCode } from '../../src/domain/pressure'
+import { isPlausibleSeaLevelPressure, pressureTrendFromChange, pressureTrendFromDavisCode } from '../../src/domain/pressure'
 import { mmHgToHPa } from '../../src/domain/units'
 
 describe('tendencia de presión (código Davis)', () => {
@@ -31,5 +31,13 @@ describe('rango plausible de presión a nivel del mar', () => {
     expect(isPlausibleSeaLevelPressure(mmHgToHPa(740))).toBe(true)
     expect(isPlausibleSeaLevelPressure(mmHgToHPa(790))).toBe(true)
     expect(isPlausibleSeaLevelPressure(mmHgToHPa(578))).toBe(false)
+  })
+})
+
+describe('tendencia por el cambio en 3 h (histórico)', () => {
+  it.each([
+    [-2.5, 'fallingRapidly'], [-1, 'fallingSlowly'], [0.3, 'steady'], [0.7, 'risingSlowly'], [2, 'risingRapidly'],
+  ] as const)('%s hPa → %s, con los umbrales Davis', (change, trend) => {
+    expect(pressureTrendFromChange(change)).toBe(trend)
   })
 })

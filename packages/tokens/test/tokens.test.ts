@@ -12,9 +12,9 @@ const TEXT_TOKENS = ['tx', 't2', 'tm', 'temp-text', 'hum-text', 'blue-text', 'wi
 const SURFACES = ['bg', 'sf'] as const
 
 describe('paletas', () => {
-  it.each(THEMES)('el tema %s define todos los tokens con un color hexadecimal', (theme) => {
+  it.each(THEMES)('el tema %s define todos los tokens con un color hexadecimal (con transparencia opcional)', (theme) => {
     expect(Object.keys(PALETTES[theme]).sort()).toEqual([...TOKEN_NAMES].sort())
-    for (const value of Object.values(PALETTES[theme])) expect(value).toMatch(/^#[0-9a-f]{6}$/)
+    for (const value of Object.values(PALETTES[theme])) expect(value).toMatch(/^#[0-9a-f]{6}([0-9a-f]{2})?$/)
   })
 
   it('conserva los colores base del diseño (Catppuccin Latte y Mocha)', () => {

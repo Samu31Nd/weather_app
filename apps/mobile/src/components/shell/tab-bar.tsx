@@ -28,10 +28,14 @@ export function TabBar({ state, emitter, navigateToTab }: TabBarProps) {
           if (!focused && !event.defaultPrevented) navigateToTab(route.key)
         }
         return (
-          <Pressable key={route.key} accessibilityRole="tab" accessibilityState={{ selected: focused }} onPress={onPress} style={styles.tab}>
-            <View style={[styles.pill, { backgroundColor: focused ? palette['in-soft'] : 'transparent' }]}>
-              {isNow ? <NowTabIcon color={color} background={palette.sf} /> : <HistoryTabIcon color={color} />}
-            </View>
+          <Pressable
+            key={route.key}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: focused }}
+            onPress={onPress}
+            style={[styles.tab, { backgroundColor: focused ? palette['in-soft'] : 'transparent' }]}
+          >
+            {isNow ? <NowTabIcon color={color} background={focused ? palette['in-soft'] : palette.sf} /> : <HistoryTabIcon color={color} />}
             <Txt size={12} weight={focused ? 'semibold' : 'medium'} color={focused ? 'tx' : 't2'}>
               {isNow ? t.app.navNow : t.app.navHistory}
             </Txt>
@@ -43,7 +47,7 @@ export function TabBar({ state, emitter, navigateToTab }: TabBarProps) {
 }
 
 const styles = StyleSheet.create({
-  bar: { flexDirection: 'row', justifyContent: 'center', gap: 24, paddingTop: 8, paddingHorizontal: 24, borderTopWidth: 1 },
-  tab: { flex: 1, maxWidth: 160, alignItems: 'center', gap: 4, paddingTop: 2 },
-  pill: { width: 64, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  bar: { flexDirection: 'row', justifyContent: 'center', gap: 16, paddingTop: 8, paddingHorizontal: 24, borderTopWidth: 1 },
+  /** La pestaña activa es una pastilla que envuelve ícono y texto (no solo el ícono). */
+  tab: { flex: 1, maxWidth: 160, minHeight: 56, alignItems: 'center', justifyContent: 'center', gap: 3, paddingVertical: 6, borderRadius: 22 },
 })

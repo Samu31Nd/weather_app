@@ -3,7 +3,8 @@
 //
 // Ajuste de accesibilidad (RNF-APP-05): en el tema claro, `tm` y los acentos no llegan a 4.5:1 como texto. Se
 // conservan los acentos para gráficos y rellenos y se agregan variantes `*-text`, más oscuras, solo para texto.
-// `test/contrast.test.ts` lo verifica.
+// `test/contrast.test.ts` lo verifica. Los colores con transparencia (bandas, cursor) usan hexadecimal de 8
+// dígitos, que entienden tanto CSS como React Native.
 
 export const TOKEN_NAMES = [
   // superficies y texto
@@ -17,6 +18,8 @@ export const TOKEN_NAMES = [
   // pantalla de carga
   'sky1', 'sky2', 'halo', 'cloud', 'hill', 'hill2',
   'dev-hi', 'dev-mid', 'dev-sh', 'dev-dark', 'win', 'line', 'pole', 'pole-hi', 'cup', 'cup-hi',
+  // histórico: bandas, acumulado, rosa de los vientos, cursor e ilustración (artboard `Main`)
+  'temp-band', 'pres-band', 'cum-fill', 'rose-0', 'rose-1', 'rose-2', 'crosshair', 'art-sun', 'art-cloud', 'art-hill',
 ] as const
 
 export type TokenName = (typeof TOKEN_NAMES)[number]
@@ -35,6 +38,8 @@ export const PALETTES: Readonly<Record<ThemeName, Palette>> = {
     sky1: '#c9daf8', sky2: '#eef1f8', halo: '#f7e6d8', cloud: '#ffffff', hill: '#cfe3d3', hill2: '#b7d6bd',
     'dev-hi': '#f7f1e6', 'dev-mid': '#e4dccd', 'dev-sh': '#c3b7a2', 'dev-dark': '#857a66', win: '#efe3cc',
     line: '#2b2a33', pole: '#b39c70', 'pole-hi': '#d4c29c', cup: '#3a3e52', 'cup-hi': '#8c8fa1',
+    'temp-band': '#fe640b29', 'pres-band': '#17929926', 'cum-fill': '#1e66f51a', 'rose-0': '#dcc8fb', 'rose-1': '#b48af5', 'rose-2': '#8839ef',
+    crosshair: '#4c4f6973', 'art-sun': '#fbc9a6', 'art-cloud': '#d5d9f5', 'art-hill': '#cfe8d2',
   },
   dark: {
     bg: '#181825', sf: '#1e1e2e', bd: '#313244', gr: '#313244', gs: '#45475a',
@@ -47,5 +52,7 @@ export const PALETTES: Readonly<Record<ThemeName, Palette>> = {
     sky1: '#1b1c2c', sky2: '#2a2b45', halo: '#353456', cloud: '#3a3c58', hill: '#252b36', hill2: '#1f2430',
     'dev-hi': '#e9e2d4', 'dev-mid': '#cfc6b5', 'dev-sh': '#a99e89', 'dev-dark': '#6d6352', win: '#d9ccb3',
     line: '#11111b', pole: '#9c8760', 'pole-hi': '#bba97f', cup: '#2a2d3d', 'cup-hi': '#7f849c',
+    'temp-band': '#fab38733', 'pres-band': '#94e2d526', 'cum-fill': '#89b4fa1f', 'rose-0': '#4f4775', 'rose-1': '#9b84d6', 'rose-2': '#cba6f7',
+    crosshair: '#cdd6f473', 'art-sun': '#5c4335', 'art-cloud': '#363a58', 'art-hill': '#2c3d36',
   },
 }

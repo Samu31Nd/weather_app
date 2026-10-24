@@ -14,3 +14,4 @@ export function catalogFor(language: Language): Catalog {
 export * from './format'
 export * from './forecast-text'
 export * from './presenters'
+export * from './history-text'

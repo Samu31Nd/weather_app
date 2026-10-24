@@ -94,6 +94,7 @@ jobs:
         working-directory: apps/mobile
         env:
           EXPO_PUBLIC_WEATHER_STATION_URL: ${{ vars.MOBILE_WEATHER_STATION_URL }}
+          EXPO_PUBLIC_HISTORY_API_URL: ${{ vars.NEXT_PUBLIC_API_CLOUD_URL }}
           MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           npm ci --no-audit --no-fund

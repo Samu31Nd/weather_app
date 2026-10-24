@@ -11,7 +11,7 @@ APIs de Expo. Ejemplo: en Expo Router 58, `tabBar` recibe `emitter` + `navigateT
 | Ruta | Qué es | Estado |
 |------|--------|--------|
 | `src/app/(tabs)/index.tsx` | "Ahora": carga → panel del artboard `MobileNow` | Fase 4 |
-| `src/app/(tabs)/historico.tsx` | Aviso de que el histórico llega después | Provisional hasta la fase 5 |
+| `src/app/(tabs)/historico.tsx` | Histórico del artboard `MobileHistory`: periodo, acordeones por sección y descarga | Fase 5 |
 
 Los ajustes (idioma, tema, tamaño de letra, unidades) son una hoja que se abre desde la cabecera, no una pestaña.
 
@@ -25,7 +25,10 @@ Los ajustes (idioma, tema, tamaño de letra, unidades) son una hoja que se abre 
 - `src/components/now/`: una tarjeta por bloque del artboard. Reciben el modelo de vista `CurrentConditions` de
   `@tt/core`; los textos derivados salen de `@tt/i18n` (`valueText`, `windText`, `rainText`…).
 - `src/components/art/svg-art.tsx`: dibuja el arte de `@tt/sky-art` y lo anima con reanimated (ADR-0010).
-- `src/components/ui/`: `Txt` (tipografía, color y escala), `Card`, `Segmented`, íconos.
+- `src/hooks/use-history.ts` y `src/components/history/`: el histórico. Gráficas, indicadores y exportación vienen
+  de `@tt/core`; la descarga se entrega con la hoja de compartir (`src/lib/share-file.ts`, expo-file-system y
+  expo-sharing).
+- `src/components/ui/`: `Txt` (tipografía, color y escala), `Card`, `Segmented`, `IconButton`, íconos.
 - `src/components/shell/`: cabecera, hoja de ajustes y barra de pestañas.
 
 ## Estilos
@@ -50,4 +53,4 @@ npm run build:android                   # APK local (eas build --local)
 
 - `EXPO_PUBLIC_WEATHER_STATION_URL`: el proxy `/api/live` de la web (ADR-0007). En desarrollo puede apuntar directo a
   la consola: Expo Go permite HTTP. El APK no lleva excepción de *cleartext*.
-- `EXPO_PUBLIC_HISTORY_API_URL`: Cloud Function de histórico (fase 5).
+- `EXPO_PUBLIC_HISTORY_API_URL`: Cloud Function de histórico. En CI sale de la variable `NEXT_PUBLIC_API_CLOUD_URL`.
