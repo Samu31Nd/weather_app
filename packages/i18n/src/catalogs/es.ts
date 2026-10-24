@@ -13,7 +13,6 @@ export const es = {
     navNow: 'Ahora',
     navHistory: 'Histórico',
     footNote: 'Datos de la consola Davis · se actualizan cada 60 s',
-    historySoon: 'El histórico de la estación llega en la siguiente versión de la app.',
   },
   settings: {
     language: 'Idioma',
@@ -331,6 +330,13 @@ export const es = {
     rose: 'Rosa de los vientos',
     roseCaption: (max: string, calm: string) => `Anillo exterior = ${max} % del tiempo · calma ${calm} %`,
     roseSpeeds: (low: string, high: string, unit: string) => [`< ${low} ${unit}`, `${low}–${high}`, `> ${high}`],
+    accordion: {
+      openCount: (open: number) => `${open} de 4 secciones abiertas`,
+      expandAll: 'Abrir todas',
+      collapseAll: 'Cerrar todas',
+      mostly: (direction: string) => `sobre todo ${direction}`,
+      rainyDays: (days: number) => (days === 1 ? '1 día con lluvia' : `${days} días con lluvia`),
+    },
     readout: {
       outdoor: 'ext', indoor: 'int', mean: 'media', gust: 'ráfaga', cumulative: 'acumulado', peakRate: 'intensidad máx',
     },

@@ -6,7 +6,7 @@
  */
 import { type HistorySample, buildHistoryView } from '@tt/core'
 import { describe, expect, it } from 'vitest'
-import { CATALOGS, axisLabel, createFormatter, historySummaryText, intervalLabel, periodLabel, readoutText } from '../src'
+import { CATALOGS, axisLabel, createFormatter, historySectionSummaries, historySummaryText, intervalLabel, periodLabel, readoutText } from '../src'
 
 const t = CATALOGS.es
 const format = createFormatter('es', t)
@@ -56,5 +56,14 @@ describe('indicadores y lectura del cursor', () => {
     expect(readoutText(view, thursday, 'temperature', true, t, format)).toBe('vie 23 oct · ext 22.4 °C (21–23) · int 21.0 °C')
     expect(readoutText(view, thursday, 'wind', false, t, format)).toBe('vie 23 oct · media 6.2 km/h · ráfaga 14.5 km/h')
     expect(readoutText(view, 0, 'rain', false, t, format)).toBe('sáb 17 oct · sin datos (estación sin reporte)')
+  })
+
+  it('resume cada sección en una línea para los acordeones móviles', () => {
+    expect(historySectionSummaries(view, t, format)).toEqual({
+      temperature: '22.4 °C · 21.0 °C – 23.0 °C',
+      wind: '6.2 km/h · sobre todo NO',
+      rain: '1.2 mm · 1 día con lluvia',
+      pressure: '1,026 hPa · —',
+    })
   })
 })

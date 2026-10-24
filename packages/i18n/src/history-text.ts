@@ -149,3 +149,17 @@ export function readoutText(view: HistoryView, index: number, section: HistorySe
     }
   }
 }
+
+/** Resumen de una línea de cada sección, para el encabezado de los acordeones móviles (artboard `MobileHistory`). */
+export function historySectionSummaries(view: HistoryView, t: Catalog, format: Formatter): Readonly<Record<'temperature' | 'wind' | 'rain' | 'pressure', string>> {
+  const v = valueText(view.units, format)
+  const { temperature, wind, rain, pressure } = view.summary
+  const a = t.history.accordion
+  const direction = wind.dominantDirection ? t.wind.compass[wind.dominantDirection] : t.hero.calm
+  return {
+    temperature: `${v.temperature(temperature.mean)} · ${v.temperature(temperature.min?.value ?? null)} – ${v.temperature(temperature.max?.value ?? null)}`,
+    wind: `${v.speed(wind.mean)} · ${a.mostly(direction)}`,
+    rain: `${v.rain(rain.total)} · ${a.rainyDays(rain.rainyDays)}`,
+    pressure: `${v.pressureShort(pressure.last)} · ${pressure.trend ? t.pressure.trends[pressure.trend] : format.number(null)}`,
+  }
+}

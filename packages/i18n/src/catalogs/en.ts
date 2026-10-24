@@ -11,7 +11,6 @@ export const en: Catalog = {
     navNow: 'Now',
     navHistory: 'History',
     footNote: 'Data from the Davis console · refreshed every 60 s',
-    historySoon: 'Station history arrives in the next version of the app.',
   },
   settings: {
     language: 'Language',
@@ -327,6 +326,13 @@ export const en: Catalog = {
     rose: 'Wind rose',
     roseCaption: (max, calm) => `Outer ring = ${max} % of the time · calm ${calm} %`,
     roseSpeeds: (low, high, unit) => [`< ${low} ${unit}`, `${low}–${high}`, `> ${high}`],
+    accordion: {
+      openCount: (open) => `${open} of 4 sections open`,
+      expandAll: 'Expand all',
+      collapseAll: 'Collapse all',
+      mostly: (direction) => `mostly ${direction}`,
+      rainyDays: (days) => (days === 1 ? '1 rainy day' : `${days} rainy days`),
+    },
     readout: {
       outdoor: 'out', indoor: 'in', mean: 'avg', gust: 'gust', cumulative: 'total', peakRate: 'peak rate',
     },
