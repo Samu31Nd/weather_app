@@ -17,6 +17,7 @@ export * from './domain/history-period'
 export * from './charts/gauges'
 export * from './charts/series'
 export * from './charts/history-art'
+export * from './charts/history-charts'
 
 export * from './ports'
 
