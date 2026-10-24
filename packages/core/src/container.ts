@@ -36,9 +36,12 @@ export interface Core {
 
 export function createCore(config: CoreConfig): Core {
   const clock = config.clock ?? systemClock
-  const liveRepository = config.liveRepository ?? new HttpLiveWeatherRepository(required(config.liveUrl, 'liveUrl'), config.http)
-  const historyRepository =
-    config.historyRepository ?? new HttpHistoryRepository(required(config.historyUrl, 'historyUrl'), config.http)
+  const liveRepository: LiveWeatherRepository =
+    config.liveRepository ??
+    (config.liveUrl ? new HttpLiveWeatherRepository(config.liveUrl, config.http) : { getCurrent: () => missing('liveUrl') })
+  const historyRepository: HistoryRepository =
+    config.historyRepository ??
+    (config.historyUrl ? new HttpHistoryRepository(config.historyUrl, config.http) : { getSamples: () => missing('historyUrl') })
   const preferencesRepository =
     config.preferencesRepository ?? new KeyValuePreferencesRepository(config.storage ?? inMemoryStorage())
   return {
@@ -51,9 +54,9 @@ export function createCore(config: CoreConfig): Core {
   }
 }
 
-function required(value: string | undefined, name: string): string {
-  if (!value) throw new Error(`Falta la configuración \`${name}\` del núcleo.`)
-  return value
+/** Un repositorio sin URL falla al usarse, no al crear el contenedor: una app puede no necesitarlo. */
+function missing(name: string): Promise<never> {
+  return Promise.reject(new Error(`Falta la configuración \`${name}\` del núcleo.`))
 }
 
 function inMemoryStorage(): KeyValueStorage {

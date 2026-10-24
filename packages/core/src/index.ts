@@ -13,6 +13,8 @@ export type * from './domain/live-reading'
 export * from './domain/preferences'
 export * from './domain/display-units'
 
+export * from './charts/gauges'
+
 export * from './ports'
 
 export { GetLiveWeather } from './application/get-live-weather'

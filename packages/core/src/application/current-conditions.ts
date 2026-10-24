@@ -61,6 +61,8 @@ export interface CurrentConditions {
   }
   readonly pressure: {
     readonly value: number | null
+    /** Valores canónicos para la línea secundaria ("770.9 mmHg · 30.39 inHg"). */
+    readonly hPa: number | null
     readonly mmHg: number | null
     readonly trend: PressureTrend | null
     readonly todayLow: number | null
@@ -241,6 +243,7 @@ function pressureView(
   const implausible = longTerm.find((value) => value !== null && !isPlausibleSeaLevelPressure(value)) ?? null
   return {
     value: displayPressure(hPa, units),
+    hPa,
     mmHg: hPa === null ? null : hPaToMmHg(hPa),
     trend,
     todayLow: displayPressure(today.low, units),

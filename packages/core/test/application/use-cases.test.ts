@@ -77,8 +77,16 @@ describe('createCore', () => {
     expect(() => createCore({ liveUrl: 'https://a.test/live', historyUrl: 'https://b.test/' })).not.toThrow()
   })
 
-  it('exige las URLs si no se inyectan repositorios', () => {
-    expect(() => createCore({ historyUrl: 'https://b.test/' })).toThrow(/liveUrl/)
-    expect(() => createCore({ liveUrl: 'https://a.test/live' })).toThrow(/historyUrl/)
+  it('falla al usar un repositorio sin URL, no al crear el contenedor', async () => {
+    const core = createCore({})
+    await expect(core.getLiveWeather.execute()).rejects.toThrow(/liveUrl/)
+    await expect(core.getHistory.execute({ start: new Date(0), end: new Date(86_400_000) })).rejects.toThrow(/historyUrl/)
+  })
+
+  it('guarda las preferencias en memoria si no se le da un almacén', async () => {
+    const core = createCore({})
+    const changed = await core.updatePreferences.execute(await core.getPreferences.execute(), { language: 'en' })
+    expect(changed.language).toBe('en')
+    expect((await core.getPreferences.execute()).language).toBe('en')
   })
 })
