@@ -1,85 +1,46 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, type ReactNode, useMemo } from 'react'
-import { translations, type Language, type Translations } from '@/lib/language/translations'
-import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material/styles'
+// Adaptador temporal para el histórico previo (fase 5 lo reemplaza): expone a los componentes viejos el idioma,
+// las unidades y el tema de las preferencias nuevas, con la forma que esperaban (`useApp`), y el tema de MUI.
 
-type View = 'dashboard' | 'charts'
+import { createContext, useContext, type ReactNode, useMemo } from 'react'
+import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material/styles'
+import { usePreferences } from '@/components/providers/app-providers'
+import { translations, type Language, type Translations } from '@/lib/language/translations'
 
 interface AppContextType {
-    // Language
     language: Language
-    setLanguage: (lang: Language) => void
     t: Translations
-    // Units
     isMetric: boolean
-    setIsMetric: (value: boolean) => void
-    // Theme
     isDark: boolean
-    setIsDark: (value: boolean) => void
-    // Navigation
-    currentView: View
-    setCurrentView: (view: View) => void
-    // Sidebar
-    sidebarOpen: boolean
-    setSidebarOpen: (open: boolean) => void
-    sidebarCollapsed: boolean
-    setSidebarCollapsed: (collapsed: boolean) => void
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
 
 export function AppProvider({ children }: { children: ReactNode }) {
-    const [language, setLanguage] = useState<Language>('es')
-    const [isMetric, setIsMetric] = useState(true)
-    const [isDark, setIsDark] = useState(true)
-    const [currentView, setCurrentView] = useState<View>('dashboard')
-    const [sidebarOpen, setSidebarOpen] = useState(false)
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(true) // Collapsed by default on desktop
+    const { preferences, isDark } = usePreferences()
+    const language = preferences.language
 
     const muiTheme = useMemo(() =>
         createTheme({
             palette: {
                 mode: isDark ? 'dark' : 'light',
-                primary: { main: isDark ? '#818cf8' : '#4f46e5' },
+                primary: { main: isDark ? '#89b4fa' : '#1e66f5' },
                 background: {
-                    default: isDark ? '#0f1117' : '#f8fafc',
-                    paper: isDark ? '#1a1d2e' : '#ffffff',
+                    default: isDark ? '#181825' : '#e6e9ef',
+                    paper: isDark ? '#1e1e2e' : '#eff1f5',
                 },
             },
+            typography: { fontFamily: 'var(--font-plex-sans), system-ui, sans-serif' },
         }), [isDark])
 
-    // Apply dark mode to document
-    useEffect(() => {
-        document.documentElement.classList.toggle('dark', isDark)
-    }, [isDark])
-
-    // Update html lang attribute
-    useEffect(() => {
-        document.documentElement.lang = language
-    }, [language])
-
-    const t = translations[language]
+    const value = useMemo(
+        () => ({ language, t: translations[language], isMetric: preferences.units === 'metric', isDark }),
+        [language, preferences.units, isDark],
+    )
 
     return (
-        <AppContext.Provider
-            value={{
-                language,
-                t,
-                isMetric,
-                isDark,
-                currentView,
-                sidebarOpen,
-                sidebarCollapsed,
-                // SETTERS
-                setLanguage,
-                setIsMetric,
-                setIsDark,
-                setCurrentView,
-                setSidebarOpen,
-                setSidebarCollapsed,
-            }}
-        >
+        <AppContext.Provider value={value}>
             <MuiThemeProvider theme={muiTheme}>
                 {children}
             </MuiThemeProvider>

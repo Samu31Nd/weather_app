@@ -8,3 +8,5 @@ docs
 apps/mobile/*
 !apps/mobile/package.json
 .claude
+**/test
+**/coverage

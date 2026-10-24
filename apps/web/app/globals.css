@@ -75,8 +75,8 @@
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --font-sans: var(--font-plex-sans), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -115,11 +115,83 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+
+/* Tokens del diseño (@tt/tokens) como utilidades: bg-wx-sf, text-wx-t2, border-wx-bd… Las variables se
+   inyectan en el layout con themeStylesheet() y cambian solas con la clase .dark en <html>. */
+@theme inline {
+  --color-wx-bg: var(--bg);
+  --color-wx-sf: var(--sf);
+  --color-wx-bd: var(--bd);
+  --color-wx-gr: var(--gr);
+  --color-wx-gs: var(--gs);
+  --color-wx-tx: var(--tx);
+  --color-wx-t2: var(--t2);
+  --color-wx-tm: var(--tm);
+  --color-wx-temp: var(--temp);
+  --color-wx-hum: var(--hum);
+  --color-wx-blue: var(--blue);
+  --color-wx-wind: var(--wind);
+  --color-wx-gust: var(--gust);
+  --color-wx-pres: var(--pres);
+  --color-wx-yellow: var(--yellow);
+  --color-wx-green: var(--green);
+  --color-wx-red: var(--red);
+  --color-wx-lav: var(--lav);
+  --color-wx-temp-text: var(--temp-text);
+  --color-wx-hum-text: var(--hum-text);
+  --color-wx-blue-text: var(--blue-text);
+  --color-wx-wind-text: var(--wind-text);
+  --color-wx-pres-text: var(--pres-text);
+  --color-wx-green-text: var(--green-text);
+  --color-wx-temp-soft: var(--temp-soft);
+  --color-wx-wind-soft: var(--wind-soft);
+  --color-wx-rain-soft: var(--rain-soft);
+  --color-wx-pres-soft: var(--pres-soft);
+  --color-wx-hum-soft: var(--hum-soft);
+  --color-wx-sun-soft: var(--sun-soft);
+  --color-wx-in-soft: var(--in-soft);
+  --color-wx-ok-soft: var(--ok-soft);
+  --color-wx-sky1: var(--sky1);
+  --color-wx-sky2: var(--sky2);
+  --color-wx-halo: var(--halo);
+  --color-wx-cloud: var(--cloud);
+  --color-wx-hill: var(--hill);
+  --color-wx-hill2: var(--hill2);
+  --color-wx-dev-hi: var(--dev-hi);
+  --color-wx-dev-mid: var(--dev-mid);
+  --color-wx-dev-sh: var(--dev-sh);
+  --color-wx-dev-dark: var(--dev-dark);
+  --color-wx-win: var(--win);
+  --color-wx-line: var(--line);
+  --color-wx-pole: var(--pole);
+  --color-wx-pole-hi: var(--pole-hi);
+  --color-wx-cup: var(--cup);
+  --color-wx-cup-hi: var(--cup-hi);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-wx-bg text-wx-tx font-sans;
   }
 }
+
+/* Cifras con ancho fijo (IBM Plex Mono), como en el diseño. */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tamaño de texto (RF-APP-10): el diseño escala toda la vista con zoom 0.9 / 1 / 1.15. */
+html[data-text-size=s] .wx-zoom { zoom: 0.9; }
+html[data-text-size=l] .wx-zoom { zoom: 1.15; }
+
+:focus-visible { outline: 2px solid var(--lav); outline-offset: 2px; }
+
+@keyframes wx-pulse { 0% { transform: scale(1); opacity: .6 } 100% { transform: scale(2.6); opacity: 0 } }
+@keyframes wx-spin { to { transform: rotate(360deg) } }
+.wx-pulse { animation: wx-pulse 1.8s ease-out infinite; transform-origin: center; }
+.wx-spin { animation: wx-spin .8s linear infinite; transform-origin: center; }
+@media (prefers-reduced-motion: reduce) { .wx-pulse, .wx-spin { animation: none; } }

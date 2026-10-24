@@ -1,34 +1,29 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
+import { IBM_Plex_Mono, IBM_Plex_Sans } from 'next/font/google'
+import { themeStylesheet } from '@tt/tokens'
+import { AppProviders } from '@/components/providers/app-providers'
+import { PREFERENCES_BOOT_SCRIPT } from '@/lib/preferences/apply'
 import './globals.css'
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const plexSans = IBM_Plex_Sans({ subsets: ['latin'], weight: ['300', '400', '500', '600'], variable: '--font-plex-sans' })
+const plexMono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-plex-mono' })
 
 export const metadata: Metadata = {
-  title: 'Weather Dashboard',
-  description: 'Real-time weather monitoring dashboard',
-  icons: {
-    icon: [
-      {
-        url: '/favicon.png',
-        media: '(prefers-color-scheme: light)',
-      },
-    ],
-  },
+  title: 'Estación meteorológica · ESCOM',
+  description: 'Condiciones en vivo e histórico de la estación meteorológica de ESCOM (IPN).',
+  icons: { icon: '/favicon.png' },
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className='dark'>
-      <body className="font-sans antialiased bg-background">
-        {children}
-        <Analytics />
+    // `lang`, la clase `dark` y el tamaño de texto los pone el script de arranque antes del primer pintado.
+    <html lang="es" className={`${plexSans.variable} ${plexMono.variable}`} suppressHydrationWarning>
+      <head>
+        <style>{themeStylesheet()}</style>
+        <script dangerouslySetInnerHTML={{ __html: PREFERENCES_BOOT_SCRIPT }} />
+      </head>
+      <body className="antialiased">
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   )
