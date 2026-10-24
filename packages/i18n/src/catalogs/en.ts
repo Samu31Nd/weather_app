@@ -11,6 +11,7 @@ export const en: Catalog = {
     navNow: 'Now',
     navHistory: 'History',
     footNote: 'Data from the Davis console · refreshed every 60 s',
+    historySoon: 'Station history arrives in the next version of the app.',
   },
   settings: {
     language: 'Language',
@@ -21,6 +22,14 @@ export const en: Catalog = {
     textSizes: { s: 'Small text', m: 'Medium text', l: 'Large text' },
     toLight: 'Switch to light theme',
     toDark: 'Switch to dark theme',
+    title: 'Settings',
+    done: 'Done',
+    close: 'Close',
+    theme: 'Theme',
+    themes: { system: 'System', light: 'Light', dark: 'Dark' },
+    unitNames: { metric: 'Metric', imperial: 'Imperial' },
+    textSizeNames: { s: 'Small', m: 'Medium', l: 'Large' },
+    languageNames: { es: 'Español', en: 'English' },
   },
   live: {
     live: 'Live',

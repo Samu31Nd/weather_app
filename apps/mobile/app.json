@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Weather App",
+    "name": "Estación ESCOM",
     "slug": "tt-b033",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -34,9 +34,15 @@
         }
       ],
       "expo-font",
-      "expo-image",
       "expo-status-bar",
-      "expo-web-browser"
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
