@@ -12,7 +12,7 @@ type BottomTabBarProps = Parameters<
   NonNullable<ComponentProps<typeof Tabs>["tabBar"]>
 >[0];
 
-export const ResponsiveNavBar = ({ state, navigation }: BottomTabBarProps) => {
+export const ResponsiveNavBar = ({ state, emitter, navigateToTab }: BottomTabBarProps) => {
   const { width } = useWindowDimensions();
   const isDesktop = width >= 768;
   const colorScheme = useColorScheme();
@@ -27,14 +27,14 @@ export const ResponsiveNavBar = ({ state, navigation }: BottomTabBarProps) => {
         {state.routes.map((route, index) => {
           const isFocused = state.index === index;
           const onPress = () => {
-            const event = navigation.emit({
+            const event = emitter.emit({
               type: "tabPress",
               target: route.key,
               canPreventDefault: true,
             });
 
             if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name, route.params);
+              navigateToTab(route.key);
             }
           };
 
