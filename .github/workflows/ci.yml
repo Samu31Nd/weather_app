@@ -16,7 +16,7 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      core: ${{ steps.filter.outputs.core }}
+      packages: ${{ steps.filter.outputs.packages }}
       web: ${{ steps.filter.outputs.web }}
       mobile: ${{ steps.filter.outputs.mobile }}
     steps:
@@ -30,7 +30,7 @@ jobs:
               - 'package.json'
               - 'package-lock.json'
               - '.github/workflows/**'
-            core:
+            packages:
               - *shared
             web:
               - *shared
@@ -39,9 +39,9 @@ jobs:
               - *shared
               - 'apps/mobile/**'
 
-  core:
+  packages:
     needs: changes
-    if: needs.changes.outputs.core == 'true'
+    if: needs.changes.outputs.packages == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -50,9 +50,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: npm run typecheck --workspace=@tt/core
-      - name: Tests y umbral de cobertura (RNF-APP-09)
-        run: npm test --workspace=@tt/core
+      - name: Typecheck de los paquetes compartidos
+        run: npm run typecheck -w @tt/core -w @tt/i18n -w @tt/tokens -w @tt/sky-art
+      - name: Tests (con umbral de cobertura en @tt/core, RNF-APP-09)
+        run: npm test -w @tt/core -w @tt/i18n -w @tt/tokens -w @tt/sky-art
 
   web:
     needs: changes
@@ -89,7 +90,7 @@ jobs:
         run: npx expo export --platform android --output-dir "$RUNNER_TEMP/expo-export"
 
   ci-ok:
-    needs: [changes, core, web, mobile]
+    needs: [changes, packages, web, mobile]
     if: always()
     runs-on: ubuntu-latest
     steps:
