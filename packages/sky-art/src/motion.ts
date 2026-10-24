@@ -200,26 +200,27 @@ function seconds(value: string | undefined, fallback: number): number {
 }
 
 // ── Muestreo (hilo de UI) ──────────────────────────────────────────────────────────────────────────────────
+// El plugin de reanimated convierte cada 'worklet' en una constante que captura sus dependencias al definirse:
+// cada función debe ir DESPUÉS de las que llama (ease → sampleTrack → sampleMotion), o captura `undefined`.
 
 const BASE_SAMPLE: MotionSample = { translateX: 0, translateY: 0, rotate: 0, scaleX: 1, scaleY: 1, opacity: 1, strokeDashoffset: 0 }
 
-/** Valores de la animación `elapsedMs` después de empezar (con su retraso, dirección y curvas). */
-export function sampleMotion(motion: MotionSpec, elapsedMs: number): MotionSample {
+// Curvas de CSS (cubic-bezier) resueltas por bisección: suficiente para 60 fps y sin tablas.
+function ease(easing: MotionEasing, x: number): number {
   'worklet'
-  const cycles = (elapsedMs - motion.delayMs) / motion.durationMs
-  const iteration = Math.floor(cycles)
-  let progress = cycles - iteration
-  const odd = Math.abs(iteration) % 2 === 1
-  if ((motion.direction === 'alternate' && odd) || (motion.direction === 'alternate-reverse' && !odd)) progress = 1 - progress
-
-  const sample: Record<string, number> = { ...BASE_SAMPLE }
-  const tracks = motion.tracks as Record<string, MotionTrack | undefined>
-  for (const property in tracks) {
-    const track = tracks[property]
-    if (!track || track.length === 0) continue
-    sample[property] = sampleTrack(track, progress, motion.easing)
+  if (easing === 'linear') return x
+  const x1 = easing === 'ease-out' ? 0 : 0.42
+  const x2 = easing === 'ease-in' ? 1 : 0.58
+  const bezier = (p1: number, p2: number, s: number) => 3 * p1 * s * (1 - s) * (1 - s) + 3 * p2 * s * s * (1 - s) + s * s * s
+  let low = 0
+  let high = 1
+  let s = x
+  for (let i = 0; i < 30; i++) {
+    s = (low + high) / 2
+    if (bezier(x1, x2, s) < x) low = s
+    else high = s
   }
-  return sample as MotionSample
+  return bezier(0, 1, s)
 }
 
 function sampleTrack(track: MotionTrack, progress: number, easing: MotionEasing): number {
@@ -238,22 +239,23 @@ function sampleTrack(track: MotionTrack, progress: number, easing: MotionEasing)
   return (track[track.length - 1] as readonly [number, number])[1]
 }
 
-// Curvas de CSS (cubic-bezier) resueltas por bisección: suficiente para 60 fps y sin tablas.
-function ease(easing: MotionEasing, x: number): number {
+/** Valores de la animación `elapsedMs` después de empezar (con su retraso, dirección y curvas). */
+export function sampleMotion(motion: MotionSpec, elapsedMs: number): MotionSample {
   'worklet'
-  if (easing === 'linear') return x
-  const x1 = easing === 'ease-out' ? 0 : 0.42
-  const x2 = easing === 'ease-in' ? 1 : 0.58
-  const bezier = (p1: number, p2: number, s: number) => 3 * p1 * s * (1 - s) * (1 - s) + 3 * p2 * s * s * (1 - s) + s * s * s
-  let low = 0
-  let high = 1
-  let s = x
-  for (let i = 0; i < 30; i++) {
-    s = (low + high) / 2
-    if (bezier(x1, x2, s) < x) low = s
-    else high = s
+  const cycles = (elapsedMs - motion.delayMs) / motion.durationMs
+  const iteration = Math.floor(cycles)
+  let progress = cycles - iteration
+  const odd = Math.abs(iteration) % 2 === 1
+  if ((motion.direction === 'alternate' && odd) || (motion.direction === 'alternate-reverse' && !odd)) progress = 1 - progress
+
+  const sample: Record<string, number> = { ...BASE_SAMPLE }
+  const tracks = motion.tracks as Record<string, MotionTrack | undefined>
+  for (const property in tracks) {
+    const track = tracks[property]
+    if (!track || track.length === 0) continue
+    sample[property] = sampleTrack(track, progress, motion.easing)
   }
-  return bezier(0, 1, s)
+  return sample as MotionSample
 }
 
 /** Matriz SVG [a b c d e f] de la muestra alrededor de `origin` (traslación, giro y escala, en ese orden). */
