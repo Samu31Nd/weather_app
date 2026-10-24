@@ -1,3 +1,5 @@
+import { compassPointFromDegrees } from '@tt/core'
+
 export interface WeatherData {
   stnname: string
   mac: string
@@ -80,10 +82,7 @@ export function formatRain(value: number | null, isMetric: boolean): string {
 }
 
 export function getWindDirection(degrees: number | null): string {
-  if (degrees === null) return '--'
-  const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
-  const index = Math.round(degrees / 22.5) % 16
-  return directions[index]
+  return degrees === null ? '--' : compassPointFromDegrees(degrees)
 }
 
 export function getBarometerTrend(trend: string | undefined): { label: string; direction: 'up' | 'down' | 'steady' } {

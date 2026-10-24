@@ -1,6 +1,7 @@
 // Application Layer - Use Cases
 // Business logic and orchestration
 
+import { compassPointFromDegrees } from '@tt/core'
 import type { WeatherEntity, WeatherRepository } from '../domain/weather.entity'
 
 export class GetWeatherUseCase {
@@ -61,13 +62,7 @@ export function formatRainFromEntity(
 }
 
 export function getWindDirectionLabel(degrees: number | null): string {
-  if (degrees === null) return '--'
-  const directions = [
-    'N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
-    'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'
-  ]
-  const index = Math.round(degrees / 22.5) % 16
-  return directions[index]
+  return degrees === null ? '--' : compassPointFromDegrees(degrees)
 }
 
 export function getBarometerTrendInfo(
