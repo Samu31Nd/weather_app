@@ -10,7 +10,8 @@
     "mobile": "npm run start --workspace=mobile",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "build:android": "npm run build:android --workspace=mobile"
   },
   "engines": {
     "node": ">=22"
