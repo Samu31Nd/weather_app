@@ -9,7 +9,7 @@ Un monorepo con npm workspaces y dos apps que comparten la lógica:
 
 | Ruta | Qué es | Notas |
 |------|--------|-------|
-| `apps/mobile` | App Expo 57 (expo-router, uniwind, reanimated, react-native-svg) | Ver `apps/mobile/AGENTS.md`. Leer la doc versionada de Expo antes de tocar código. |
+| `apps/mobile` | App Expo 58 (expo-router, uniwind, reanimated, react-native-svg) | Ver `apps/mobile/AGENTS.md`. Leer la doc versionada de Expo antes de tocar código. |
 | `apps/web` | App Next.js 16 (App Router, Tailwind 4) | Importada de `weather-dashboard` con su historial (`git log HEAD^2` del commit de import). Ver `apps/web/AGENTS.md`. |
 | `packages/core` | *(fase 1)* Dominio, puertos, casos de uso y adaptadores HTTP. TS puro: sin React ni APIs de plataforma. | |
 | `packages/tokens` | *(fase 2)* Paleta clara/oscura, tipografía y escalas de tamaño del diseño. | |
@@ -124,10 +124,18 @@ fase. Orden: 0 → D → 0b → 1 … 6.
 Notas de la fase 0:
 - Se usa **npm workspaces** en lugar de pnpm, que el plan proponía. Así no hace falta instalar herramientas
   globales, y Expo y Next funcionan sin configuración extra.
-- React (19.2.3), `@types/react` y TypeScript (~6.0.3) están alineados entre las dos apps para que no se
+- React (19.3.0 desde el SDK 58), `@types/react` y TypeScript (~6.0.3) están alineados entre las dos apps para que no se
   dupliquen.
 - Errores de tipos que salieron al quitar `ignoreBuildErrors`:
   - web: tipo `Translations` demasiado literal y la leyenda de MUI X v9;
   - móvil: `ResponsiveNavBar` importaba `@react-navigation/bottom-tabs`, que no está instalado, y
     `unmountOnBlur` ya no existe.
 - Se verificó en dev el 21-oct: `/api/weather` y `/api/weather/historical` responden 200 con datos reales.
+
+Notas de la migración a Expo SDK 58 (24-oct):
+- Expo Go solo abre proyectos del SDK más reciente; por eso se migró de 57 a 58 (RN 0.88, React 19.3).
+- Hay que regenerar `package-lock.json` desde cero al cambiar de SDK. Si no, npm deja copias viejas de
+  reanimated/worklets en la raíz y TypeScript toma la versión vieja de `react-native` (desaparece `className`).
+- Expo Router 58 cambió la API de `tabBar`: ahora recibe `emitter` + `navigateToTab` en vez de `navigation`.
+- `expo-doctor` avisa que `icon.png` y `android-icon-foreground.png` no son cuadrados (512×504). Hay que
+  arreglarlos antes de generar el APK.
