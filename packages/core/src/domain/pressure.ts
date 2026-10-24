@@ -30,3 +30,16 @@ const PLAUSIBLE_SEA_LEVEL_HPA = { min: mmHgToHPa(740), max: mmHgToHPa(790) } as 
 export function isPlausibleSeaLevelPressure(hPa: number): boolean {
   return hPa >= PLAUSIBLE_SEA_LEVEL_HPA.min && hPa <= PLAUSIBLE_SEA_LEVEL_HPA.max
 }
+
+// Umbrales Davis de tendencia en 3 h: 0.02 inHg (≈ 0.7 hPa) lento y 0.06 inHg (≈ 2 hPa) rápido.
+const SLOW_CHANGE_HPA = 0.7
+const RAPID_CHANGE_HPA = 2
+
+/** Tendencia a partir del cambio de presión en 3 h, con los mismos umbrales que usa la consola. */
+export function pressureTrendFromChange(changeHPa: number): PressureTrend {
+  if (changeHPa <= -RAPID_CHANGE_HPA) return 'fallingRapidly'
+  if (changeHPa <= -SLOW_CHANGE_HPA) return 'fallingSlowly'
+  if (changeHPa >= RAPID_CHANGE_HPA) return 'risingRapidly'
+  if (changeHPa >= SLOW_CHANGE_HPA) return 'risingSlowly'
+  return 'steady'
+}

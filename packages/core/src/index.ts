@@ -12,8 +12,10 @@ export * from './domain/history'
 export type * from './domain/live-reading'
 export * from './domain/preferences'
 export * from './domain/display-units'
+export * from './domain/history-period'
 
 export * from './charts/gauges'
+export * from './charts/series'
 
 export * from './ports'
 
@@ -24,6 +26,8 @@ export { GetPreferences, UpdatePreferences } from './application/preferences'
 export * from './application/current-conditions'
 export * from './application/live-status'
 export * from './application/loading-progress'
+export * from './application/history-view'
+export * from './application/export-history'
 
 export { HttpError, type HttpOptions } from './adapters/http'
 export { HttpLiveWeatherRepository } from './adapters/davis-live/http-live-weather.repository'
