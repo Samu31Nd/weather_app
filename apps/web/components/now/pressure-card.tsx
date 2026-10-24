@@ -1,8 +1,8 @@
 // Presión (RF-APP-01): medidor de 270° con el rango de hoy, valor a nivel del mar, tendencia de 3 h y aviso
 // si un extremo del mes o del año no es creíble (lecturas sin corregir, rareza D3).
 
-import { type CurrentConditions, PRESSURE_GAUGE_HPA, displayPressure, gaugeAngle, gaugeArcPath, hPaToInHg } from '@tt/core'
-import { valueText } from '@tt/i18n'
+import { type CurrentConditions, gaugeAngle, gaugeArcPath } from '@tt/core'
+import { pressureText, valueText } from '@tt/i18n'
 import { Badge, Card, CardHeader, LabelValueRow } from '@/components/shell/card'
 import { usePreferences } from '@/components/providers/app-providers'
 
@@ -10,15 +10,7 @@ export function PressureCard({ pressure, units }: { pressure: CurrentConditions[
   const { t, format } = usePreferences()
   const v = valueText(units, format)
   const gauge = pressure.gauge
-  const alternate =
-    pressure.hPa === null || pressure.mmHg === null
-      ? null
-      : `${format.number(pressure.mmHg, 1)} mmHg · ${
-          units === 'metric' ? `${format.number(hPaToInHg(pressure.hPa), 3)} inHg` : `${format.number(pressure.hPa, 1)} hPa`
-        }`
-  const scaleDecimals = units === 'metric' ? 0 : 2
-  const scaleLow = format.number(displayPressure(PRESSURE_GAUGE_HPA.min, units), scaleDecimals)
-  const scaleHigh = format.number(displayPressure(PRESSURE_GAUGE_HPA.max, units), scaleDecimals)
+  const text = pressureText(pressure, units, t, format)
 
   return (
     <Card label={t.hero.pressure}>
@@ -33,7 +25,7 @@ export function PressureCard({ pressure, units }: { pressure: CurrentConditions[
             <circle cx="8" cy="10" r="1.2" fill="var(--pres)" />
           </svg>
         }
-        badge={pressure.trend ? <Badge className="bg-wx-pres-soft">{t.pressure.trends[pressure.trend]}</Badge> : null}
+        badge={text.trend ? <Badge className="bg-wx-pres-soft">{text.trend}</Badge> : null}
       />
       <div className="flex flex-col items-center gap-1">
         <svg
@@ -41,7 +33,7 @@ export function PressureCard({ pressure, units }: { pressure: CurrentConditions[
           height="132"
           viewBox="0 0 150 106"
           role="img"
-          aria-label={t.pressure.label(v.pressureShort(pressure.value), v.pressure(pressure.todayLow), v.pressure(pressure.todayHigh))}
+          aria-label={text.accessibilityLabel}
         >
           <path d="M18 92A60 60 0 1 1 132 92" fill="none" stroke="var(--pres-soft)" strokeWidth="14" strokeLinecap="round" />
           {gauge ? (
@@ -53,21 +45,19 @@ export function PressureCard({ pressure, units }: { pressure: CurrentConditions[
             </>
           ) : null}
           <circle cx="75" cy="72" r="6" fill="var(--tx)" />
-          <text x="16" y="104" fontSize="9" fill="var(--tm)" className="num">{scaleLow}</text>
-          <text x="134" y="104" fontSize="9" fill="var(--tm)" textAnchor="end" className="num">{scaleHigh}</text>
+          <text x="16" y="104" fontSize="9" fill="var(--tm)" className="num">{text.scaleLow}</text>
+          <text x="134" y="104" fontSize="9" fill="var(--tm)" textAnchor="end" className="num">{text.scaleHigh}</text>
         </svg>
         <span className="flex items-baseline gap-1.5">
           <span className="num text-[32px]">{v.pressure(pressure.value)}</span>
           <span className="text-[13px] text-wx-t2">{v.symbols.pressure}</span>
         </span>
-        {alternate ? <span className="num text-xs text-wx-t2">{alternate}</span> : null}
+        {text.alternate ? <span className="num text-xs text-wx-t2">{text.alternate}</span> : null}
       </div>
       <div className="mt-auto">
-        <LabelValueRow label={t.pressure.dayChange} value={`${v.pressure(pressure.todayLow)} – ${v.pressure(pressure.todayHigh)}`} />
+        <LabelValueRow label={t.pressure.dayChange} value={text.dayRange} />
       </div>
-      {pressure.implausibleExtreme !== null ? (
-        <p className="text-xs leading-[1.45] text-wx-t2">{t.pressure.implausible(v.pressureShort(pressure.implausibleExtreme))}</p>
-      ) : null}
+      {text.implausibleNote ? <p className="text-xs leading-[1.45] text-wx-t2">{text.implausibleNote}</p> : null}
     </Card>
   )
 }

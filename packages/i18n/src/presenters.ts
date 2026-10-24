@@ -1,7 +1,9 @@
 // Textos derivados del modelo de vista que web y móvil muestran igual: valores con su unidad y decimales, confort
 // interior, aviso del sol, estado de la estación y vigencia del dato en vivo (RF-APP-01, 02, 05, 10).
 
-import { type CurrentConditions, type DisplayUnits, type LiveStatus, UNIT_SYMBOLS } from '@tt/core'
+import {
+  type CurrentConditions, type DisplayUnits, type LiveStatus, PRESSURE_GAUGE_HPA, UNIT_SYMBOLS, displayPressure, hPaToInHg,
+} from '@tt/core'
 import type { Catalog } from './catalogs/es'
 import type { Formatter } from './format'
 
@@ -113,4 +115,98 @@ export function liveText(
         ? t.live.justUpdated
         : t.live.secondsAgo(live.secondsSinceUpdate)
   return { tone, label, detail }
+}
+
+export interface WindText {
+  /** Dirección de donde viene ("NO"), o "—". */
+  readonly direction: string
+  readonly gustDirection: string
+  /** Texto central de la brújula: dirección, o "Calma". */
+  readonly center: string
+  /** Debajo del centro: "315°", o "última NO 315°" en calma. */
+  readonly centerDetail: string
+  readonly beaufortName: string
+  readonly beaufortSummary: string
+  /** Promedios y ráfaga con su fracción de la barra (la escala crece si la ráfaga la supera). */
+  readonly bars: ReadonlyArray<{ readonly label: string; readonly value: string; readonly fraction: number; readonly gust: boolean }>
+  readonly accessibilityLabel: string
+}
+
+export function windText(wind: CurrentConditions['wind'], units: DisplayUnits, t: Catalog, format: Formatter): WindText {
+  const v = valueText(units, format)
+  const noData = format.number(null)
+  const direction = wind.direction ? t.wind.compass[wind.direction] : noData
+  const gustDirection = wind.gustDirection ? t.wind.compass[wind.gustDirection] : noData
+  const beaufortName = t.wind.beaufortNames[wind.beaufort] as string
+  const barMax = Math.max(wind.gust ?? 0, units === 'metric' ? 20 : 12)
+  const bar = (label: string, value: number | null, gust: boolean) => ({ label, value: v.speed(value), fraction: Math.min(1, (value ?? 0) / barMax), gust })
+  return {
+    direction,
+    gustDirection,
+    center: wind.calm ? t.hero.calm : direction,
+    centerDetail: wind.directionDeg === null ? '' : wind.calm ? t.wind.lastDirection(direction, wind.directionDeg) : `${wind.directionDeg}°`,
+    beaufortName,
+    beaufortSummary: t.wind.force(wind.beaufort, beaufortName.toLowerCase()),
+    bars: [bar(t.wind.avg2, wind.avg2Min, false), bar(t.wind.avg10, wind.avg10Min, false), bar(t.wind.gustFrom(gustDirection), wind.gust, true)],
+    accessibilityLabel: wind.calm ? t.wind.calmLabel(direction) : t.wind.label(direction, v.speed(wind.speed), gustDirection),
+  }
+}
+
+export interface RainText {
+  /** "Sin lluvia ahora" o "Lluvia ligera · 1.2 mm/h". */
+  readonly badge: string
+  readonly windows: ReadonlyArray<{ readonly label: string; readonly value: string; readonly fraction: number }>
+  readonly totals: ReadonlyArray<{ readonly label: string; readonly value: string }>
+}
+
+export function rainText(rain: CurrentConditions['rain'], units: DisplayUnits, t: Catalog, format: Formatter): RainText {
+  const v = valueText(units, format)
+  const windows = [
+    [t.rain.last15Min, rain.last15Min], [t.rain.lastHour, rain.lastHour], [t.rain.today, rain.today], [t.rain.last24h, rain.last24h],
+  ] as const
+  const max = Math.max(...windows.map(([, value]) => value ?? 0), units === 'metric' ? 1 : 0.04)
+  return {
+    badge: rain.intensity === 'none' ? t.rain.noRainNow : `${t.rain.intensity[rain.intensity]} · ${v.rainRate(rain.rate)}`,
+    windows: windows.map(([label, value]) => ({ label, value: v.rain(value), fraction: Math.min(1, (value ?? 0) / max) })),
+    totals: [
+      { label: t.rain.storm, value: v.rain(rain.storm) },
+      { label: t.rain.month, value: v.rain(rain.month) },
+      { label: t.rain.year, value: v.rain(rain.year) },
+    ],
+  }
+}
+
+export interface PressureText {
+  /** La lectura en las otras unidades: "770.9 mmHg · 30.394 inHg". */
+  readonly alternate: string | null
+  readonly scaleLow: string
+  readonly scaleHigh: string
+  /** Variación de hoy: "1,027.1 – 1,029.8". */
+  readonly dayRange: string
+  readonly trend: string | null
+  readonly implausibleNote: string | null
+  readonly accessibilityLabel: string
+}
+
+export function pressureText(pressure: CurrentConditions['pressure'], units: DisplayUnits, t: Catalog, format: Formatter): PressureText {
+  const v = valueText(units, format)
+  const metric = units === 'metric'
+  const scaleDecimals = metric ? 0 : 2
+  return {
+    alternate:
+      pressure.hPa === null || pressure.mmHg === null
+        ? null
+        : `${format.number(pressure.mmHg, 1)} mmHg · ${metric ? `${format.number(hPaToInHg(pressure.hPa), 3)} inHg` : `${format.number(pressure.hPa, 1)} hPa`}`,
+    scaleLow: format.number(displayPressure(PRESSURE_GAUGE_HPA.min, units), scaleDecimals),
+    scaleHigh: format.number(displayPressure(PRESSURE_GAUGE_HPA.max, units), scaleDecimals),
+    dayRange: `${v.pressure(pressure.todayLow)} – ${v.pressure(pressure.todayHigh)}`,
+    trend: pressure.trend ? t.pressure.trends[pressure.trend] : null,
+    implausibleNote: pressure.implausibleExtreme === null ? null : t.pressure.implausible(v.pressureShort(pressure.implausibleExtreme)),
+    accessibilityLabel: t.pressure.label(v.pressureShort(pressure.value), v.pressure(pressure.todayLow), v.pressure(pressure.todayHigh)),
+  }
+}
+
+/** Interpretación del punto de rocío ("El aire está casi saturado…"), o null sin datos. */
+export function humidityInsightText(humidity: CurrentConditions['humidity'], t: Catalog, format: Formatter): string | null {
+  return humidity.insight === null ? null : t.humidity.insight[humidity.insight](format.number(humidity.spread, 1))
 }

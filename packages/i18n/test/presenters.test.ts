@@ -6,7 +6,9 @@
  */
 import type { CurrentConditions } from '@tt/core'
 import { describe, expect, it } from 'vitest'
-import { CATALOGS, createFormatter, indoorText, liveText, stationText, sunBadgeText, valueText } from '../src'
+import {
+  CATALOGS, createFormatter, humidityInsightText, indoorText, liveText, pressureText, rainText, stationText, sunBadgeText, valueText, windText,
+} from '../src'
 
 const t = CATALOGS.es
 const format = createFormatter('es', t)
@@ -97,5 +99,68 @@ describe('vigencia del dato en vivo', () => {
     expect(liveText({ status: 'stale', secondsSinceUpdate: 200, observedAt }, t, format).tone).toBe('stale')
     const offline = liveText({ status: 'offlineWithData', secondsSinceUpdate: 400, observedAt }, t, format)
     expect(offline).toEqual({ tone: 'offline', label: 'Sin conexión', detail: 'Sin conexión · último dato a las 09:42' })
+  })
+})
+
+describe('viento', () => {
+  const wind = (overrides: Partial<CurrentConditions['wind']>): CurrentConditions['wind'] => ({
+    speed: 8, calm: false, directionDeg: 315, direction: 'NW', beaufort: 2, avg2Min: 6, avg10Min: 5, gust: 30, gustDirectionDeg: 300, gustDirection: 'WNW', ...overrides,
+  })
+
+  it('nombra la dirección con la rosa del idioma y escala las barras con la ráfaga', () => {
+    const text = windText(wind({}), 'metric', t, format)
+    expect(text.center).toBe('NO')
+    expect(text.centerDetail).toBe('315°')
+    expect(text.bars.map((bar) => bar.fraction)).toEqual([6 / 30, 5 / 30, 1])
+    expect(text.bars[2]).toMatchObject({ label: 'Ráfaga · desde ONO', gust: true })
+  })
+
+  it('en calma muestra "Calma" y la última dirección', () => {
+    const text = windText(wind({ calm: true, speed: 0 }), 'metric', t, format)
+    expect(text.center).toBe(t.hero.calm)
+    expect(text.centerDetail).toBe(t.wind.lastDirection('NO', 315))
+    expect(text.accessibilityLabel).toBe(t.wind.calmLabel('NO'))
+  })
+})
+
+describe('lluvia', () => {
+  const rain: CurrentConditions['rain'] = { rate: 1.2, intensity: 'light', last15Min: 0.2, lastHour: 0.8, today: 2, last24h: 4, storm: 4, month: 25, year: 475 }
+
+  it('la barra más llena es la ventana más grande y la insignia da intensidad y tasa', () => {
+    const text = rainText(rain, 'metric', t, format)
+    expect(text.windows.map((w) => w.fraction)).toEqual([0.05, 0.2, 0.5, 1])
+    expect(text.badge).toBe(`${t.rain.intensity.light} · 1.2 mm/h`)
+    expect(text.totals.map((total) => total.value)).toEqual(['4.0 mm', '25 mm', '475 mm'])
+  })
+
+  it('sin lluvia, la escala mínima evita barras llenas por centésimas', () => {
+    const dry = rainText({ ...rain, intensity: 'none', last15Min: 0, lastHour: 0, today: 0.2, last24h: 0.2 }, 'metric', t, format)
+    expect(dry.badge).toBe(t.rain.noRainNow)
+    expect(dry.windows[3]?.fraction).toBeCloseTo(0.2)
+  })
+})
+
+describe('presión', () => {
+  const pressure = { value: 1029.4, hPa: 1029.4, mmHg: 772.1, trend: 'steady', todayLow: 1027.1, todayHigh: 1029.8, gauge: null, implausibleExtreme: null } as CurrentConditions['pressure']
+
+  it('da la lectura en las otras unidades y la escala del medidor', () => {
+    const text = pressureText(pressure, 'metric', t, format)
+    expect(text.alternate).toBe('772.1 mmHg · 30.398 inHg')
+    expect([text.scaleLow, text.scaleHigh]).toEqual(['995', '1,045'])
+    expect(text.dayRange).toBe('1,027.1 – 1,029.8')
+    expect(text.trend).toBe(t.pressure.trends.steady)
+    expect(text.implausibleNote).toBeNull()
+  })
+
+  it('avisa si un extremo del mes no es creíble', () => {
+    expect(pressureText({ ...pressure, implausibleExtreme: 1032 }, 'metric', t, format).implausibleNote).toBe(t.pressure.implausible('1,032 hPa'))
+  })
+})
+
+describe('humedad', () => {
+  it('interpreta la distancia al punto de rocío', () => {
+    const humidity = { now: 91, todayLow: 80, todayHigh: 95, dewPoint: 14.4, spread: 1.4, insight: 'saturated' } as CurrentConditions['humidity']
+    expect(humidityInsightText(humidity, t, format)).toBe(t.humidity.insight.saturated('1.4'))
+    expect(humidityInsightText({ ...humidity, insight: null }, t, format)).toBeNull()
   })
 })
