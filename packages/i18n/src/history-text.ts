@@ -46,9 +46,15 @@ export function intervalLabel(instant: Date, resolution: Resolution, t: Catalog)
   }
 }
 
-/** "17 oct – 23 oct": el primer y el último día del periodo. */
+/** Primer y último día del periodo ("17 oct", "23 oct"); el final del rango es exclusivo. */
+export function periodBounds(range: DateRange, t: Catalog): { readonly from: string; readonly to: string } {
+  return { from: shortDate(range.start, t), to: shortDate(new Date(range.end.getTime() - 1), t) }
+}
+
+/** "17 oct – 23 oct". */
 export function periodLabel(range: DateRange, t: Catalog): string {
-  return `${shortDate(range.start, t)} – ${shortDate(new Date(range.end.getTime() - 1), t)}`
+  const { from, to } = periodBounds(range, t)
+  return `${from} – ${to}`
 }
 
 export interface KpiText {

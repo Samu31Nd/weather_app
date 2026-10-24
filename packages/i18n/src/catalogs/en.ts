@@ -326,7 +326,7 @@ export const en: Catalog = {
     },
     rose: 'Wind rose',
     roseCaption: (max, calm) => `Outer ring = ${max} % of the time · calm ${calm} %`,
-    roseSpeeds: (unit) => [`< 2 ${unit}`, `2–5 ${unit}`, `> 5 ${unit}`],
+    roseSpeeds: (low, high, unit) => [`< ${low} ${unit}`, `${low}–${high}`, `> ${high}`],
     readout: {
       outdoor: 'out', indoor: 'in', mean: 'avg', gust: 'gust', cumulative: 'total', peakRate: 'peak rate',
     },

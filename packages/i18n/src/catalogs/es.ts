@@ -330,7 +330,7 @@ export const es = {
     },
     rose: 'Rosa de los vientos',
     roseCaption: (max: string, calm: string) => `Anillo exterior = ${max} % del tiempo · calma ${calm} %`,
-    roseSpeeds: (unit: string) => [`< 2 ${unit}`, `2–5 ${unit}`, `> 5 ${unit}`],
+    roseSpeeds: (low: string, high: string, unit: string) => [`< ${low} ${unit}`, `${low}–${high}`, `> ${high}`],
     readout: {
       outdoor: 'ext', indoor: 'int', mean: 'media', gust: 'ráfaga', cumulative: 'acumulado', peakRate: 'intensidad máx',
     },
