@@ -30,6 +30,7 @@ export * from './application/live-status'
 export * from './application/loading-progress'
 export * from './application/history-view'
 export * from './application/export-history'
+export * from './application/widget-summary'
 
 export { HttpError, type HttpOptions } from './adapters/http'
 export { HttpLiveWeatherRepository } from './adapters/davis-live/http-live-weather.repository'
