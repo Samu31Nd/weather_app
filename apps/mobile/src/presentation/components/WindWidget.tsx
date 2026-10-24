@@ -2,6 +2,7 @@ import { View, Text, useColorScheme } from 'react-native';
 import { Wind } from 'lucide-react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming, Easing, withSequence } from 'react-native-reanimated';
 import { useEffect } from 'react';
+import { compassPointFromDegrees } from '@tt/core';
 import { WeatherEntity } from '../../core/domain/models/WeatherEntity';
 import { useUnit, convertSpeed } from '../contexts/UnitContext';
 
@@ -30,14 +31,8 @@ export const WindWidget = ({ data }: WindWidgetProps) => {
     transform: [{ rotate: `${windRotation.value}deg` }]
   }));
 
-  const getCompassDirection = (deg: number) => {
-    const val = Math.floor((deg / 22.5) + 0.5);
-    const arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
-    return arr[(val % 16)];
-  };
-
-  const windDirText = `${data.wind.direction || 0}° ${getCompassDirection(data.wind.direction || 0)}`;
-  const gustDirText = `${getCompassDirection(data.wind.gustDirection || 0)} (${data.wind.gustDirection || 0}°)`;
+  const windDirText = `${data.wind.direction || 0}° ${compassPointFromDegrees(data.wind.direction || 0)}`;
+  const gustDirText = `${compassPointFromDegrees(data.wind.gustDirection || 0)} (${data.wind.gustDirection || 0}°)`;
 
   const speedUnit = unitSystem === 'metric' ? 'km/h' : 'mph';
   const speed = convertSpeed(data.wind.speed, unitSystem);
