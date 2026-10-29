@@ -9,6 +9,7 @@ import { AppHeader } from '@/components/shell/app-header'
 import { SettingsSheet } from '@/components/shell/settings-sheet'
 import { useLiveWeather } from '@/hooks/use-live-weather'
 import { useCore, usePreferences } from '@/providers/app-providers'
+import { WIDGETS_AVAILABLE } from '@/widget/availability'
 import { Bento } from './bento'
 import { ForecastCard } from './forecast-card'
 import { HeroCard } from './hero-card'
@@ -26,6 +27,7 @@ export function NowScreen() {
   const live = useLiveWeather()
   const revealed = useRevealAfterFirstReading(live.reading !== null)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  useWidgetRefresh(live.reading?.observedAt.getTime() ?? null)
 
   if (live.reading === null || !revealed) {
     return <LoadingScreen done={live.reading !== null} failed={live.status === 'offline'} onRetry={live.refresh} />
@@ -62,6 +64,15 @@ export function NowScreen() {
       <SettingsSheet visible={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </SafeAreaView>
   )
+}
+
+/** Con cada lectura nueva, los widgets de la pantalla de inicio se redibujan sin esperar los 30 min de Android. */
+function useWidgetRefresh(readingTime: number | null) {
+  useEffect(() => {
+    if (!WIDGETS_AVAILABLE || readingTime === null) return
+    const { refreshWeatherWidgets } = require('@/widget/register') as typeof import('@/widget/register')
+    refreshWeatherWidgets().catch(() => undefined)
+  }, [readingTime])
 }
 
 /** La carga solo se ve la primera vez: si ya hay lectura al montar (se volvió de otra pestaña), abre directo. */

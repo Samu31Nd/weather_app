@@ -72,6 +72,26 @@ Va en el mismo orden en las dos plataformas. La web lo acomoda en una cuadrícul
   implementó: mmHg ya aparece como lectura alterna en "Ahora".
 - La descarga web baja el archivo; la móvil lo entrega por la hoja de compartir del sistema.
 
+## Widget de Android
+
+Solo en el APK (artboards `WidgetsClaro`/`WidgetsOscuro`, [ADR-0011](adr/0011-widget-android.md)).
+
+| Tamaño | Contenido |
+|--------|-----------|
+| 2×2 | Ícono del clima, "Liz · hora de la lectura", temperatura, condición y un dato contextual |
+| 4×2 | Lo mismo + sensación térmica, máx/mín y una columna con humedad, viento y lluvia de hoy; ↻ para actualizar |
+
+- **Dato contextual del 2×2:** ráfaga ≥ 29 km/h → ráfaga; lloviendo → lluvia de hoy; neblina → humedad;
+  sin conexión → hora de la última lectura; en otro caso, máx/mín del día.
+- **Ícono:** 7 versiones fijas que resumen las 21 escenas (despejado, noche, parcial, lluvia, tormenta, neblina, sin
+  conexión), sobre un fondo sólido tintado por el clima.
+- **Tema e idioma:** sigue el tema del sistema; el idioma y las unidades salen de las preferencias de la app.
+- **Fuente:** la del sistema, sin fijar familia, y respeta el tamaño de letra del usuario.
+- **Actualización:** cada 30 min (mínimo de Android), al tocar ↻ y cada vez que la app recibe un dato nuevo. Tocar el
+  resto del widget abre la app.
+- **Accesibilidad:** el texto secundario del tema claro se oscureció a `#5b5d70` para llegar a 4.5:1 sobre todos los
+  fondos (el diseño usa `#6c6f85`).
+
 ## Preferencias
 
 | Preferencia | Valores | Por defecto | Clave en almacenamiento | Efecto |

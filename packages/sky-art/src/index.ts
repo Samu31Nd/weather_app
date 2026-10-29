@@ -10,3 +10,4 @@ export {
   ANIMATED_CLASSES, ANIMATED_PARENT_CLASSES, type MotionContext, type MotionSample, type MotionSpec, motionMatrix,
   resolveMotion, sampleMotion,
 } from './motion'
+export { type WidgetIconKind, widgetIconSvg, widgetRefreshSvg } from './widget-icons'
