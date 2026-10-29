@@ -28,3 +28,6 @@ de la app. iOS queda fuera: necesita WidgetKit en Swift y una cuenta de desarrol
   quitaba el constructor de `OverwritingInputMerger`, el trabajo fallaba y el widget quedaba transparente. La
   regla `-keepclassmembers class * extends androidx.work.InputMerger { public <init>(); }` se agrega con
   `expo-build-properties` en `app.json`.
+- La librería llama a los componentes del widget como funciones simples. El React Compiler (activo en la app) les
+  agrega hooks de memorización y el render fallaba con "Invalid Hook Call"; `weather-widget.tsx` lleva
+  `'use no memo'` para excluirlo.

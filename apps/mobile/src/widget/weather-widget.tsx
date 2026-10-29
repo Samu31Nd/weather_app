@@ -3,6 +3,10 @@
 // Fondo sólido tintado por el clima, esquinas de 24 dp y la fuente del sistema: sin `fontFamily`, Android usa la
 // fuente que eligió el usuario, y `allowFontScaling` (activo por defecto) respeta su tamaño de letra.
 // Tocar el widget abre la app; el ícono ↻ del 4×2 lo actualiza.
+// "use no memo": la librería llama a estos componentes como funciones simples; si el React Compiler les mete sus
+// hooks de memorización, el render falla con "Invalid Hook Call" y el widget queda vacío.
+
+'use no memo'
 
 import type { WidgetText } from '@tt/i18n'
 import { widgetIconSvg, widgetRefreshSvg } from '@tt/sky-art'

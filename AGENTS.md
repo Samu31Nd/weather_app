@@ -225,3 +225,5 @@ Notas de la fase 7 (25-oct):
   las URLs se declaran en el perfil `base` de `eas.json`; pendiente pasarlas a variables de entorno de EAS.
   (2) R8 quitaba el constructor de `OverwritingInputMerger` y el trabajo del widget fallaba: regla de ProGuard con
   `expo-build-properties` (ADR-0011). Se diagnosticó con `adb logcat --pid=$(adb shell pidof com.samu31nd.ttb033)`.
+  (3) El React Compiler transformaba los componentes del widget ("Invalid Hook Call"): `'use no memo'` en
+  `weather-widget.tsx`.
