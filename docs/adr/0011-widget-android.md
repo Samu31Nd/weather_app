@@ -24,3 +24,7 @@ de la app. iOS queda fuera: necesita WidgetKit en Swift y una cuenta de desarrol
 - El widget solo se ve en el APK (`npm run build:android`); Expo Go y el staging por OTA no lo muestran.
 - Agregar o cambiar widgets cambia el código nativo: requiere un APK nuevo, no basta una actualización OTA.
 - Si la consola no responde, el widget muestra la última temperatura guardada en gris y su hora.
+- La librería dibuja el widget desde un trabajo de WorkManager 2.8.1. En la build de release, R8 (modo completo)
+  quitaba el constructor de `OverwritingInputMerger`, el trabajo fallaba y el widget quedaba transparente. La
+  regla `-keepclassmembers class * extends androidx.work.InputMerger { public <init>(); }` se agrega con
+  `expo-build-properties` en `app.json`.

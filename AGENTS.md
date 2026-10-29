@@ -221,3 +221,7 @@ Notas de la fase 7 (25-oct):
 - `/android` y `/ios` están en `.gitignore`: el proyecto nativo se genera en cada build (CNG). Si se corre
   `expo prebuild` en local, revisar que no cambie los scripts de `package.json`.
 - El texto secundario claro del widget se oscureció a `#5b5d70` (el diseño usa `#6c6f85`) para cumplir AA.
+- **Primer APK (28-oct) sin datos ni widget.** (1) `eas build --local` no copia `.env` (está en `.gitignore`):
+  las URLs se declaran en el perfil `base` de `eas.json`; pendiente pasarlas a variables de entorno de EAS.
+  (2) R8 quitaba el constructor de `OverwritingInputMerger` y el trabajo del widget fallaba: regla de ProGuard con
+  `expo-build-properties` (ADR-0011). Se diagnosticó con `adb logcat --pid=$(adb shell pidof com.samu31nd.ttb033)`.

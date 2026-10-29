@@ -65,6 +65,14 @@
             }
           ]
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraProguardRules": "-keepclassmembers class * extends androidx.work.InputMerger { public <init>(); }"
+          }
+        }
       ]
     ],
     "experiments": {

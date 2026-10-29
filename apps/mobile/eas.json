@@ -4,12 +4,20 @@
     "appVersionSource": "remote"
   },
   "build": {
+    "base": {
+      "env": {
+        "EXPO_PUBLIC_WEATHER_STATION_URL": "https://weather-web-nspsuyfpwa-uc.a.run.app/api/live",
+        "EXPO_PUBLIC_HISTORY_API_URL": "https://obtener-datos-clima-nspsuyfpwa-uc.a.run.app"
+      }
+    },
     "preview": {
+      "extends": "base",
       "distribution": "internal",
       "channel": "preview",
       "android": { "buildType": "apk" }
     },
     "production": {
+      "extends": "base",
       "channel": "production",
       "android": { "buildType": "apk" }
     }
