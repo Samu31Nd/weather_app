@@ -80,8 +80,8 @@ function Chip({ label, active, disabled = false, hint, onPress }: { label: strin
         disabled
           ? { borderColor: palette.gs, borderStyle: 'dashed' }
           : active
-            ? { borderColor: palette.tx, backgroundColor: palette.tx }
-            : { borderColor: palette.gs, backgroundColor: palette.sf },
+            ? { borderColor: palette.tx, borderStyle: 'solid', backgroundColor: palette.tx }
+            : { borderColor: palette.gs, borderStyle: 'solid', backgroundColor: palette.sf },
       ]}
     >
       <Txt size={13} weight="medium" color={disabled ? 'tm' : active ? 'sf' : 'tx'}>{label}</Txt>
