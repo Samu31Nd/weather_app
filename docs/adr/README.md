@@ -15,3 +15,4 @@ se borra: si cambia, se escribe un ADR nuevo que la **reemplaza** y se marca el 
 | [0008](0008-documentar-antes-de-codificar.md) | Especificación en `docs/` antes del código y antes del LaTeX | Aceptada |
 | [0009](0009-arte-del-diseno-por-extraccion.md) | El arte del diseño se extrae del canvas con un script, no se copia a mano | Aceptada |
 | [0010](0010-animaciones-como-datos.md) | Las animaciones del diseño se describen como datos y móvil las reproduce con reanimated | Aceptada |
+| [0011](0011-widget-android.md) | Widget de Android con react-native-android-widget, solo en el APK | Aceptada |

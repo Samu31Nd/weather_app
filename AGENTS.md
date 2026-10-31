@@ -123,7 +123,8 @@ fase. Orden: 0 → D → 0b → 1 … 6.
 | 3. Web · Ahora + carga | `/` según los artboards `Dashboard` y `LoadingWeb` (claro/oscuro, es/en, métrico/imperial, tamaño s/m/l), escena del cielo, proxy `/api/live`, tests web; `/historico` provisional; MUI sigue solo en el histórico | `feat/design-web-now` (#8) | ✅ Hecho |
 | 4. Móvil · Ahora + carga | "Ahora" y carga según `MobileNow`/`LoadingMobile` (claro/oscuro, es/en, métrico/imperial, tamaño s/m/l) con la hoja de ajustes; 21 escenas y la ilustración animadas con reanimated (ADR-0010); textos derivados y avance de carga compartidos con la web; jest-expo; íconos cuadrados; UI vieja, uniwind y axios fuera | `feat/mobile-now` (#9) | ✅ Hecho |
 | 5. Histórico | En `@tt/core`: periodos y resoluciones en hora de CDMX, `buildHistoryView` (agregación, huecos, rosa, indicadores), `historyCharts` (escalas y trazos SVG), `historyArt`, `exportHistory` (CSV/JSON); textos en `@tt/i18n`. Web `/historico` según `Main` y móvil según `MobileHistory` (acordeones, hoja de compartir). Fuera MUI, recharts, shadcn y `/api/weather/historical` (la web pasa de 50+ a 7 dependencias) | `feat/history` (#11) | ✅ Hecho |
-| 6. Cierre | ~~archivar `weather-dashboard`~~ (hecho 24-oct, Vercel retirado); README del monorepo; `docs/10-notas-tesis.md` (qué cambia en los caps. 6 y 7 y de dónde sale el texto); diagrama UML de casos de uso en `docs/diagramas/casos-de-uso.puml`; QR de la actualización móvil de producción en el release y el resumen de `release.yml` | `docs/cierre` | 🔄 En revisión |
+| 6. Cierre | ~~archivar `weather-dashboard`~~ (hecho 24-oct, Vercel retirado); README del monorepo; `docs/10-notas-tesis.md` (qué cambia en los caps. 6 y 7 y de dónde sale el texto); diagrama UML de casos de uso en `docs/diagramas/casos-de-uso.puml`; QR de la actualización móvil de producción en el release y el resumen de `release.yml` | `docs/cierre` (#12) | ✅ Hecho |
+| 7. Widget de Android | Widgets 2×2 y 4×2 según `WidgetsClaro`/`WidgetsOscuro` con `react-native-android-widget` (ADR-0011): ícono por clima, dato contextual, tema del sistema, fuente del usuario, ↻ y respaldo sin conexión; reglas, textos, colores AA e íconos en los paquetes; solo en el APK | `feat/android-widget` | 🔄 En revisión |
 
 Notas de la fase 0:
 - Se usa **npm workspaces** en lugar de pnpm, que el plan proponía. Así no hace falta instalar herramientas
@@ -209,5 +210,20 @@ Notas de la fase 6 (25-oct):
 - **Pendientes fuera del plan:** auditoría de accesibilidad con axe (web) y TalkBack (móvil) para cerrar
   RNF-APP-05; corregir `wind_dir`/`hi_dir` en el pipeline (D5), que ya afecta la rosa del histórico; zona horaria
   de la consola en UTC−6 (D12); alerta de presupuesto en GCP.
-- **Ideas para después:** fases de la luna calculadas por fecha (la consola no las publica en `wflexp.json`) y un
-  widget de Android para el APK.
+- **Ideas para después:** fases de la luna calculadas por fecha (la consola no las publica en `wflexp.json`).
+
+Notas de la fase 7 (25-oct):
+- El widget solo existe en el APK. `react-native-android-widget` falla al importarse sin su módulo nativo, así que
+  `index.ts` lo registra solo si `WIDGETS_AVAILABLE` (Android fuera de Expo Go) y lo carga con `require` diferido.
+  La app usa `index.ts` como entrada (`"main"`), que después arranca Expo Router.
+- `expo prebuild` agregó `android.package: com.samu31nd.ttb033` a `app.json`. Es el identificador permanente del
+  APK: confirmarlo antes de distribuir la primera versión.
+- `/android` y `/ios` están en `.gitignore`: el proyecto nativo se genera en cada build (CNG). Si se corre
+  `expo prebuild` en local, revisar que no cambie los scripts de `package.json`.
+- El texto secundario claro del widget se oscureció a `#5b5d70` (el diseño usa `#6c6f85`) para cumplir AA.
+- **Primer APK (28-oct) sin datos ni widget.** (1) `eas build --local` no copia `.env` (está en `.gitignore`):
+  las URLs se declaran en el perfil `base` de `eas.json`; pendiente pasarlas a variables de entorno de EAS.
+  (2) R8 quitaba el constructor de `OverwritingInputMerger` y el trabajo del widget fallaba: regla de ProGuard con
+  `expo-build-properties` (ADR-0011). Se diagnosticó con `adb logcat --pid=$(adb shell pidof com.samu31nd.ttb033)`.
+  (3) El React Compiler transformaba los componentes del widget ("Invalid Hook Call"): `'use no memo'` en
+  `weather-widget.tsx`.

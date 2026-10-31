@@ -29,6 +29,11 @@ Los ajustes (idioma, tema, tamaño de letra, unidades) son una hoja que se abre 
   de `@tt/core`; la descarga se entrega con la hoja de compartir (`src/lib/share-file.ts`, expo-file-system y
   expo-sharing).
 - `src/components/ui/`: `Txt` (tipografía, color y escala), `Card`, `Segmented`, `IconButton`, íconos.
+- `src/widget/`: widget de Android (ADR-0011). `weather-widget.tsx` dibuja el 2×2 y el 4×2, `widget-content.tsx`
+  arma los textos con el núcleo, `task-handler.ts` responde a Android y `register.ts` registra y redibuja. **Nada
+  fuera de `register.ts` importa `react-native-android-widget` en tiempo de ejecución**, y ese módulo solo se carga
+  si `WIDGETS_AVAILABLE`: en Expo Go la librería no tiene módulo nativo y falla al importarse.
+- `index.ts`: entrada de la app; registra los widgets (solo en el APK) y arranca Expo Router.
 - `src/components/shell/`: cabecera, hoja de ajustes y barra de pestañas.
 
 ## Estilos
@@ -54,3 +59,5 @@ npm run build:android                   # APK local (eas build --local)
 - `EXPO_PUBLIC_WEATHER_STATION_URL`: el proxy `/api/live` de la web (ADR-0007). En desarrollo puede apuntar directo a
   la consola: Expo Go permite HTTP. El APK no lleva excepción de *cleartext*.
 - `EXPO_PUBLIC_HISTORY_API_URL`: Cloud Function de histórico. En CI sale de la variable `NEXT_PUBLIC_API_CLOUD_URL`.
+- En el APK, las dos salen del perfil `base` de `eas.json`: `eas build --local` no copia `.env` (está en
+  `.gitignore`). Pendiente: moverlas a variables de entorno de EAS (`docs/09-despliegue.md`).

@@ -4,3 +4,6 @@
 
 expo-env.d.ts
 # @end expo-cli
+# Proyecto nativo generado por `expo prebuild` / EAS Build (Continuous Native Generation)
+/android
+/ios

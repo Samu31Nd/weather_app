@@ -133,6 +133,16 @@ npm run build:android   # eas build --platform android --profile production --lo
 - Genera el `.apk` en `apps/mobile/`.
 - Solo hace falta un APK nuevo si cambian las dependencias nativas o la versión de la app
   (`runtimeVersion: appVersion`). Los demás cambios llegan por EAS Update al canal `production`.
+- El widget de Android (ADR-0011) es código nativo: solo aparece en el APK, y agregar o cambiar widgets en
+  `app.json` requiere generar un APK nuevo.
+- **Las URLs del APK salen de `eas.json`, no de `.env`.** `eas build --local` compila una copia del repo que
+  respeta `.gitignore`, así que `.env` no llega a la build y el APK queda sin datos. Por eso el perfil `base` de
+  `eas.json` declara `EXPO_PUBLIC_WEATHER_STATION_URL` (el proxy HTTPS; el APK no permite HTTP) y
+  `EXPO_PUBLIC_HISTORY_API_URL`. Son URLs públicas que el APK lleva incrustadas, no secretos.
+  **Pendiente:** pasarlas a variables de entorno de EAS (`eas env:create --environment production`, y
+  `"environment": "production"` en el perfil) para que no vivan en el repo.
+- Para comprobar un APK sin instalarlo: `unzip -p <apk> assets/index.android.bundle | grep -ac run.app` debe dar
+  más de 0.
 
 ## Rollback
 
