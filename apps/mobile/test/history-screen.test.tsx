@@ -61,6 +61,17 @@ describe('pantalla "Histórico" (móvil)', () => {
     expect(screen.getByRole('button', { name: '1 semana' }).props.accessibilityState).toMatchObject({ disabled: true })
   })
 
+  // Android conserva el borde punteado si `borderStyle` desaparece del estilo; el chip habilitado lo declara sólido.
+  it('al pasar de 24 h a 30 días la resolución semanal vuelve a tener borde sólido', async () => {
+    await renderHistory(source())
+    await screen.findByText('24 h')
+    await fireEvent.press(screen.getByText('24 h'))
+    await fireEvent.press(screen.getByText('30 días'))
+    const week = screen.getByRole('button', { name: '1 semana' })
+    expect(week.props.accessibilityState).toMatchObject({ disabled: false })
+    expect(week).toHaveStyle({ borderStyle: 'solid' })
+  })
+
   it('descarga CSV de las secciones abiertas por la hoja de compartir', async () => {
     await renderHistory(source())
     await screen.findByText('1 de 4 secciones abiertas')

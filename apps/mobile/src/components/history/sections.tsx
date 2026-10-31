@@ -60,7 +60,7 @@ export function TemperatureSection(props: SectionProps & { onToggleIndoor: () =>
             accessibilityState={{ checked: showIndoor }}
             accessibilityLabel={h.showIndoor}
             onPress={onToggleIndoor}
-            style={[styles.indoorChip, showIndoor ? { borderColor: palette.tx, backgroundColor: palette.sf } : { borderColor: palette.gs, borderStyle: 'dashed' }]}
+            style={[styles.indoorChip, showIndoor ? { borderColor: palette.tx, borderStyle: 'solid', backgroundColor: palette.sf } : { borderColor: palette.gs, borderStyle: 'dashed' }]}
           >
             <View style={{ width: 14, borderTopWidth: 2, borderStyle: 'dashed', borderColor: palette.tm }} />
             <Txt size={11.5} weight="medium" color={showIndoor ? 'tx' : 't2'}>{h.legend.indoor}</Txt>
