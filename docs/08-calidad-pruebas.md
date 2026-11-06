@@ -89,6 +89,17 @@ La parte automática corre en el CI con los demás tests:
 - **Móvil:** `apps/mobile/test/accessibility.test.tsx` revisa que todo control tocable de la carga, "Ahora", la hoja
   de ajustes, "Histórico" y la hoja de descarga tenga rol, nombre y área táctil ≥ 44 dp. Encontró "Abrir todas"
   (36 dp) y el chip "Mostrar sensores interiores" (32 dp); se corrigieron con `hitSlop` sin cambiar el diseño.
+- **Árbol de accesibilidad del APK (6-nov):** `adb shell uiautomator dump --compressed` entrega los nodos que lee
+  TalkBack (texto, `content-desc`, si es enfocable y su tamaño), sin tener que activarlo. Sin `--compressed` también
+  salen los nodos ocultos al lector. En "Histórico" encontró:
+  - el campo "Últimos días" de 30 dp: ahora toda su píldora de 44 dp lo enfoca, y TalkBack solo lee el campo;
+  - las marcas de los ejes de las gráficas como nodos sueltos, ahora ocultas porque cada gráfica ya tiene su
+    descripción;
+  - las cifras de Máxima/Mínima en tres nodos cada una, ahora uno ("Máxima: 28.0 °C, 3 nov, 11:15").
+
+  El test móvil cubre los tres casos. En "Ahora", `uiautomator` no termina ("could not get idle state"), porque la
+  escena del cielo se anima sin parar; esa pantalla se revisa con el test y la lista manual. Los controles con
+  `hitSlop` se ven más chicos en el volcado, que no incluye el `hitSlop`.
 
 La lectura con TalkBack es manual y se hace en el APK, una vez por versión:
 

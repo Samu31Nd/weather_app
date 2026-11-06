@@ -249,7 +249,10 @@ Notas de la fase 8 (5-nov):
   hook `useHistory` conserva su caché en memoria por periodo.
 - **Accesibilidad:** `apps/web/test/accessibility.test.tsx` (axe, 0 violaciones) y
   `apps/mobile/test/accessibility.test.tsx`, que encontró "Abrir todas" (36 dp) y el chip de interiores (32 dp);
-  se llevaron a 44 dp con `hitSlop`. TalkBack sigue la lista manual de `docs/08-calidad-pruebas.md`. El ↻ del
+  se llevaron a 44 dp con `hitSlop`. TalkBack sigue la lista manual de `docs/08-calidad-pruebas.md`. El 6-nov,
+  `adb shell uiautomator dump` sobre el APK (lo que lee TalkBack, sin activarlo) encontró en "Histórico" el campo de
+  días de 30 dp, las marcas de los ejes sueltas y las KPI partidas en tres nodos; corregido y cubierto por el test.
+  En "Ahora" el volcado no termina por la escena animada. El ↻ del
   widget mide 24 dp (diseño); queda así porque el widget entero también abre la app.
 - **EAS:** las URLs viven en las variables de entorno de EAS (`preview` y `production`), creadas el 5-nov; los
   perfiles de `eas.json` declaran `environment`. Los APK de prueba con `com.samu31nd.ttb033` hay que desinstalarlos.
