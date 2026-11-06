@@ -3,8 +3,8 @@
 
 import { HISTORY_PRESETS, RESOLUTIONS, estimatedPoints, isResolutionAllowed } from '@tt/core'
 import { periodBounds } from '@tt/i18n'
-import type { ReactNode } from 'react'
-import { useState } from 'react'
+import type { ComponentRef, ReactNode } from 'react'
+import { useRef, useState } from 'react'
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native'
 import { Card } from '@/components/ui/card'
 import { Txt } from '@/components/ui/txt'
@@ -89,21 +89,27 @@ function Chip({ label, active, disabled = false, hint, onPress }: { label: strin
   )
 }
 
-/** "Últimos [60] días": vacío o cero no cambia el periodo. */
+/** "Últimos [60] días": vacío o cero no cambia el periodo. Toda la píldora (44 dp) enfoca el campo, que mide 30 dp. */
 function CustomDays({ history }: { history: HistoryState }) {
   const { t, palette, textScale } = usePreferences()
   const h = t.history
   const active = history.period.kind === 'custom'
   const [text, setText] = useState('60')
+  const input = useRef<ComponentRef<typeof TextInput>>(null)
   const apply = (value: string) => {
     setText(value)
     const days = Number.parseInt(value, 10)
     if (days > 0) history.selectPeriod({ kind: 'custom', days })
   }
   return (
-    <View style={[styles.chip, styles.custom, { backgroundColor: palette.sf, borderColor: active ? palette.tx : palette.gs, borderWidth: active ? 2 : 1 }]}>
+    <Pressable
+      accessible={false}
+      onPress={() => input.current?.focus()}
+      style={[styles.chip, styles.custom, { backgroundColor: palette.sf, borderColor: active ? palette.tx : palette.gs, borderWidth: active ? 2 : 1 }]}
+    >
       <Txt size={13} weight="medium">{h.lastN}</Txt>
       <TextInput
+        ref={input}
         accessibilityLabel={`${h.lastN} ${h.days}`}
         value={text}
         keyboardType="number-pad"
@@ -113,7 +119,7 @@ function CustomDays({ history }: { history: HistoryState }) {
         style={[styles.input, { borderColor: palette.gs, color: palette.tx, fontFamily: fontFamily('medium', true), fontSize: 14 * textScale }]}
       />
       <Txt size={13} weight="medium">{h.days}</Txt>
-    </View>
+    </Pressable>
   )
 }
 

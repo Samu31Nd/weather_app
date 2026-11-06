@@ -1,9 +1,11 @@
 /**
  * Revisión automática de accesibilidad en móvil, lo que TalkBack necesita para leer cada control: todo lo que se
  * puede tocar tiene un rol (`accessibilityRole`), un nombre (texto visible o `accessibilityLabel`) y un área táctil
- * de al menos 44 dp (alto, o alto + `hitSlop`). Recorre la carga, "Ahora", la hoja de ajustes, "Histórico" y la
- * hoja de descarga. La lectura real con TalkBack es manual: lista en docs/08-calidad-pruebas.md.
- * Fuente: docs/07-interfaz.md (Accesibilidad).
+ * de al menos 44 dp (alto, o alto + `hitSlop`). Un campo de texto puede medir menos si su contenedor, de 44 dp, lo
+ * enfoca. Las cifras de las tarjetas se leen en un solo nodo y las marcas de los ejes se ocultan (la gráfica ya tiene
+ * su descripción). Recorre la carga, "Ahora", la hoja de ajustes, "Histórico" y la hoja de descarga. La lectura real con TalkBack es manual: lista en docs/08-calidad-pruebas.md.
+ * Fuente: docs/07-interfaz.md (Accesibilidad); revisión del APK con `uiautomator dump` (6-nov), que encontró el
+ * campo "Últimos días" de 30 dp, las marcas de los ejes sueltas y las cifras de las tarjetas en tres nodos.
  * Requerimientos: RNF-APP-05.
  */
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -61,15 +63,30 @@ function targetHeight(node: TestInstance): number {
   return height + extra
 }
 
+/** Campo de texto: necesita nombre y un área de 44 dp, la suya o la del contenedor que lo enfoca al tocarlo. */
+function textInputProblems(): string[] {
+  const inputs = screen.container.queryAll((node) => node.type === 'TextInput')
+  return inputs.flatMap((input) => {
+    const name = input.props.accessibilityLabel ?? '(sin nombre)'
+    let target = targetHeight(input)
+    for (let node = input.parent; node; node = node.parent) {
+      if (typeof node.props.onClick === 'function') target = Math.max(target, targetHeight(node))
+    }
+    return target < MIN_TARGET_DP ? [`${name}: área táctil de ${target} dp`] : name === '(sin nombre)' ? ['campo sin nombre'] : []
+  })
+}
+
 function problems(): string[] {
-  return touchables().flatMap((node) => {
+  return [...textInputProblems(), ...touchables().flatMap((node) => {
     const name = accessibleName(node) || '(sin nombre)'
     const issues: string[] = []
+    // Solo amplía el área táctil de su campo; TalkBack no la anuncia.
+    if (node.props.accessible === false) return targetHeight(node) < MIN_TARGET_DP ? [`${name}: área táctil de ${targetHeight(node)} dp`] : []
     if (!node.props.accessibilityRole && !node.props.role) issues.push(`${name}: sin rol`)
     if (name === '(sin nombre)') issues.push(`control sin nombre (${node.props.testID ?? node.type})`)
     if (targetHeight(node) < MIN_TARGET_DP) issues.push(`${name}: área táctil de ${targetHeight(node)} dp`)
     return issues
-  })
+  })]
 }
 
 beforeEach(async () => {
@@ -93,6 +110,9 @@ describe('accesibilidad de los controles (móvil)', () => {
     await renderWith(<HistoryScreen />, new Date('2026-10-20T18:00:00Z'))
     await screen.findByText('1 de 4 secciones abiertas')
     expect(problems()).toEqual([])
+    expect(screen.getByLabelText(/^Máxima: 25\.0 °C, /)).toBeTruthy()
+    const hiddenAxes = screen.container.queryAll((node) => node.props.importantForAccessibility === 'no-hide-descendants')
+    expect(hiddenAxes.length).toBeGreaterThan(0)
     await fireEvent.press(screen.getByLabelText('Descargar lo que estás viendo'))
     expect(problems()).toEqual([])
   })

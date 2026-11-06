@@ -5,11 +5,10 @@
  * Fuente: pedido de quitar el splash del APK (5-nov); artboard `LoadingMobile`. Requerimiento: RF-APP-02.
  */
 import { PALETTES } from '@tt/tokens'
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import app from '../app.json'
 
-const app = JSON.parse(readFileSync(resolve(__dirname, '../app.json'), 'utf8'))
-const [, splash] = app.expo.plugins.find((plugin: unknown) => Array.isArray(plugin) && plugin[0] === 'expo-splash-screen')
+const plugin = app.expo.plugins.find((entry) => Array.isArray(entry) && entry[0] === 'expo-splash-screen')
+const splash = (plugin as [string, { backgroundColor: string; image: string; dark: { backgroundColor: string; image: string } }])[1]
 
 describe('pantalla de arranque nativa', () => {
   it('usa el cielo de la pantalla de carga en tema claro y oscuro', () => {
