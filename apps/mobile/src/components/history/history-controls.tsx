@@ -89,7 +89,8 @@ function Chip({ label, active, disabled = false, hint, onPress }: { label: strin
   )
 }
 
-/** "Últimos [60] días": vacío o cero no cambia el periodo. Toda la píldora (44 dp) enfoca el campo, que mide 30 dp. */
+/** "Últimos [60] días": vacío o cero no cambia el periodo. Toda la píldora (44 dp) enfoca el campo, que mide 30 dp;
+ * TalkBack solo lee el campo ("Últimos días"). */
 function CustomDays({ history }: { history: HistoryState }) {
   const { t, palette, textScale } = usePreferences()
   const h = t.history
@@ -104,10 +105,11 @@ function CustomDays({ history }: { history: HistoryState }) {
   return (
     <Pressable
       accessible={false}
+      importantForAccessibility="no"
       onPress={() => input.current?.focus()}
       style={[styles.chip, styles.custom, { backgroundColor: palette.sf, borderColor: active ? palette.tx : palette.gs, borderWidth: active ? 2 : 1 }]}
     >
-      <Txt size={13} weight="medium">{h.lastN}</Txt>
+      <Txt size={13} weight="medium" importantForAccessibility="no">{h.lastN}</Txt>
       <TextInput
         ref={input}
         accessibilityLabel={`${h.lastN} ${h.days}`}
@@ -118,7 +120,7 @@ function CustomDays({ history }: { history: HistoryState }) {
         onChangeText={apply}
         style={[styles.input, { borderColor: palette.gs, color: palette.tx, fontFamily: fontFamily('medium', true), fontSize: 14 * textScale }]}
       />
-      <Txt size={13} weight="medium">{h.days}</Txt>
+      <Txt size={13} weight="medium" importantForAccessibility="no">{h.days}</Txt>
     </Pressable>
   )
 }
