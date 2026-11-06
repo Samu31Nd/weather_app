@@ -18,7 +18,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.samu31nd.ttb033"
+      "package": "mx.ipn.escom.ttb033"
     },
     "web": {
       "output": "static",
