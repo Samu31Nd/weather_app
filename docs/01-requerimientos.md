@@ -54,7 +54,7 @@ usuario puede hacer, o una cualidad que se puede medir. El detalle de qué muest
 | RNF-APP-08 | Mantenibilidad | Arquitectura hexagonal: la lógica de dominio y los casos de uso viven una sola vez en un núcleo compartido, sin dependencias de React ni de la plataforma, y las dos apps lo consumen sin cambios | Mantenibilidad – Modularidad / Reusabilidad | RNF-07 |
 | RNF-APP-09 | Capacidad de prueba | El núcleo tiene una cobertura de líneas ≥ 80 %. Cada RF tiene al menos una prueba en la matriz de trazabilidad, y cada archivo de prueba documenta la regla que verifica y su origen | Mantenibilidad – Capacidad de prueba | — |
 | RNF-APP-10 | Seguridad y privacidad | Sin secretos en el código del cliente y con tráfico cifrado entre el cliente y el servidor. El intermediario del dato en vivo solo consulta la estación configurada. No se usan cookies de rastreo y las preferencias solo se guardan en el dispositivo | Seguridad – Confidencialidad / Integridad | RNF-03 |
-| RNF-APP-11 | Uso de recursos | La app no satura la consola: a lo mucho 1 consulta cada 10 s, sin importar el número de usuarios. No repite consultas al histórico ya obtenidas en la sesión | Eficiencia – Utilización de recursos | RNF-09 |
+| RNF-APP-11 | Uso de recursos | La app no satura la consola: a lo mucho 1 consulta cada 10 s, sin importar el número de usuarios. No repite consultas al histórico de días ya obtenidos, aun entre sesiones (ADR-0013) | Eficiencia – Utilización de recursos | RNF-09 |
 
 ## Diferencias con el cap. 6 de la tesis
 
