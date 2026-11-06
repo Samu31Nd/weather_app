@@ -2,10 +2,12 @@
 
 App web y móvil de la **Plataforma de Monitoreo y Visualización Meteorológica** (IPN, ESCOM). Muestra en vivo la
 estación Davis de ESCOM —temperatura, viento, lluvia, presión y el estado del cielo— y su histórico con gráficas,
-indicadores y descarga de datos, en español o inglés, tema claro u oscuro.
+indicadores y descarga de datos (CSV, JSON o Parquet), en español o inglés, tema claro u oscuro. En Android trae
+además widgets para la pantalla de inicio.
 
 - **Web:** <https://weather-web-nspsuyfpwa-uc.a.run.app> (Next.js en Cloud Run).
-- **Móvil:** app Expo; las actualizaciones llegan por EAS Update al canal `production`. El APK se genera a pedido.
+- **Móvil:** app Expo (`mx.ipn.escom.ttb033`); las actualizaciones llegan por EAS Update al canal `production`. El APK
+  se genera a pedido.
 
 ## Estructura
 

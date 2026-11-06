@@ -70,17 +70,37 @@ que conviene contar en la tesis, porque cambian lo que el usuario ve:
 - **D1:** el orden real de los extremos `hl*` (los dos mappers previos estaban mal).
 - **D2/D3:** la presión del histórico viene en mmHg y, desde el 20-oct-2026, reducida a nivel del mar; las
   lecturas previas sin corregir se descartan al graficar.
-- **D5:** `wind_dir` y `hi_dir` intercambiados en la captura automática; se corrige en el pipeline.
+- **D5:** `wind_dir` y `hi_dir` intercambiados en la captura automática (verificado contra el CSV de la consola y
+  el `INSERT`); la rosa de los vientos muestra la dirección de la ráfaga hasta que se corrija en el pipeline.
 - **D7/D9/D11:** un día de retraso, fecha + hora en hora de CDMX y extremos incluidos al consultar por rango.
 - **D12:** la consola tiene la zona horaria en UTC−5; la app compensa amanecer y ocaso.
 
 Tabla completa: [06 · Datos](06-datos.md).
 
+### 7.x Mejoras después de la primera versión (fase 8, sección nueva o ampliación)
+
+Cambios pedidos tras usar la app; cada uno tiene su ADR o su nota y sus pruebas:
+- **Exportación a Parquet** (ADR-0012): además de CSV y JSON, para análisis con pandas, DuckDB o Spark. Columnas
+  tipadas (`DOUBLE`, hora UTC como `TIMESTAMP`), huecos como `null` y la resolución y unidades en los metadatos. Se
+  escribe en el navegador y en el teléfono con una librería de JS puro, sin servidor.
+- **Caché del histórico por día** (ADR-0013): menos consultas a la Cloud Function. Los periodos se traslapan, así
+  que solo se piden los días que faltan; los días cerrados no vencen y los recientes vencen a la hora, porque el
+  histórico llega con un día de retraso (D7). Persiste entre sesiones.
+- **Widget sin conexión** (ADR-0011, ajuste): la app y el widget guardan la última lectura completa; sin red, el
+  widget la dibuja en gris con su hora en vez de quedar "sin conexión". Ese estado queda solo para cuando nunca
+  hubo una lectura. Motivo: Android despierta el widget cada 30 min, muchas veces sin red (modo Doze).
+- **Accesibilidad:** auditoría automática y lista manual (ver "Pruebas y despliegue").
+- **Distribución del APK:** identificador definitivo `mx.ipn.escom.ttb033` y URLs como variables de entorno de EAS,
+  fuera del repositorio ([09 · Despliegue](09-despliegue.md)).
+
 ### 7.x Pruebas y despliegue
 
 - Estrategia por capa y matriz de trazabilidad RF → CU → componente → prueba: [08 · Calidad y pruebas](08-calidad-pruebas.md).
-  Cifras al 25-oct-2026: 717 pruebas automatizadas (núcleo 325, arte 166, web 103, i18n 50, tokens 42, móvil 31)
-  y cobertura de líneas del núcleo de 99.7 %. Van mejor en el cap. 8.
+  Cifras al 5-nov-2026: 819 pruebas automatizadas (núcleo 362, arte 183, web 107, i18n 59, tokens 56, móvil 52)
+  y cobertura de líneas del núcleo de 99.6 %. Van mejor en el cap. 8.
+- Accesibilidad (RNF-APP-05): contraste calculado en los dos temas, auditoría axe en web (0 violaciones), revisión
+  de rol, nombre y área táctil en móvil, y una lista de verificación manual con TalkBack
+  ([08 · Calidad y pruebas](08-calidad-pruebas.md#accesibilidad-rnf-app-05)).
 - CI/CD, staging por PR y producción separada para web y móvil: [09 · Despliegue](09-despliegue.md). Va en un
   anexo, no en el cuerpo (decisión de la fase D).
 

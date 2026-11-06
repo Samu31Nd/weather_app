@@ -125,6 +125,7 @@ fase. Orden: 0 → D → 0b → 1 … 6.
 | 5. Histórico | En `@tt/core`: periodos y resoluciones en hora de CDMX, `buildHistoryView` (agregación, huecos, rosa, indicadores), `historyCharts` (escalas y trazos SVG), `historyArt`, `exportHistory` (CSV/JSON); textos en `@tt/i18n`. Web `/historico` según `Main` y móvil según `MobileHistory` (acordeones, hoja de compartir). Fuera MUI, recharts, shadcn y `/api/weather/historical` (la web pasa de 50+ a 7 dependencias) | `feat/history` (#11) | ✅ Hecho |
 | 6. Cierre | ~~archivar `weather-dashboard`~~ (hecho 24-oct, Vercel retirado); README del monorepo; `docs/10-notas-tesis.md` (qué cambia en los caps. 6 y 7 y de dónde sale el texto); diagrama UML de casos de uso en `docs/diagramas/casos-de-uso.puml`; QR de la actualización móvil de producción en el release y el resumen de `release.yml` | `docs/cierre` (#12) | ✅ Hecho |
 | 7. Widget de Android | Widgets 2×2 y 4×2 según `WidgetsClaro`/`WidgetsOscuro` con `react-native-android-widget` (ADR-0011): ícono por clima, dato contextual, tema del sistema, fuente del usuario, ↻ y respaldo sin conexión; reglas, textos, colores AA e íconos en los paquetes; solo en el APK | `feat/android-widget` (#13) | ✅ Hecho |
+| 8. Mejoras tras la primera versión | Exportación Parquet (ADR-0012); caché persistente del histórico por día (ADR-0013); widget que dibuja la última lectura guardada sin conexión; auditoría de accesibilidad (axe en web, controles en móvil, lista TalkBack); URLs del APK en variables de entorno de EAS; `android.package` definitivo `mx.ipn.escom.ttb033`; `*.apk` en `.gitignore`; borde de los chips del histórico | `feat/final-improvements` | 🔄 En revisión |
 
 Notas de la fase 0:
 - Se usa **npm workspaces** en lugar de pnpm, que el plan proponía. Así no hace falta instalar herramientas
@@ -228,17 +229,26 @@ Notas de la fase 7 (25-oct):
   (3) El React Compiler transformaba los componentes del widget ("Invalid Hook Call"): `'use no memo'` en
   `weather-widget.tsx`.
 
-Notas del 5-nov (después de la fase 7):
+Notas de la fase 8 (5-nov):
 - **Widget más resiliente:** sin red, el widget quedaba "sin conexión" aunque ya había visto datos, porque solo
   guardaba la temperatura y Android lo despierta cada 30 min, a menudo sin red (Doze). Ahora la app y el widget
   guardan la lectura completa en `wx-last-reading` (`serializeLiveReading`/`parseLiveReading` de `@tt/core`) y el
-  widget la dibuja completa en gris con "Última: hora". La app le pasa su lectura al widget, que ya no la vuelve a
-  pedir. Se lee también la clave vieja `wx-widget-last`. Requiere un APK nuevo.
-- **Parquet** (ADR-0012): `exportHistory` escribe Parquet con `hyparquet-writer`; `apps/mobile/metro.config.js` lo
-  resuelve con la condición `browser`, porque su entrada de Node importa `fs`.
+  widget la dibuja completa en gris con "Última: hora" (con fecha si no es de hoy). La app le pasa su lectura al
+  widget, que ya no la vuelve a pedir. Se lee también la clave vieja `wx-widget-last`. Requiere un APK nuevo.
+- **Parquet** (ADR-0012): `exportHistory` escribe Parquet con `hyparquet-writer`, la única librería permitida en
+  `@tt/core` (lista en `test/architecture.test.ts`). `apps/mobile/metro.config.js` la resuelve con la condición
+  `browser`, porque su entrada de Node importa `fs`; jest la transforma. En jsdom, `TextEncoder` da bytes de otro
+  *realm*: el test web de Parquet lo envuelve.
+- **Caché del histórico** (ADR-0013): `CachedHistoryRepository` decora el repositorio HTTP en `createCore`; caché
+  por día de CDMX en el almacén de preferencias (`wx-history-v1:YYYY-MM-DD`), días cerrados sin vencimiento,
+  recientes a 1 h, tope de 200 días. Si el pipeline corrige datos viejos (p. ej. D5), subir el prefijo a `v2`. El
+  hook `useHistory` conserva su caché en memoria por periodo.
+- **Accesibilidad:** `apps/web/test/accessibility.test.tsx` (axe, 0 violaciones) y
+  `apps/mobile/test/accessibility.test.tsx`, que encontró "Abrir todas" (36 dp) y el chip de interiores (32 dp);
+  se llevaron a 44 dp con `hitSlop`. TalkBack sigue la lista manual de `docs/08-calidad-pruebas.md`. El ↻ del
+  widget mide 24 dp (diseño); queda así porque el widget entero también abre la app.
+- **EAS:** las URLs viven en las variables de entorno de EAS (`preview` y `production`), creadas el 5-nov; los
+  perfiles de `eas.json` declaran `environment`. Los APK de prueba con `com.samu31nd.ttb033` hay que desinstalarlos.
+- **D5 verificado:** el CSV de la consola trae `Hi Dir,Wind Dir` y el `INSERT` de la captura los guarda por
+  posición como `wind_dir, hi_dir`. Se corrige en el pipeline, fuera de esta fase.
 - `npx expo lint` instala ESLint y crea `eslint.config.js` si no existen: no correrlo sin querer agregar ESLint.
-Notas de la caché del histórico (5-nov):
-- `CachedHistoryRepository` (ADR-0013) decora el repositorio HTTP en `createCore`: caché por día de CDMX en el
-  almacén de preferencias (`wx-history-v1:YYYY-MM-DD`), días cerrados sin vencimiento, recientes a 1 h, tope 200.
-  Si el pipeline corrige datos viejos, subir el prefijo a `v2` para invalidarla.
-- El hook `useHistory` conserva su caché en memoria por periodo: evita volver a unir muestras al cambiar de periodo.
