@@ -1,0 +1,50 @@
+% Portada de la guía técnica, con el mismo formato que la del documento de la tesis: los escudos y las líneas de la
+% columna izquierda se dibujan en posición absoluta y el texto ocupa la columna derecha. \guiafecha la define build.sh.
+\begin{titlepage}
+\begin{tikzpicture}[remember picture,overlay]
+  \node[anchor=north] (ipn) at ([xshift=2.6cm,yshift=-1.5cm]current page.north west)
+    {\includegraphics[width=2.1cm]{logo-ipn}};
+  \node[anchor=south] (escom) at ([xshift=2.6cm,yshift=2cm]current page.south west)
+    {\includegraphics[width=2.6cm]{logo-escom}};
+  \foreach \dx in {-2.5pt,0pt,2.5pt}
+    \draw[line width=1.2pt] ([xshift=\dx,yshift=-0.4cm]ipn.south) -- ([xshift=\dx,yshift=0.4cm]escom.north);
+\end{tikzpicture}
+
+\noindent\hspace*{0.2\textwidth}%
+\begin{minipage}{0.8\textwidth}
+  \centering
+  {\huge\bfseries Instituto Politécnico Nacional\par}
+  \vspace{0.4cm}
+  {\LARGE Escuela Superior de Cómputo\par}
+  \vspace{2.4cm}
+
+  {\rule{0.7\linewidth}{0.6pt}\par}
+  \vspace{0.6cm}
+  {\fontsize{34}{40}\selectfont\bfseries Guía técnica\par}
+  \vspace{0.5cm}
+  {\Large App web y móvil de la Estación meteorológica\par}
+  \vspace{0.6cm}
+  {\rule{0.7\linewidth}{0.6pt}\par}
+  \vspace{0.8cm}
+
+  {\large Plataforma de Monitoreo y Visualización Meteorológica\par}
+  \vspace{0.2cm}
+  {\large Trabajo Terminal 2026-B033\par}
+  \vspace{2.4cm}
+
+  {\large\bfseries Alumnos:\par}
+  \vspace{0.2cm}
+  Rodríguez Reyes Ayax Alexander\\
+  Sánchez Leyva Eduardo Samuel\\
+  Velazquez Garduño Jorge Nahum\par
+  \vspace{1cm}
+
+  {\large\bfseries Directores de Trabajo Terminal:\par}
+  \vspace{0.2cm}
+  Gómez Mayorga Margarita Elizabeth\\
+  Ilizaliturri Flores Ian\par
+  \vspace{2cm}
+
+  \hfill \guiafecha
+\end{minipage}
+\end{titlepage}

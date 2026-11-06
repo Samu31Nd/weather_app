@@ -25,6 +25,7 @@ descargarlo) y `GUIA_OUTPUT` (otra salida, por ejemplo `.tex` para revisar el La
 | Archivo | Qué hace |
 |---------|----------|
 | `build.sh` | Define el **orden de lectura** (partes, capítulos y apéndices) y llama a pandoc. Un capítulo nuevo de `docs/` se agrega aquí |
+| `portada.tex` | Portada con el formato de la de la tesis: escudos del IPN y la ESCOM (`img/`), título, alumnos y directores. Si cambia el equipo, se corrige aquí |
 | `presentacion.md` | Primer capítulo del PDF: qué es la app, a quién va dirigida la guía y cómo está organizada |
 | `metadata.yaml` | Título, idioma, márgenes y fuentes |
 | `header.tex` | Ajustes de LaTeX: símbolos Unicode (✓, →, ≥…), cortes de línea en el código, tablas y encabezados |

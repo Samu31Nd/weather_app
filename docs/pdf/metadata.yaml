@@ -1,7 +1,6 @@
-title: "Guía técnica"
-subtitle: "App web y móvil de la Estación meteorológica · TT 2026-B033"
-author:
-  - "Instituto Politécnico Nacional · Escuela Superior de Cómputo"
+# La portada es propia (portada.tex); `title-meta` y `author-meta` solo llenan las propiedades del PDF.
+title-meta: "Guía técnica · App web y móvil de la Estación meteorológica · TT 2026-B033"
+author-meta: "Instituto Politécnico Nacional · Escuela Superior de Cómputo"
 lang: es-MX
 documentclass: report
 classoption:

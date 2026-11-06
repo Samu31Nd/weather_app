@@ -33,9 +33,14 @@ elif [[ ! -f "$CACHE_DIR/mermaid.min.js" ]]; then
   curl -fsSL "https://cdn.jsdelivr.net/npm/mermaid@$MERMAID_VERSION/dist/mermaid.min.js" -o "$CACHE_DIR/mermaid.min.js"
 fi
 
-# Fecha de la portada, en español.
+# Portada (portada.tex): fecha en español y rutas de los escudos. LaTeX corre en una carpeta temporal, así que
+# las rutas van absolutas.
 MONTHS=(enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre diciembre)
 DATE="$(date +%-d) de ${MONTHS[$(( $(date +%-m) - 1 ))]} de $(date +%Y)"
+cat > "$CACHE_DIR/portada-datos.tex" <<EOF
+\\graphicspath{{$PDF_DIR/img/}}
+\\newcommand{\\guiafecha}{$DATE}
+EOF
 
 # Separadores de partes: comentarios HTML que guia.lua convierte en \part y \appendix de LaTeX.
 part() { printf '<!-- part: %s -->\n' "$2" > "$CACHE_DIR/$1.md"; echo ".cache/$1.md"; }
@@ -63,9 +68,10 @@ GUIA_CACHE="$CACHE_DIR" GUIA_BROWSER="$GUIA_BROWSER" pandoc "${CHAPTERS[@]}" \
   --file-scope \
   --from=gfm \
   --metadata-file="$PDF_DIR/metadata.yaml" \
-  --metadata=date:"$DATE" \
   --lua-filter="$PDF_DIR/guia.lua" \
   --include-in-header="$PDF_DIR/header.tex" \
+  --include-in-header="$CACHE_DIR/portada-datos.tex" \
+  --include-before-body="$PDF_DIR/portada.tex" \
   --top-level-division=chapter \
   --toc --toc-depth=2 \
   --pdf-engine=pdflatex \
