@@ -70,9 +70,35 @@ archivo de test.
 | RF-APP-10 | CU-06 | `UserPreferences` · adaptadores de almacenamiento · providers de tema, idioma y tamaño · hoja de ajustes móvil | `packages/core/test/domain/preferences.test.ts`, `adapters/key-value-preferences.test.ts`; `apps/web/test/preferences-dom.test.ts`, `now-screen.test.tsx` (idioma, unidades, tema); `apps/mobile/test/now-screen.test.tsx` (ajustes y claves `wx-*` en AsyncStorage) | 2, 4 |
 | RNF-APP-01 | CU-01, 04 | mappers de `core/adapters` | `packages/core/test/adapters/*.mapper.test.ts` con fixtures reales; `test/contract/` contra las fuentes | 1 |
 | RNF-APP-02 | CU-01, 04 | adaptadores HTTP (reintentos) · estados de pantalla | `packages/core/test/adapters/http.test.ts` (reintentos, timeout, 4xx/5xx, tope de filas) | 1, 3, 4 |
-| RNF-APP-05 | — | todas las UI | `packages/tokens/test/{tokens,widget}.test.ts` (contraste AA en ambos temas, también en el widget), `packages/sky-art/test` (movimiento reducido en web; en móvil `SvgArt` usa `useReducedMotion`); auditoría axe pendiente | 2–5 |
+| RNF-APP-05 | — | todas las UI | `packages/tokens/test/{tokens,widget}.test.ts` (contraste AA en ambos temas, también en el widget), `packages/sky-art/test` (movimiento reducido en web; en móvil `SvgArt` usa `useReducedMotion`); `apps/web/test/accessibility.test.tsx` (axe-core, WCAG 2.2 A/AA, en carga, "Ahora" e "Histórico"); `apps/mobile/test/accessibility.test.tsx` (rol, nombre y área táctil ≥ 44 dp de cada control); revisión manual con TalkBack (abajo) | 2–5, 8 |
 | RNF-APP-07 | — | `packages/i18n` | `packages/i18n/test/catalogs.test.ts` (paridad es/en), `format.test.ts`, `forecast-text.test.ts` | 2 |
 | RNF-APP-08 | — | `packages/core` | `packages/core/test/architecture.test.ts` (regla de dependencias) | 1 |
 | RNF-APP-09 | — | `packages/core` | umbral de cobertura en `packages/core/vitest.config.ts` (job `core` del CI) | 0b, 1 |
 | RNF-APP-10 | CU-01 | `/api/live` | `apps/web/test/live-proxy.test.ts` (URL fija, sin MAC/IP/SSID); `now-screen.test.tsx` | 3 |
 | RNF-APP-11 | CU-01 | `/api/live` (caché) · caché de sesión del histórico | `apps/web/test/live-proxy.test.ts` (caché de 10 s) | 3, 5 |
+
+## Accesibilidad (RNF-APP-05)
+
+La parte automática corre en el CI con los demás tests:
+
+- **Contraste:** `packages/tokens/test/{tokens,widget}.test.ts` calcula la razón WCAG de cada par texto/fondo y
+  gráfico/fondo en los dos temas (≥ 4.5:1 y ≥ 3:1).
+- **Web (axe-core):** `apps/web/test/accessibility.test.tsx` corre las reglas WCAG 2.0–2.2 A y AA sobre la carga,
+  "Ahora" e "Histórico". El contraste se excluye ahí porque jsdom no calcula estilos; lo cubre el punto anterior.
+  Resultado del 5-nov: **0 violaciones**.
+- **Móvil:** `apps/mobile/test/accessibility.test.tsx` revisa que todo control tocable de la carga, "Ahora", la hoja
+  de ajustes, "Histórico" y la hoja de descarga tenga rol, nombre y área táctil ≥ 44 dp. Encontró "Abrir todas"
+  (36 dp) y el chip "Mostrar sensores interiores" (32 dp); se corrigieron con `hitSlop` sin cambiar el diseño.
+
+La lectura con TalkBack es manual y se hace en el APK, una vez por versión:
+
+| # | Paso | Se espera |
+|---|------|-----------|
+| 1 | Activar TalkBack y abrir la app | Anuncia la carga y luego "Condiciones actuales" con la temperatura y la condición |
+| 2 | Deslizar por "Ahora" | Cada tarjeta se lee con su título y su valor y unidad; los íconos decorativos se saltan |
+| 3 | Abrir "Ajustes" y cambiar idioma, unidades, tema y tamaño | Cada opción dice si está seleccionada; la hoja se cierra con "Listo" o con el gesto atrás |
+| 4 | Ir a "Histórico" y cambiar el periodo y la resolución | Las resoluciones no permitidas se anuncian como deshabilitadas |
+| 5 | Abrir y cerrar secciones | Cada sección dice si está abierta o cerrada; cada gráfica se lee con su resumen (rango y extremos) |
+| 6 | Abrir "Descargar" y elegir un formato | Se lee cada formato con su descripción; se abre la hoja de compartir |
+| 7 | Con la letra del sistema al máximo, repetir 2 y 5 | El texto crece sin cortarse ni encimarse |
+| 8 | Con "Quitar animaciones" activo, abrir "Ahora" | La escena del cielo queda fija |

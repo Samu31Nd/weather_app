@@ -125,6 +125,7 @@ export function HistoryScreen() {
                   const all = openCount < 4
                   setOpen({ temperature: all, wind: all, rain: all, pressure: all })
                 }}
+                hitSlop={OPEN_ALL_SLOP}
                 style={styles.openAll}
               >
                 <Txt size={13} weight="semibold" color="blue-text">{openCount === 4 ? h.accordion.collapseAll : h.accordion.expandAll}</Txt>
@@ -162,6 +163,9 @@ function Status({ text, action, onAction }: { text: string; action?: string; onA
     </Card>
   )
 }
+
+/** El botón mide 36 dp como en el diseño; el área táctil se extiende a 44 dp (RNF-APP-05). */
+const OPEN_ALL_SLOP = { top: 4, bottom: 4 }
 
 const styles = StyleSheet.create({
   root: { flex: 1 },

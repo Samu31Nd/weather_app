@@ -207,9 +207,9 @@ Notas de la fase 6 (25-oct):
 - El diagrama PlantUML no se exportó aquí (no hay PlantUML instalado). Se exporta con
   `plantuml -tsvg docs/diagramas/casos-de-uso.puml`, la extensión de PlantUML de VS Code o plantuml.com.
 - El push de esta rama necesita SSH: modifica `release.yml` y la acción `release-tag`.
-- **Pendientes fuera del plan:** auditoría de accesibilidad con axe (web) y TalkBack (móvil) para cerrar
-  RNF-APP-05; corregir `wind_dir`/`hi_dir` en el pipeline (D5), que ya afecta la rosa del histórico; zona horaria
-  de la consola en UTC−6 (D12); alerta de presupuesto en GCP.
+- **Pendientes fuera del plan:** ~~auditoría de accesibilidad~~ (hecha el 5-nov, ver fase 8); corregir
+  `wind_dir`/`hi_dir` en el pipeline (D5), que ya afecta la rosa del histórico; alerta de presupuesto en GCP. La
+  zona horaria de la consola (D12) se deja como está.
 - **Ideas para después:** fases de la luna calculadas por fecha (la consola no las publica en `wflexp.json`).
 
 Notas de la fase 7 (25-oct):
