@@ -61,6 +61,10 @@ npm run build --workspace=web
 TMPDIR=~/tmp-build npm run build:android   # APK local (no usa el cupo de EAS Build; /tmp es tmpfs pequeño)
 ```
 
+**APK local:** siempre con `mkdir -p ~/tmp-build` y `TMPDIR=~/tmp-build`. En la máquina de desarrollo `/tmp` es un
+`tmpfs` de 3.6 GB (7 GB de RAM) y Gradle lo llena ("No space left on device"); si pasa, borrar
+`/tmp/$USER/eas-build-local-nodejs`. Detalle en `docs/09-despliegue.md`.
+
 Cada app lee su propio `.env`. Las plantillas son `apps/mobile/.env.example` y `apps/web/.env.template`; nunca se
 commitean valores reales.
 
