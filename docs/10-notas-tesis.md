@@ -53,7 +53,7 @@ diferencias están en `~/Descargas/proj-files/docs/reporte_cambios_ingesta.md`.
 | Histórico: día específico, rango de fechas y "últimos 1–30 días" con slider | Atajos 24 h / 7 / 30 / 90 días y "últimos N días" (desde el 19-abr-2026); resolución 15 min…1 mes limitada a 4–800 puntos |
 | Caché de `localStorage` y esqueleto de carga | Las consultas ya hechas se guardan en memoria durante la sesión; el periodo largo se pide en tramos de 10 días en paralelo (tope de 1000 filas) |
 | `LineChart` de MUI X con interpolación catmull-Rom | Gráficas SVG propias: curva monótona que pasa por cada punto sin inventar picos, bandas mín–máx, barras de lluvia, acumulado, rosa de los vientos y cursor compartido. La geometría vive en `@tt/core` (ADR-0006) |
-| Descarga JSON del estado y CSV | CSV/JSON de lo que se ve (resolución y variables visibles), con la unidad en cada columna y huecos vacíos; en móvil por la hoja de compartir |
+| Descarga JSON del estado y CSV | CSV, JSON o Parquet de lo que se ve (resolución y variables visibles), con la unidad en cada columna y huecos vacíos; Parquet con tipos y hora UTC para análisis de datos (ADR-0012); en móvil por la hoja de compartir |
 
 Material para reescribirla:
 - Pantallas y preferencias: [07 · Interfaz](07-interfaz.md). Capturas nuevas: "Ahora" y "Histórico" en web

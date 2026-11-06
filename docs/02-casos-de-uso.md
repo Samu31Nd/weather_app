@@ -108,7 +108,7 @@ para no saturar el diagrama.
 - **Cubre:** RF-APP-09.
 - **Precondición:** hay una consulta de histórico con datos.
 - **Flujo:**
-  1. El usuario elige CSV o JSON.
+  1. El usuario elige CSV, JSON o Parquet.
   2. El sistema genera el archivo con las filas del periodo, con la unidad en el nombre de la columna.
   3. El navegador lo descarga, o en móvil se abre el menú de compartir.
 

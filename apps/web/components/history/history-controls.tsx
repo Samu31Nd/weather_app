@@ -1,8 +1,8 @@
-// Controles del artboard `Main` (RF-APP-06, RF-APP-07, RF-APP-09): variables visibles, descarga CSV/JSON, rango
+// Controles del artboard `Main` (RF-APP-06, RF-APP-07, RF-APP-09): variables visibles, descarga CSV/JSON/Parquet, rango
 // (atajos o últimos N días), resolución permitida para ese rango y sensores interiores.
 
 import {
-  type ExportFormat, HISTORY_PRESETS, HISTORY_VARIABLES, type HistoryVariable, RESOLUTIONS, estimatedPoints, isResolutionAllowed,
+  EXPORT_FORMATS, type ExportFormat, HISTORY_PRESETS, HISTORY_VARIABLES, type HistoryVariable, RESOLUTIONS, estimatedPoints, isResolutionAllowed,
 } from '@tt/core'
 import { periodBounds } from '@tt/i18n'
 import { useState } from 'react'
@@ -49,14 +49,14 @@ export function HistoryControls({ history, onDownload }: { history: HistoryState
               </svg>
               {h.download}
             </span>
-            {(['csv', 'json'] as const).map((format, i) => (
+            {EXPORT_FORMATS.map((format, i) => (
               <button
                 key={format}
                 type="button"
-                title={format === 'csv' ? h.csvTitle : h.jsonTitle}
+                title={h.formatTitles[format]}
                 disabled={history.view === null}
                 onClick={() => onDownload(format)}
-                className={`num min-h-11 min-w-16 cursor-pointer px-3.5 text-[13px] font-medium disabled:cursor-progress disabled:opacity-60 ${i === 0 ? 'border-r border-wx-gs' : ''}`}
+                className={`num min-h-11 min-w-16 cursor-pointer px-3.5 text-[13px] font-medium disabled:cursor-progress disabled:opacity-60 ${i < EXPORT_FORMATS.length - 1 ? 'border-r border-wx-gs' : ''}`}
               >
                 {format.toUpperCase()}
               </button>

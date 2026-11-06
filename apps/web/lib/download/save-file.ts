@@ -3,7 +3,8 @@
 import type { HistoryExport } from '@tt/core'
 
 export function saveFile(file: HistoryExport): void {
-  const url = URL.createObjectURL(new Blob([file.content], { type: `${file.mimeType};charset=utf-8` }))
+  const type = typeof file.content === 'string' ? `${file.mimeType};charset=utf-8` : file.mimeType
+  const url = URL.createObjectURL(new Blob([file.content as BlobPart], { type }))
   const link = document.createElement('a')
   link.href = url
   link.download = file.fileName

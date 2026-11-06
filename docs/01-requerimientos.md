@@ -22,7 +22,7 @@ usuario puede hacer, o una cualidad que se puede medir. El detalle de qué muest
 | RF-APP-06 | **Consultar el histórico por periodo.** El usuario elige un periodo con atajos (últimos N días) o un rango de fechas. El sistema obtiene todas las lecturas del periodo aunque superen el límite de la fuente | M | RF-09 |
 | RF-APP-07 | **Visualizar las series históricas.** El sistema grafica temperatura y humedad, viento (con rosa de los vientos), lluvia (por intervalo y acumulada) y presión. La resolución temporal es ajustable y por defecto se elige una adecuada al periodo | M | RF-08 |
 | RF-APP-08 | **Resumir el periodo.** El sistema calcula indicadores por variable: extremos con fecha y hora, media, amplitud, dirección dominante y calma, total y días con lluvia, intensidad máxima y variación de presión | M | — |
-| RF-APP-09 | **Exportar los datos consultados.** El usuario descarga en CSV o JSON lo que está viendo (periodo, resolución y variables), con las unidades explícitas | S | — |
+| RF-APP-09 | **Exportar los datos consultados.** El usuario descarga en CSV, JSON o Parquet lo que está viendo (periodo, resolución y variables), con las unidades explícitas | S | — |
 | RF-APP-10 | **Personalizar la presentación.** El usuario elige las unidades (métrico/imperial), el idioma (es/en), el tema (sistema/claro/oscuro) y el tamaño del texto. Las preferencias se conservan entre sesiones en el dispositivo | M | — |
 
 ### Criterios de aceptación

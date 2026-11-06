@@ -2,6 +2,7 @@
  * Regla de dependencias de la arquitectura hexagonal: el núcleo es TypeScript puro.
  * Fuente: docs/03-arquitectura.md (regla de dependencias) y ADR-0001.
  * - `src/` solo importa archivos propios (rutas relativas): nada de React, React Native, Next, Expo ni librerías.
+ *   Única excepción: librerías de JS puro sin APIs de plataforma, aprobadas por un ADR (`hyparquet-writer`, ADR-0012).
  * - El dominio no depende de la aplicación, de los puertos ni de los adaptadores.
  * Requerimientos: RNF-APP-08.
  */
@@ -22,6 +23,9 @@ function importsOf(file: string): string[] {
   return [...source.matchAll(/^\s*(?:import|export)[^'"]*from\s+['"]([^'"]+)['"]/gm)].map((match) => match[1] as string)
 }
 
+/** Librerías de JS puro que el núcleo puede usar, cada una con su ADR. */
+const ALLOWED_LIBRARIES = ['hyparquet-writer'] // ADR-0012: exportar a Parquet
+
 const files = sourceFiles(SRC).map((file) => ({ path: relative(SRC, file), imports: importsOf(file) }))
 
 describe('regla de dependencias del núcleo', () => {
@@ -30,7 +34,7 @@ describe('regla de dependencias del núcleo', () => {
   })
 
   it.each(files)('$path solo importa archivos propios', ({ imports }) => {
-    expect(imports.filter((specifier) => !specifier.startsWith('.'))).toEqual([])
+    expect(imports.filter((specifier) => !specifier.startsWith('.') && !ALLOWED_LIBRARIES.includes(specifier))).toEqual([])
   })
 
   it.each(files.filter((f) => f.path.startsWith('domain/')))('$path (dominio) no depende de capas externas', ({ imports }) => {

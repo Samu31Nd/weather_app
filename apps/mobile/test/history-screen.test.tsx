@@ -83,4 +83,15 @@ describe('pantalla "Histórico" (móvil)', () => {
       'time_america_mexico_city,temperature_degC,temperature_min_degC,temperature_max_degC,humidity_pct,indoor_temperature_degC,indoor_humidity_pct',
     )
   })
+
+  it('descarga Parquet como bytes por la hoja de compartir', async () => {
+    await renderHistory(source())
+    await screen.findByText('1 de 4 secciones abiertas')
+    await fireEvent.press(screen.getByLabelText('Descargar lo que estás viendo'))
+    await fireEvent.press(screen.getByText('PARQUET'))
+    const [file] = (shareFile as jest.Mock).mock.calls.at(-1)
+    expect(file.fileName).toMatch(/\.parquet$/)
+    expect(file.content).toBeInstanceOf(Uint8Array)
+    expect(String.fromCharCode(...file.content.slice(0, 4))).toBe('PAR1')
+  })
 })

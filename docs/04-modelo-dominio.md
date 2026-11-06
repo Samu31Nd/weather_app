@@ -193,7 +193,7 @@ classDiagram
 | `GetHistory` | `(range: DateRange) → Promise<HistorySample[]>`: parte en tramos de 10 días o menos, une, quita duplicados y ordena | `HistoryRepository` | RF-APP-06 |
 | `BuildChartSeries` | `(series, resolution, units) → ChartSeries` | dominio + `charts/` | RF-APP-07 |
 | `SummarizeHistory` | `(series) → HistorySummary` | dominio | RF-APP-08 |
-| `ExportHistory` | `(series, format: csv\|json, units) → Blob-like string` | dominio | RF-APP-09 |
+| `ExportHistory` | `(series, format: csv\|json\|parquet, units) → Blob-like string` | dominio | RF-APP-09 |
 | `GetPreferences` / `UpdatePreferences` | `() → Promise<UserPreferences>` / `(patch) → Promise<UserPreferences>` | `PreferencesRepository` | RF-APP-10 |
 
 ## Reglas de dominio (funciones puras)

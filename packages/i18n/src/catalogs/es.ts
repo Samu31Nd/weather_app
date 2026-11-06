@@ -277,8 +277,11 @@ export const es = {
     show: (name: string) => `Mostrar ${name.toLowerCase()}`,
     download: 'Descargar',
     downloadAria: 'Descargar lo que estás viendo',
-    csvTitle: 'Descargar como CSV (Excel, hojas de cálculo)',
-    jsonTitle: 'Descargar como JSON (para otras apps o scripts)',
+    formatTitles: {
+      csv: 'Descargar como CSV (Excel, hojas de cálculo)',
+      json: 'Descargar como JSON (para otras apps o scripts)',
+      parquet: 'Descargar como Parquet (pandas, DuckDB, análisis de datos)',
+    },
     downloadSummary: (points: number, variables: number, resolution: string) =>
       `${points} puntos × ${variables} ${variables === 1 ? 'variable' : 'variables'} · ${resolution}`,
     range: 'Rango',
