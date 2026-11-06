@@ -18,7 +18,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.samu31nd.ttb033"
+      "package": "mx.ipn.escom.ttb033"
     },
     "web": {
       "output": "static",
@@ -29,9 +29,13 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#c9daf8",
+          "image": "./assets/images/splash-blank.png",
+          "imageWidth": 1,
+          "dark": {
+            "backgroundColor": "#1b1c2c",
+            "image": "./assets/images/splash-blank.png"
+          }
         }
       ],
       "expo-font",

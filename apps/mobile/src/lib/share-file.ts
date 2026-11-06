@@ -9,5 +9,11 @@ export async function shareFile(file: HistoryExport, dialogTitle: string): Promi
   const target = new File(Paths.cache, file.fileName)
   target.create({ overwrite: true })
   await target.write(file.content)
-  await Sharing.shareAsync(target.uri, { mimeType: file.mimeType, dialogTitle, UTI: file.mimeType === 'text/csv' ? 'public.comma-separated-values-text' : 'public.json' })
+  await Sharing.shareAsync(target.uri, { mimeType: file.mimeType, dialogTitle, UTI: UTI_BY_MIME[file.mimeType] ?? 'public.data' })
+}
+
+/** Tipos de iOS para la hoja de compartir; Parquet no tiene uno propio y va como datos genéricos. */
+const UTI_BY_MIME: Record<string, string> = {
+  'text/csv': 'public.comma-separated-values-text',
+  'application/json': 'public.json',
 }

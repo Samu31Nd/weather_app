@@ -60,6 +60,7 @@ export function TemperatureSection(props: SectionProps & { onToggleIndoor: () =>
             accessibilityState={{ checked: showIndoor }}
             accessibilityLabel={h.showIndoor}
             onPress={onToggleIndoor}
+            hitSlop={INDOOR_CHIP_SLOP}
             style={[styles.indoorChip, showIndoor ? { borderColor: palette.tx, borderStyle: 'solid', backgroundColor: palette.sf } : { borderColor: palette.gs, borderStyle: 'dashed' }]}
           >
             <View style={{ width: 14, borderTopWidth: 2, borderStyle: 'dashed', borderColor: palette.tm }} />
@@ -196,6 +197,9 @@ export function PressureSection({ view, charts, summary, headline, cursor, axis,
     </AccordionSection>
   )
 }
+
+/** El chip mide 32 dp como en el diseño; el área táctil se extiende a 44 dp (RNF-APP-05). */
+const INDOOR_CHIP_SLOP = { top: 6, bottom: 6 }
 
 const styles = StyleSheet.create({
   indoorChip: { minHeight: 32, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, flexDirection: 'row', alignItems: 'center', gap: 6 },

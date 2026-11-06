@@ -2,6 +2,8 @@
 node_modules/
 
 # builds
+*.apk
+*.aab
 .next/
 .expo/
 dist/

@@ -8,7 +8,7 @@ App web (Next.js 16, App Router, Tailwind 4). Las reglas generales, los requerim
 | Ruta | Qué es | Estado |
 |------|--------|--------|
 | `/` | "Ahora": carga → dashboard del artboard `Dashboard` | Nuevo (fase 3) |
-| `/historico` | Histórico del artboard `Main`: controles, cuatro secciones con gráficas SVG propias y descarga CSV/JSON | Fase 5 |
+| `/historico` | Histórico del artboard `Main`: controles, cuatro secciones con gráficas SVG propias y descarga CSV/JSON/Parquet | Fase 5 |
 | `/api/live` | Proxy del dato en vivo: solo la consola configurada, caché de 10 s y sin MAC/IP/SSID | `lib/live/live-proxy.ts` |
 
 ## Estructura

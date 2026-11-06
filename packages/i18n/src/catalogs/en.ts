@@ -275,8 +275,11 @@ export const en: Catalog = {
     show: (name) => `Show ${name.toLowerCase()}`,
     download: 'Download',
     downloadAria: 'Download what you are viewing',
-    csvTitle: 'Download as CSV (Excel, spreadsheets)',
-    jsonTitle: 'Download as JSON (for other apps or scripts)',
+    formatTitles: {
+      csv: 'Download as CSV (Excel, spreadsheets)',
+      json: 'Download as JSON (for other apps or scripts)',
+      parquet: 'Download as Parquet (pandas, DuckDB, data analysis)',
+    },
     downloadSummary: (points, variables, resolution) => `${points} points × ${variables} ${variables === 1 ? 'variable' : 'variables'} · ${resolution}`,
     range: 'Range',
     presets: { '24h': '24 h', '7d': '7 days', '30d': '30 days', '90d': '90 days' },

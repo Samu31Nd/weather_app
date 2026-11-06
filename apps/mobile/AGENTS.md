@@ -51,7 +51,7 @@ Desde la raíz del repo:
 npm run mobile                          # Expo dev server (Expo Go)
 npm run typecheck --workspace=mobile
 npm test --workspace=mobile             # jest-expo + Testing Library
-npm run build:android                   # APK local (eas build --local)
+TMPDIR=~/tmp-build npm run build:android   # APK local (eas build --local); TMPDIR en disco, ver docs/09
 ```
 
 ## Entorno
@@ -59,5 +59,5 @@ npm run build:android                   # APK local (eas build --local)
 - `EXPO_PUBLIC_WEATHER_STATION_URL`: el proxy `/api/live` de la web (ADR-0007). En desarrollo puede apuntar directo a
   la consola: Expo Go permite HTTP. El APK no lleva excepción de *cleartext*.
 - `EXPO_PUBLIC_HISTORY_API_URL`: Cloud Function de histórico. En CI sale de la variable `NEXT_PUBLIC_API_CLOUD_URL`.
-- En el APK, las dos salen del perfil `base` de `eas.json`: `eas build --local` no copia `.env` (está en
-  `.gitignore`). Pendiente: moverlas a variables de entorno de EAS (`docs/09-despliegue.md`).
+- En el APK, las dos salen de las variables de entorno de EAS (entornos `preview` y `production`):
+  `eas build --local` no copia `.env` (está en `.gitignore`). Ver `docs/09-despliegue.md`.

@@ -15,5 +15,8 @@
     "test": "vitest run --coverage",
     "test:watch": "vitest",
     "test:contract": "CONTRACT=1 vitest run test/contract"
+  },
+  "dependencies": {
+    "hyparquet-writer": "0.17.0"
   }
 }

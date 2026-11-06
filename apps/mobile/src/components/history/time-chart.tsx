@@ -38,7 +38,7 @@ export function TimeChart({ height, label, scale, formatTick, cursor, children }
     <View accessible accessibilityRole="image" accessibilityLabel={label} style={[styles.chart, { height }]} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
       {scale.ticks.map((tick) => (
         <View key={tick} style={[styles.gridLine, { top: `${(1 - (tick - scale.lo) / span) * 100}%`, borderTopColor: palette.gr }]}>
-          <Txt size={10} mono color="tm" style={styles.tickLabel}>{formatTick(tick)}</Txt>
+          <Txt size={10} mono color="tm" style={styles.tickLabel} importantForAccessibility="no">{formatTick(tick)}</Txt>
         </View>
       ))}
       <Svg style={StyleSheet.absoluteFill} viewBox={`0 0 ${CHART_WIDTH} ${height}`} preserveAspectRatio="none">
@@ -60,7 +60,7 @@ export function TimeChart({ height, label, scale, formatTick, cursor, children }
 
 export function TimeAxis({ ticks }: { ticks: ReadonlyArray<{ readonly label: string; readonly fraction: number }> }) {
   return (
-    <View style={styles.axis}>
+    <View style={styles.axis} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       {ticks.map((tick, i) => (
         <Txt
           key={`${tick.label}-${i}`}

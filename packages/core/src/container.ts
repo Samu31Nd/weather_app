@@ -1,6 +1,7 @@
 // Composition root del núcleo: conecta adaptadores y casos de uso. Cada app lo llama con su configuración y
 // lo reparte con un provider; las pruebas lo llaman con dobles (ADR-0001, docs/03-arquitectura.md).
 
+import { CachedHistoryRepository } from './adapters/cached-history.repository'
 import { HttpHistoryRepository } from './adapters/cloud-history/http-history.repository'
 import { HttpLiveWeatherRepository } from './adapters/davis-live/http-live-weather.repository'
 import type { HttpOptions } from './adapters/http'
@@ -20,7 +21,7 @@ export interface CoreConfig {
   readonly clock?: Clock
   readonly liveRepository?: LiveWeatherRepository
   readonly historyRepository?: HistoryRepository
-  /** Almacén de preferencias (`localStorage`, AsyncStorage); sin él, se guardan solo en memoria. */
+  /** Almacén de preferencias y de la caché del histórico (`localStorage`, AsyncStorage); sin él, solo en memoria. */
   readonly storage?: KeyValueStorage
   readonly preferencesRepository?: PreferencesRepository
 }
@@ -39,11 +40,12 @@ export function createCore(config: CoreConfig): Core {
   const liveRepository: LiveWeatherRepository =
     config.liveRepository ??
     (config.liveUrl ? new HttpLiveWeatherRepository(config.liveUrl, config.http) : { getCurrent: () => missing('liveUrl') })
-  const historyRepository: HistoryRepository =
+  const historySource: HistoryRepository =
     config.historyRepository ??
     (config.historyUrl ? new HttpHistoryRepository(config.historyUrl, config.http) : { getSamples: () => missing('historyUrl') })
-  const preferencesRepository =
-    config.preferencesRepository ?? new KeyValuePreferencesRepository(config.storage ?? inMemoryStorage())
+  const storage = config.storage ?? inMemoryStorage()
+  const historyRepository = new CachedHistoryRepository(historySource, storage, clock)
+  const preferencesRepository = config.preferencesRepository ?? new KeyValuePreferencesRepository(storage)
   return {
     getLiveWeather: new GetLiveWeather(liveRepository),
     getHistory: new GetHistory(historyRepository),
@@ -61,5 +63,9 @@ function missing(name: string): Promise<never> {
 
 function inMemoryStorage(): KeyValueStorage {
   const values = new Map<string, string>()
-  return { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => void values.set(key, value) }
+  return {
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => void values.set(key, value),
+    removeItem: (key) => void values.delete(key),
+  }
 }

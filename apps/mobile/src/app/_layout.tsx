@@ -1,4 +1,5 @@
 // Raíz de la app: fuentes del diseño, providers y barra de estado según el tema. La pantalla de arranque nativa
+// (sin ícono y del color del cielo de la carga, `app.json`)
 // se mantiene hasta tener las fuentes y las preferencias guardadas, para no pintar con las de fábrica.
 
 import { useFonts } from 'expo-font'

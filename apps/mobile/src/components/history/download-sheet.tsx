@@ -1,7 +1,7 @@
-// Hoja de descarga del artboard `MobileHistory` (RF-APP-09): CSV o JSON de lo que se está viendo. El archivo se
+// Hoja de descarga del artboard `MobileHistory` (RF-APP-09): CSV, JSON o Parquet de lo que se está viendo. El archivo se
 // entrega con la hoja de compartir del sistema.
 
-import type { ExportFormat } from '@tt/core'
+import { EXPORT_FORMATS, type ExportFormat } from '@tt/core'
 import { Modal, Pressable, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Txt } from '@/components/ui/txt'
@@ -24,15 +24,15 @@ export function DownloadSheet({ visible, summary, onPick, onClose }: { visible: 
             </Pressable>
           </View>
           <Txt size={12} mono color="t2">{summary}</Txt>
-          {(['csv', 'json'] as const).map((format) => (
+          {EXPORT_FORMATS.map((format) => (
             <Pressable
               key={format}
               accessibilityRole="button"
               onPress={() => onPick(format)}
               style={[styles.option, { borderColor: palette.bd, backgroundColor: palette.bg }]}
             >
-              <Txt size={14} weight="semibold" mono style={styles.format}>{format.toUpperCase()}</Txt>
-              <Txt size={13} color="t2" style={styles.shrink}>{format === 'csv' ? h.csvTitle : h.jsonTitle}</Txt>
+              <Txt size={14} weight="semibold" mono style={styles.format} numberOfLines={1} adjustsFontSizeToFit>{format.toUpperCase()}</Txt>
+              <Txt size={13} color="t2" style={styles.shrink}>{h.formatTitles[format]}</Txt>
             </Pressable>
           ))}
         </View>
@@ -53,6 +53,6 @@ const styles = StyleSheet.create({
   title: { flexShrink: 1 },
   done: { minHeight: 44, paddingHorizontal: 16, borderRadius: 12, justifyContent: 'center' },
   option: { minHeight: 60, paddingHorizontal: 16, borderRadius: 16, borderWidth: 1, flexDirection: 'row', alignItems: 'center', gap: 14 },
-  format: { width: 52 },
+  format: { width: 76 },
   shrink: { flexShrink: 1 },
 })

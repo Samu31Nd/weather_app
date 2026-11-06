@@ -17,6 +17,23 @@ const now = new Date('2026-10-24T15:59:58Z')
 const view = (scene: Parameters<typeof buildCurrentConditions>[1]['scene'], units: 'metric' | 'imperial' = 'metric') =>
   buildCurrentConditions(reading, { units, now, scene })
 
+describe('widget con la última lectura guardada (la consola no respondió)', () => {
+  it('dibuja la lectura completa, con la temperatura en gris y su hora como dato contextual', () => {
+    const later = new Date(now.getTime() + 2 * 3_600_000)
+    const text = widgetText(view('partly'), 'Liz', t, format, { stale: true, now: later })
+    expect(text).toMatchObject({ kind: 'partly', temperature: '18°', condition: 'Parcialmente nublado', stale: true })
+    expect(text.detail).toBe(`Última: ${format.time(reading.observedAt)}`)
+    expect(text.facts[0]?.value).toMatch(/^\d+ %$/)
+  })
+
+  it('si la lectura es de otro día, agrega la fecha corta para no confundirla con hoy', () => {
+    const nextWeek = new Date(now.getTime() + 7 * 86_400_000)
+    const text = widgetText(view('partly'), 'Liz', t, format, { stale: true, now: nextWeek })
+    expect(text.detail).toBe(`Última: 24 oct ${format.time(reading.observedAt)}`)
+    expect(text.station).toBe(`Liz · 24 oct ${format.time(reading.observedAt)}`)
+  })
+})
+
 describe('widget con datos', () => {
   const text = widgetText(view('partly'), 'Liz', t, format)
 

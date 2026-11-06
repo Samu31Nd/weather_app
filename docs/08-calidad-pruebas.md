@@ -59,20 +59,57 @@ archivo de test.
 | RF / RNF | CU | Componente | Prueba | Fase |
 |----------|----|------------|--------|------|
 | RF-APP-01 | CU-01 | mapper de `core/adapters/davis-live` · reglas de `core/domain` (sensación, Beaufort, rumbos, sol, confort) · textos de `i18n/presenters` · tarjetas de "Ahora" | `packages/core/test/adapters/davis-live.mapper.test.ts`, `domain/{units,wind,thermal,time-and-sun}.test.ts`; `packages/i18n/test/presenters.test.ts`; `apps/mobile/test/now-screen.test.tsx` | 1, 3, 4 |
-| RF-APP-02 | CU-01, 02 | `useLiveWeather` y máquina de estados de "Ahora" (web y móvil) · pantallas de carga (`loadingProgress`) | `apps/web/test/now-screen.test.tsx`, `apps/mobile/test/now-screen.test.tsx` (carga → panel, reintento); `packages/core/test/application/{live-status,loading-progress}.test.ts`; `packages/i18n/test/widget-text.test.ts`, `apps/mobile/test/{weather-widget,widget-content}.test.tsx` (widget: datos, sin conexión, ↻) | 3, 4, 7 |
+| RF-APP-02 | CU-01, 02 | `useLiveWeather` y máquina de estados de "Ahora" (web y móvil) · pantallas de carga (`loadingProgress`) | `apps/web/test/now-screen.test.tsx`, `apps/mobile/test/now-screen.test.tsx` (carga → panel, reintento); `packages/core/test/application/{live-status,loading-progress}.test.ts`; `packages/i18n/test/widget-text.test.ts`, `apps/mobile/test/{weather-widget,widget-content}.test.tsx` (widget: datos, última lectura guardada, sin conexión, ↻); `packages/core/test/adapters/live-reading-json.test.ts` | 3, 4, 7 |
 | RF-APP-03 | CU-08 | `core/domain/sky-scene` · `core/domain/forecast` · arte y animaciones de `@tt/sky-art` · escena web y móvil (`SvgArt`) | `packages/core/test/domain/sky-scene.test.ts` (21 escenas), `domain/forecast.test.ts`, `application/use-cases.test.ts`; `packages/sky-art/test/{sky-art,motion}.test.ts`; `apps/mobile/test/svg-art.test.tsx`; `packages/core/test/application/widget-summary.test.ts`, `packages/sky-art/test/widget-icons.test.ts` (widget) | 1, 3, 4, 7 |
 | RF-APP-04 | CU-03 | `core/domain/interpretation` · textos de ayuda en `packages/i18n` | `packages/core/test/domain/thermal.test.ts` (bandas y confort; los textos llegan en la fase 2) | 1, 2 |
 | RF-APP-05 | CU-07 | mapper (descarta MAC/IP/SSID) · tarjeta de estado | `packages/core/test/adapters/davis-live.mapper.test.ts` (sin MAC/IP/SSID) | 1, 3, 4 |
-| RF-APP-06 | CU-04 | `GetHistory` (tramos, unión, orden) · periodos en hora de CDMX (`history-period`) · controles de periodo web y móvil | `packages/core/test/domain/{history,history-period}.test.ts`, `application/use-cases.test.ts`, `adapters/http.test.ts`; `apps/web/test/history-screen.test.tsx` (90 días en 9 tramos) | 1, 5 |
+| RF-APP-06 | CU-04 | `GetHistory` (tramos, unión, orden) · `CachedHistoryRepository` (caché por día, vigencia, tope) · periodos en hora de CDMX (`history-period`) · controles de periodo web y móvil | `packages/core/test/domain/{history,history-period}.test.ts`, `application/use-cases.test.ts`, `adapters/{http,cached-history.repository}.test.ts`; `apps/web/test/history-screen.test.tsx` (90 días en 9 tramos) | 1, 5 |
 | RF-APP-07 | CU-04 | `buildHistoryView` (agregación, huecos) · `charts/{series,history-charts}` · gráficas web y móvil | `packages/core/test/application/history-view.test.ts`, `charts/{series,history-charts}.test.ts`; `packages/i18n/test/history-text.test.ts`; `apps/web/test/history-screen.test.tsx`, `apps/mobile/test/history-screen.test.tsx` | 5 |
 | RF-APP-08 | CU-04 | indicadores de `buildHistoryView` · `historyArt` · `historySummaryText` | `packages/core/test/application/history-view.test.ts` (valores calculados a mano y fixture real), `charts/history-art.test.ts`; `packages/i18n/test/history-text.test.ts` | 5 |
-| RF-APP-09 | CU-05 | `exportHistory` · descarga web (`saveFile`) y hoja de compartir móvil (`shareFile`) | `packages/core/test/application/export-history.test.ts`; `apps/web/test/history-screen.test.tsx`, `apps/mobile/test/history-screen.test.tsx` | 5 |
+| RF-APP-09 | CU-05 | `exportHistory` (CSV, JSON, Parquet) · descarga web (`saveFile`) y hoja de compartir móvil (`shareFile`) | `packages/core/test/application/export-history.test.ts` (Parquet leído de vuelta con `hyparquet`); `apps/web/test/history-screen.test.tsx`, `apps/mobile/test/history-screen.test.tsx` | 5 |
 | RF-APP-10 | CU-06 | `UserPreferences` · adaptadores de almacenamiento · providers de tema, idioma y tamaño · hoja de ajustes móvil | `packages/core/test/domain/preferences.test.ts`, `adapters/key-value-preferences.test.ts`; `apps/web/test/preferences-dom.test.ts`, `now-screen.test.tsx` (idioma, unidades, tema); `apps/mobile/test/now-screen.test.tsx` (ajustes y claves `wx-*` en AsyncStorage) | 2, 4 |
 | RNF-APP-01 | CU-01, 04 | mappers de `core/adapters` | `packages/core/test/adapters/*.mapper.test.ts` con fixtures reales; `test/contract/` contra las fuentes | 1 |
 | RNF-APP-02 | CU-01, 04 | adaptadores HTTP (reintentos) · estados de pantalla | `packages/core/test/adapters/http.test.ts` (reintentos, timeout, 4xx/5xx, tope de filas) | 1, 3, 4 |
-| RNF-APP-05 | — | todas las UI | `packages/tokens/test/{tokens,widget}.test.ts` (contraste AA en ambos temas, también en el widget), `packages/sky-art/test` (movimiento reducido en web; en móvil `SvgArt` usa `useReducedMotion`); auditoría axe pendiente | 2–5 |
+| RNF-APP-05 | — | todas las UI | `packages/tokens/test/{tokens,widget}.test.ts` (contraste AA en ambos temas, también en el widget), `packages/sky-art/test` (movimiento reducido en web; en móvil `SvgArt` usa `useReducedMotion`); `apps/web/test/accessibility.test.tsx` (axe-core, WCAG 2.2 A/AA, en carga, "Ahora" e "Histórico"); `apps/mobile/test/accessibility.test.tsx` (rol, nombre y área táctil ≥ 44 dp de cada control); revisión manual con TalkBack (abajo) | 2–5, 8 |
 | RNF-APP-07 | — | `packages/i18n` | `packages/i18n/test/catalogs.test.ts` (paridad es/en), `format.test.ts`, `forecast-text.test.ts` | 2 |
 | RNF-APP-08 | — | `packages/core` | `packages/core/test/architecture.test.ts` (regla de dependencias) | 1 |
 | RNF-APP-09 | — | `packages/core` | umbral de cobertura en `packages/core/vitest.config.ts` (job `core` del CI) | 0b, 1 |
 | RNF-APP-10 | CU-01 | `/api/live` | `apps/web/test/live-proxy.test.ts` (URL fija, sin MAC/IP/SSID); `now-screen.test.tsx` | 3 |
 | RNF-APP-11 | CU-01 | `/api/live` (caché) · caché de sesión del histórico | `apps/web/test/live-proxy.test.ts` (caché de 10 s) | 3, 5 |
+
+## Accesibilidad (RNF-APP-05)
+
+La parte automática corre en el CI con los demás tests:
+
+- **Contraste:** `packages/tokens/test/{tokens,widget}.test.ts` calcula la razón WCAG de cada par texto/fondo y
+  gráfico/fondo en los dos temas (≥ 4.5:1 y ≥ 3:1).
+- **Web (axe-core):** `apps/web/test/accessibility.test.tsx` corre las reglas WCAG 2.0–2.2 A y AA sobre la carga,
+  "Ahora" e "Histórico". El contraste se excluye ahí porque jsdom no calcula estilos; lo cubre el punto anterior.
+  Resultado del 5-nov: **0 violaciones**.
+- **Móvil:** `apps/mobile/test/accessibility.test.tsx` revisa que todo control tocable de la carga, "Ahora", la hoja
+  de ajustes, "Histórico" y la hoja de descarga tenga rol, nombre y área táctil ≥ 44 dp. Encontró "Abrir todas"
+  (36 dp) y el chip "Mostrar sensores interiores" (32 dp); se corrigieron con `hitSlop` sin cambiar el diseño.
+- **Árbol de accesibilidad del APK (6-nov):** `adb shell uiautomator dump --compressed` entrega los nodos que lee
+  TalkBack (texto, `content-desc`, si es enfocable y su tamaño), sin tener que activarlo. Sin `--compressed` también
+  salen los nodos ocultos al lector. En "Histórico" encontró:
+  - el campo "Últimos días" de 30 dp: ahora toda su píldora de 44 dp lo enfoca, y TalkBack solo lee el campo;
+  - las marcas de los ejes de las gráficas como nodos sueltos, ahora ocultas porque cada gráfica ya tiene su
+    descripción;
+  - las cifras de Máxima/Mínima en tres nodos cada una, ahora uno ("Máxima: 28.0 °C, 3 nov, 11:15").
+
+  El test móvil cubre los tres casos. En "Ahora", `uiautomator` no termina ("could not get idle state"), porque la
+  escena del cielo se anima sin parar; esa pantalla se revisa con el test y la lista manual. Los controles con
+  `hitSlop` se ven más chicos en el volcado, que no incluye el `hitSlop`.
+
+La lectura con TalkBack es manual y se hace en el APK, una vez por versión:
+
+| # | Paso | Se espera |
+|---|------|-----------|
+| 1 | Activar TalkBack y abrir la app | Anuncia la carga y luego "Condiciones actuales" con la temperatura y la condición |
+| 2 | Deslizar por "Ahora" | Cada tarjeta se lee con su título y su valor y unidad; los íconos decorativos se saltan |
+| 3 | Abrir "Ajustes" y cambiar idioma, unidades, tema y tamaño | Cada opción dice si está seleccionada; la hoja se cierra con "Listo" o con el gesto atrás |
+| 4 | Ir a "Histórico" y cambiar el periodo y la resolución | Las resoluciones no permitidas se anuncian como deshabilitadas |
+| 5 | Abrir y cerrar secciones | Cada sección dice si está abierta o cerrada; cada gráfica se lee con su resumen (rango y extremos) |
+| 6 | Abrir "Descargar" y elegir un formato | Se lee cada formato con su descripción; se abre la hoja de compartir |
+| 7 | Con la letra del sistema al máximo, repetir 2 y 5 | El texto crece sin cortarse ni encimarse |
+| 8 | Con "Quitar animaciones" activo, abrir "Ahora" | La escena del cielo queda fija |

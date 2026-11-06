@@ -76,7 +76,7 @@ export function KpiGrid({ kpis }: { kpis: readonly KpiText[] }) {
   return (
     <View style={styles.kpis}>
       {kpis.map((kpi) => (
-        <View key={kpi.label} style={[styles.kpi, { backgroundColor: palette.bg }]}>
+        <View key={kpi.label} accessible accessibilityLabel={`${kpi.label}: ${kpi.value}, ${kpi.detail}`} style={[styles.kpi, { backgroundColor: palette.bg }]}>
           <Txt size={11} color="t2">{kpi.label}</Txt>
           <Txt size={17} mono>{kpi.value}</Txt>
           <Txt size={10.5} color="t2">{kpi.detail}</Txt>

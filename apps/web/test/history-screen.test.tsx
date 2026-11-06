@@ -86,6 +86,22 @@ describe('pantalla "Histórico"', () => {
     expect(text.split('\n')[0]).toMatch(/^time_america_mexico_city,temperature_degC/)
   })
 
+  it('descarga lo que se ve como Parquet (binario, sin charset)', async () => {
+    // jsdom entrega los bytes de `TextEncoder` con un `Uint8Array` de otro realm; en el navegador es el mismo.
+    const JsdomEncoder = TextEncoder
+    vi.stubGlobal('TextEncoder', class { encode = (text: string) => new Uint8Array(new JsdomEncoder().encode(text)) })
+    const created: Blob[] = []
+    vi.stubGlobal('URL', { createObjectURL: (blob: Blob) => (created.push(blob), 'blob:x'), revokeObjectURL: () => undefined })
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined)
+    renderHistory(workingSource())
+    await screen.findByRole('region', { name: 'Viento' })
+    fireEvent.click(screen.getByRole('button', { name: 'PARQUET' }))
+    const blob = created[0] as Blob
+    expect(blob.type).toBe('application/vnd.apache.parquet')
+    const magic = new TextDecoder().decode(new Uint8Array(await blob.arrayBuffer()).slice(0, 4))
+    expect(magic).toBe('PAR1')
+  })
+
   it('si la fuente falla, lo avisa y permite reintentar', async () => {
     const source: HistoryRepository = { getSamples: vi.fn(async () => { throw new Error('sin red') }) }
     renderHistory(source)

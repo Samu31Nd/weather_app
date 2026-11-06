@@ -58,8 +58,12 @@ npm run mobile              # Expo dev server (apps/mobile)
 npm run typecheck           # tsc en todos los workspaces
 npm test                    # tests en todos los workspaces
 npm run build --workspace=web
-npm run build:android        # APK local (no usa el cupo de EAS Build)
+TMPDIR=~/tmp-build npm run build:android   # APK local (no usa el cupo de EAS Build; /tmp es tmpfs pequeño)
 ```
+
+**APK local:** siempre con `mkdir -p ~/tmp-build` y `TMPDIR=~/tmp-build`. En la máquina de desarrollo `/tmp` es un
+`tmpfs` de 3.6 GB (7 GB de RAM) y Gradle lo llena ("No space left on device"); si pasa, borrar
+`/tmp/$USER/eas-build-local-nodejs`. Detalle en `docs/09-despliegue.md`.
 
 Cada app lee su propio `.env`. Las plantillas son `apps/mobile/.env.example` y `apps/web/.env.template`; nunca se
 commitean valores reales.
@@ -124,7 +128,8 @@ fase. Orden: 0 → D → 0b → 1 … 6.
 | 4. Móvil · Ahora + carga | "Ahora" y carga según `MobileNow`/`LoadingMobile` (claro/oscuro, es/en, métrico/imperial, tamaño s/m/l) con la hoja de ajustes; 21 escenas y la ilustración animadas con reanimated (ADR-0010); textos derivados y avance de carga compartidos con la web; jest-expo; íconos cuadrados; UI vieja, uniwind y axios fuera | `feat/mobile-now` (#9) | ✅ Hecho |
 | 5. Histórico | En `@tt/core`: periodos y resoluciones en hora de CDMX, `buildHistoryView` (agregación, huecos, rosa, indicadores), `historyCharts` (escalas y trazos SVG), `historyArt`, `exportHistory` (CSV/JSON); textos en `@tt/i18n`. Web `/historico` según `Main` y móvil según `MobileHistory` (acordeones, hoja de compartir). Fuera MUI, recharts, shadcn y `/api/weather/historical` (la web pasa de 50+ a 7 dependencias) | `feat/history` (#11) | ✅ Hecho |
 | 6. Cierre | ~~archivar `weather-dashboard`~~ (hecho 24-oct, Vercel retirado); README del monorepo; `docs/10-notas-tesis.md` (qué cambia en los caps. 6 y 7 y de dónde sale el texto); diagrama UML de casos de uso en `docs/diagramas/casos-de-uso.puml`; QR de la actualización móvil de producción en el release y el resumen de `release.yml` | `docs/cierre` (#12) | ✅ Hecho |
-| 7. Widget de Android | Widgets 2×2 y 4×2 según `WidgetsClaro`/`WidgetsOscuro` con `react-native-android-widget` (ADR-0011): ícono por clima, dato contextual, tema del sistema, fuente del usuario, ↻ y respaldo sin conexión; reglas, textos, colores AA e íconos en los paquetes; solo en el APK | `feat/android-widget` | 🔄 En revisión |
+| 7. Widget de Android | Widgets 2×2 y 4×2 según `WidgetsClaro`/`WidgetsOscuro` con `react-native-android-widget` (ADR-0011): ícono por clima, dato contextual, tema del sistema, fuente del usuario, ↻ y respaldo sin conexión; reglas, textos, colores AA e íconos en los paquetes; solo en el APK | `feat/android-widget` (#13) | ✅ Hecho |
+| 8. Mejoras tras la primera versión | Exportación Parquet (ADR-0012); caché persistente del histórico por día (ADR-0013); widget que dibuja la última lectura guardada sin conexión; auditoría de accesibilidad (axe en web, controles en móvil, lista TalkBack); URLs del APK en variables de entorno de EAS; `android.package` definitivo `mx.ipn.escom.ttb033`; `*.apk` en `.gitignore`; arranque nativo sin splash | `feat/final-improvements` (#15) | 🔄 En revisión |
 
 Notas de la fase 0:
 - Se usa **npm workspaces** en lugar de pnpm, que el plan proponía. Así no hace falta instalar herramientas
@@ -207,23 +212,53 @@ Notas de la fase 6 (25-oct):
 - El diagrama PlantUML no se exportó aquí (no hay PlantUML instalado). Se exporta con
   `plantuml -tsvg docs/diagramas/casos-de-uso.puml`, la extensión de PlantUML de VS Code o plantuml.com.
 - El push de esta rama necesita SSH: modifica `release.yml` y la acción `release-tag`.
-- **Pendientes fuera del plan:** auditoría de accesibilidad con axe (web) y TalkBack (móvil) para cerrar
-  RNF-APP-05; corregir `wind_dir`/`hi_dir` en el pipeline (D5), que ya afecta la rosa del histórico; zona horaria
-  de la consola en UTC−6 (D12); alerta de presupuesto en GCP.
+- **Pendientes fuera del plan:** ~~auditoría de accesibilidad~~ (hecha el 5-nov, ver fase 8); corregir
+  `wind_dir`/`hi_dir` en el pipeline (D5), que ya afecta la rosa del histórico; alerta de presupuesto en GCP. La
+  zona horaria de la consola (D12) se deja como está.
 - **Ideas para después:** fases de la luna calculadas por fecha (la consola no las publica en `wflexp.json`).
 
 Notas de la fase 7 (25-oct):
 - El widget solo existe en el APK. `react-native-android-widget` falla al importarse sin su módulo nativo, así que
   `index.ts` lo registra solo si `WIDGETS_AVAILABLE` (Android fuera de Expo Go) y lo carga con `require` diferido.
   La app usa `index.ts` como entrada (`"main"`), que después arranca Expo Router.
-- `expo prebuild` agregó `android.package: com.samu31nd.ttb033` a `app.json`. Es el identificador permanente del
-  APK: confirmarlo antes de distribuir la primera versión.
+- `expo prebuild` agregó `android.package: com.samu31nd.ttb033` a `app.json`. El 5-nov se fijó como definitivo
+  `mx.ipn.escom.ttb033`.
 - `/android` y `/ios` están en `.gitignore`: el proyecto nativo se genera en cada build (CNG). Si se corre
   `expo prebuild` en local, revisar que no cambie los scripts de `package.json`.
 - El texto secundario claro del widget se oscureció a `#5b5d70` (el diseño usa `#6c6f85`) para cumplir AA.
 - **Primer APK (28-oct) sin datos ni widget.** (1) `eas build --local` no copia `.env` (está en `.gitignore`):
-  las URLs se declaran en el perfil `base` de `eas.json`; pendiente pasarlas a variables de entorno de EAS.
+  las URLs se declaraban en el perfil `base` de `eas.json`; desde el 5-nov son variables de entorno de EAS.
   (2) R8 quitaba el constructor de `OverwritingInputMerger` y el trabajo del widget fallaba: regla de ProGuard con
-  `expo-build-properties` (ADR-0011). Se diagnosticó con `adb logcat --pid=$(adb shell pidof com.samu31nd.ttb033)`.
+  `expo-build-properties` (ADR-0011). Se diagnosticó con `adb logcat --pid=$(adb shell pidof mx.ipn.escom.ttb033)`.
   (3) El React Compiler transformaba los componentes del widget ("Invalid Hook Call"): `'use no memo'` en
   `weather-widget.tsx`.
+
+Notas de la fase 8 (5-nov):
+- **Widget más resiliente:** sin red, el widget quedaba "sin conexión" aunque ya había visto datos, porque solo
+  guardaba la temperatura y Android lo despierta cada 30 min, a menudo sin red (Doze). Ahora la app y el widget
+  guardan la lectura completa en `wx-last-reading` (`serializeLiveReading`/`parseLiveReading` de `@tt/core`) y el
+  widget la dibuja completa en gris con "Última: hora" (con fecha si no es de hoy). La app le pasa su lectura al
+  widget, que ya no la vuelve a pedir. Se lee también la clave vieja `wx-widget-last`. Requiere un APK nuevo.
+- **Parquet** (ADR-0012): `exportHistory` escribe Parquet con `hyparquet-writer`, la única librería permitida en
+  `@tt/core` (lista en `test/architecture.test.ts`). `apps/mobile/metro.config.js` la resuelve con la condición
+  `browser`, porque su entrada de Node importa `fs`; jest la transforma. En jsdom, `TextEncoder` da bytes de otro
+  *realm*: el test web de Parquet lo envuelve.
+- **Caché del histórico** (ADR-0013): `CachedHistoryRepository` decora el repositorio HTTP en `createCore`; caché
+  por día de CDMX en el almacén de preferencias (`wx-history-v1:YYYY-MM-DD`), días cerrados sin vencimiento,
+  recientes a 1 h, tope de 200 días. Si el pipeline corrige datos viejos (p. ej. D5), subir el prefijo a `v2`. El
+  hook `useHistory` conserva su caché en memoria por periodo.
+- **Accesibilidad:** `apps/web/test/accessibility.test.tsx` (axe, 0 violaciones) y
+  `apps/mobile/test/accessibility.test.tsx`, que encontró "Abrir todas" (36 dp) y el chip de interiores (32 dp);
+  se llevaron a 44 dp con `hitSlop`. TalkBack sigue la lista manual de `docs/08-calidad-pruebas.md`. El 6-nov,
+  `adb shell uiautomator dump` sobre el APK (lo que lee TalkBack, sin activarlo) encontró en "Histórico" el campo de
+  días de 30 dp, las marcas de los ejes sueltas y las KPI partidas en tres nodos; corregido y cubierto por el test.
+  En "Ahora" el volcado no termina por la escena animada. El ↻ del
+  widget mide 24 dp (diseño); queda así porque el widget entero también abre la app.
+- **EAS:** las URLs viven en las variables de entorno de EAS (`preview` y `production`), creadas el 5-nov; los
+  perfiles de `eas.json` declaran `environment`. Los APK de prueba con `com.samu31nd.ttb033` hay que desinstalarlos.
+- **D5 verificado:** el CSV de la consola trae `Hi Dir,Wind Dir` y el `INSERT` de la captura los guarda por
+  posición como `wind_dir, hi_dir`. Se corrige en el pipeline, fuera de esta fase.
+- **Splash del APK:** el de la plantilla (azul con ícono) solo se veía en el APK, porque Expo Go usa el suyo. Android
+  12+ no permite quitar la pantalla de arranque del sistema: va sin ícono (`splash-blank.png`, transparente) y con
+  `sky1` de cada tema, el color de arriba de la carga. `test/splash-config.test.ts` los mantiene iguales.
+- `npx expo lint` instala ESLint y crea `eslint.config.js` si no existen: no correrlo sin querer agregar ESLint.

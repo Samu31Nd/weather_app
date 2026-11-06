@@ -126,21 +126,27 @@ El CI nunca compila binarios: solo publica EAS Updates, que no gastan el cupo de
 máquina de quien lo necesite, sin límite:
 
 ```bash
-npm run build:android   # eas build --platform android --profile production --local
+mkdir -p ~/tmp-build
+TMPDIR=~/tmp-build npm run build:android   # eas build --platform android --profile production --local
 ```
 
 - Requiere JDK 17 y el Android SDK (por ejemplo, con Android Studio).
+- **`TMPDIR` en disco.** `eas build --local` copia el repo y compila en `$TMPDIR` (unos 3.5 GB con Gradle). Si
+  `/tmp` es un `tmpfs` pequeño (en la máquina de desarrollo es de 3.6 GB, en RAM), el build falla con
+  `No space left on device`. Si un build falla así, borrar lo que dejó en `/tmp/<usuario>/eas-build-local-nodejs`.
 - Genera el `.apk` en `apps/mobile/`.
 - Solo hace falta un APK nuevo si cambian las dependencias nativas o la versión de la app
   (`runtimeVersion: appVersion`). Los demás cambios llegan por EAS Update al canal `production`.
 - El widget de Android (ADR-0011) es código nativo: solo aparece en el APK, y agregar o cambiar widgets en
   `app.json` requiere generar un APK nuevo.
-- **Las URLs del APK salen de `eas.json`, no de `.env`.** `eas build --local` compila una copia del repo que
-  respeta `.gitignore`, así que `.env` no llega a la build y el APK queda sin datos. Por eso el perfil `base` de
-  `eas.json` declara `EXPO_PUBLIC_WEATHER_STATION_URL` (el proxy HTTPS; el APK no permite HTTP) y
-  `EXPO_PUBLIC_HISTORY_API_URL`. Son URLs públicas que el APK lleva incrustadas, no secretos.
-  **Pendiente:** pasarlas a variables de entorno de EAS (`eas env:create --environment production`, y
-  `"environment": "production"` en el perfil) para que no vivan en el repo.
+- **Las URLs del APK salen de las variables de entorno de EAS, no de `.env`.** `eas build --local` compila una
+  copia del repo que respeta `.gitignore`, así que `.env` no llega a la build. Los perfiles `preview` y `production`
+  de `eas.json` declaran su `environment`, y EAS inyecta `EXPO_PUBLIC_WEATHER_STATION_URL` (el proxy HTTPS; el APK
+  no permite HTTP) y `EXPO_PUBLIC_HISTORY_API_URL` del proyecto `@samu31nds-team/tt-b033`. Son URLs públicas
+  (visibilidad *plaintext*), no secretos. Se revisan con `eas env:list --environment production`, se cambian con
+  `eas env:update` y se comprueban con `eas env:exec production 'echo $EXPO_PUBLIC_HISTORY_API_URL'`.
+- **Identificador del APK:** `android.package` es `mx.ipn.escom.ttb033` (definitivo desde el 5-nov). Los APK de
+  prueba anteriores usaban `com.samu31nd.ttb033`: Android los trata como otra app, así que hay que desinstalarlos.
 - Para comprobar un APK sin instalarlo: `unzip -p <apk> assets/index.android.bundle | grep -ac run.app` debe dar
   más de 0.
 

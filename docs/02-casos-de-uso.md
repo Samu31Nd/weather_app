@@ -94,7 +94,8 @@ para no saturar el diagrama.
   1. El usuario abre "Histórico".
   2. El sistema propone los últimos 7 días con resolución por hora.
   3. El usuario cambia el periodo o la resolución (opcional).
-  4. El sistema parte el rango en consultas de 10 días o menos, las une, las ordena y las remuestrea.
+  4. El sistema toma de la caché los días ya consultados, pide los que faltan en consultas de 10 días o menos, los
+     une, los ordena y los remuestrea.
   5. El sistema calcula los KPIs y dibuja las gráficas por variable.
 - **Flujos alternos:**
   - **A1. Rango sin datos** (por ejemplo, un día perdido, como el 2026-09-07). El sistema muestra "sin datos en
@@ -108,7 +109,7 @@ para no saturar el diagrama.
 - **Cubre:** RF-APP-09.
 - **Precondición:** hay una consulta de histórico con datos.
 - **Flujo:**
-  1. El usuario elige CSV o JSON.
+  1. El usuario elige CSV, JSON o Parquet.
   2. El sistema genera el archivo con las filas del periodo, con la unidad en el nombre de la columna.
   3. El navegador lo descarga, o en móvil se abre el menú de compartir.
 
