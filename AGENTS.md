@@ -24,6 +24,9 @@ interfaz, las pruebas con su matriz de trazabilidad, el despliegue y los ADR.
 - Los PR y las cabeceras de los tests citan esos IDs.
 - Si un cambio contradice `docs/`, actualiza `docs/` en el mismo PR.
 - La tesis tomará después una versión resumida de esto.
+- `docs/guia-tecnica.pdf` reúne todo `docs/` como guía técnica (portada, partes, apéndices). Si cambias un Markdown
+  de `docs/`, regenéralo con `docs/pdf/build.sh` y súbelo en el mismo PR; un capítulo nuevo se agrega al orden de
+  `build.sh`. Requisitos y problemas conocidos en `docs/pdf/README.md`.
 
 ## Reglas de arquitectura
 

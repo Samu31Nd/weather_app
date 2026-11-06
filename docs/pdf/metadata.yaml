@@ -1,0 +1,18 @@
+title: "Guía técnica"
+subtitle: "App web y móvil de la Estación meteorológica · TT 2026-B033"
+author:
+  - "Instituto Politécnico Nacional · Escuela Superior de Cómputo"
+lang: es-MX
+documentclass: report
+classoption:
+  - oneside
+fontsize: 10pt
+geometry:
+  - margin=2.3cm
+fontfamily: lmodern
+linestretch: 1.1
+colorlinks: true
+linkcolor: "blue!50!black"
+urlcolor: "blue!50!black"
+toccolor: "black"
+highlight-style: tango
