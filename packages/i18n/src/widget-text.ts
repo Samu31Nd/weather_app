@@ -1,9 +1,11 @@
 // Textos del widget de Android (artboards `WidgetsClaro`/`WidgetsOscuro`). Cifras enteras, como el diseño: el widget
 // se lee de un vistazo. La hora junto al nombre de la estación es la de la lectura, para que se note que no es en
-// vivo (Android lo actualiza cada 30 min o al tocarlo).
+// vivo (Android lo actualiza cada 30 min o al tocarlo). Si la consola no responde, el widget dibuja completa la
+// última lectura guardada, con la temperatura en gris y "Última: …"; solo sin ninguna lectura queda "sin conexión".
 
 import {
-  type CurrentConditions, type DisplayUnits, UNIT_SYMBOLS, type WidgetKind, displayTemperature, widgetDetail, widgetKind,
+  type CurrentConditions, type DisplayUnits, UNIT_SYMBOLS, type WidgetKind, displayTemperature, toMexicoCityWallTime, widgetDetail,
+  widgetKind,
 } from '@tt/core'
 import type { Catalog } from './catalogs/es'
 import type { Formatter } from './format'
@@ -31,7 +33,25 @@ export interface WidgetText {
 
 const degrees = (format: Formatter, value: number | null) => (value === null ? format.number(null) : `${format.number(value, 0)}°`)
 
-export function widgetText(view: CurrentConditions, stationName: string, t: Catalog, format: Formatter): WidgetText {
+/** Hora de la lectura; con la fecha corta si no es de hoy en CDMX ("24 oct 14:30"), para no confundirla con hoy. */
+function readingStamp(observedAt: Date, now: Date, t: Catalog, format: Formatter): string {
+  const day = (instant: Date) => toMexicoCityWallTime(instant).slice(0, 10)
+  if (day(observedAt) === day(now)) return format.time(observedAt)
+  const [, month, date] = day(observedAt).split('-').map(Number) as [number, number, number]
+  return `${t.calendar.shortDate(date, t.calendar.monthsShort[month - 1] ?? '')} ${format.time(observedAt)}`
+}
+
+/**
+ * Textos del widget para una lectura. Con `stale`, la lectura es la última guardada (la consola no respondió):
+ * se muestra igual, con la temperatura en gris y su hora como dato contextual.
+ */
+export function widgetText(
+  view: CurrentConditions,
+  stationName: string,
+  t: Catalog,
+  format: Formatter,
+  options: { stale?: boolean; now?: Date } = {},
+): WidgetText {
   const w = t.widget
   const symbols = UNIT_SYMBOLS[view.units]
   const kind = widgetKind(view.scene)
@@ -40,7 +60,8 @@ export function widgetText(view: CurrentConditions, stationName: string, t: Cata
   const temperature = degrees(format, view.temperature.now)
   const range = w.range(degrees(format, view.temperature.range.todayHigh), degrees(format, view.temperature.range.todayLow))
   const rainDecimals = view.units === 'metric' ? 1 : 2
-  const time = format.time(view.observedAt)
+  const stale = options.stale === true
+  const time = stale ? readingStamp(view.observedAt, options.now ?? view.observedAt, t, format) : format.time(view.observedAt)
 
   const detailByKind = {
     range,
@@ -54,9 +75,9 @@ export function widgetText(view: CurrentConditions, stationName: string, t: Cata
   return {
     kind,
     temperature,
-    stale: view.scene === 'offline',
+    stale: stale || view.scene === 'offline',
     condition,
-    detail: detailByKind[widgetDetail(view)],
+    detail: stale ? w.lastShort(time) : detailByKind[widgetDetail(view)],
     feelsLike: w.feelsLike(degrees(format, view.temperature.feelsLike)),
     range,
     facts: [

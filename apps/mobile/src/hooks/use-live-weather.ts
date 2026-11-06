@@ -1,9 +1,10 @@
 // Dato en vivo para "Ahora" (RF-APP-02): consulta al montar, cada 60 s y a pedido; cuenta los segundos desde la
 // última actualización y calcula la vigencia con `liveStatus` de @tt/core. Arranca con la última lectura guardada
-// en el provider, si la hay.
+// en el provider, si la hay. Cada lectura nueva se guarda en AsyncStorage para el widget sin conexión.
 
 import { type LiveReading, type LiveStatus, liveStatus } from '@tt/core'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { saveLastReading } from '@/lib/last-reading'
 import { useCore, useLiveSnapshot } from '@/providers/app-providers'
 
 export const REFRESH_INTERVAL_MS = 60_000
@@ -39,6 +40,7 @@ export function useLiveWeather(): LiveWeatherState {
         setReading(next)
         setLastSuccessAt(receivedAt)
         setLastFailed(false)
+        void saveLastReading(next)
       })
       .catch(() => setLastFailed(true))
       .finally(() => {

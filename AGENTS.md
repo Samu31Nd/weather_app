@@ -124,7 +124,7 @@ fase. Orden: 0 → D → 0b → 1 … 6.
 | 4. Móvil · Ahora + carga | "Ahora" y carga según `MobileNow`/`LoadingMobile` (claro/oscuro, es/en, métrico/imperial, tamaño s/m/l) con la hoja de ajustes; 21 escenas y la ilustración animadas con reanimated (ADR-0010); textos derivados y avance de carga compartidos con la web; jest-expo; íconos cuadrados; UI vieja, uniwind y axios fuera | `feat/mobile-now` (#9) | ✅ Hecho |
 | 5. Histórico | En `@tt/core`: periodos y resoluciones en hora de CDMX, `buildHistoryView` (agregación, huecos, rosa, indicadores), `historyCharts` (escalas y trazos SVG), `historyArt`, `exportHistory` (CSV/JSON); textos en `@tt/i18n`. Web `/historico` según `Main` y móvil según `MobileHistory` (acordeones, hoja de compartir). Fuera MUI, recharts, shadcn y `/api/weather/historical` (la web pasa de 50+ a 7 dependencias) | `feat/history` (#11) | ✅ Hecho |
 | 6. Cierre | ~~archivar `weather-dashboard`~~ (hecho 24-oct, Vercel retirado); README del monorepo; `docs/10-notas-tesis.md` (qué cambia en los caps. 6 y 7 y de dónde sale el texto); diagrama UML de casos de uso en `docs/diagramas/casos-de-uso.puml`; QR de la actualización móvil de producción en el release y el resumen de `release.yml` | `docs/cierre` (#12) | ✅ Hecho |
-| 7. Widget de Android | Widgets 2×2 y 4×2 según `WidgetsClaro`/`WidgetsOscuro` con `react-native-android-widget` (ADR-0011): ícono por clima, dato contextual, tema del sistema, fuente del usuario, ↻ y respaldo sin conexión; reglas, textos, colores AA e íconos en los paquetes; solo en el APK | `feat/android-widget` | 🔄 En revisión |
+| 7. Widget de Android | Widgets 2×2 y 4×2 según `WidgetsClaro`/`WidgetsOscuro` con `react-native-android-widget` (ADR-0011): ícono por clima, dato contextual, tema del sistema, fuente del usuario, ↻ y respaldo sin conexión; reglas, textos, colores AA e íconos en los paquetes; solo en el APK | `feat/android-widget` (#13) | ✅ Hecho |
 
 Notas de la fase 0:
 - Se usa **npm workspaces** en lugar de pnpm, que el plan proponía. Así no hace falta instalar herramientas
@@ -227,3 +227,13 @@ Notas de la fase 7 (25-oct):
   `expo-build-properties` (ADR-0011). Se diagnosticó con `adb logcat --pid=$(adb shell pidof com.samu31nd.ttb033)`.
   (3) El React Compiler transformaba los componentes del widget ("Invalid Hook Call"): `'use no memo'` en
   `weather-widget.tsx`.
+
+Notas del 5-nov (después de la fase 7):
+- **Widget más resiliente:** sin red, el widget quedaba "sin conexión" aunque ya había visto datos, porque solo
+  guardaba la temperatura y Android lo despierta cada 30 min, a menudo sin red (Doze). Ahora la app y el widget
+  guardan la lectura completa en `wx-last-reading` (`serializeLiveReading`/`parseLiveReading` de `@tt/core`) y el
+  widget la dibuja completa en gris con "Última: hora". La app le pasa su lectura al widget, que ya no la vuelve a
+  pedir. Se lee también la clave vieja `wx-widget-last`. Requiere un APK nuevo.
+- **Parquet** (ADR-0012): `exportHistory` escribe Parquet con `hyparquet-writer`; `apps/mobile/metro.config.js` lo
+  resuelve con la condición `browser`, porque su entrada de Node importa `fs`.
+- `npx expo lint` instala ESLint y crea `eslint.config.js` si no existen: no correrlo sin querer agregar ESLint.

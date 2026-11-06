@@ -83,6 +83,10 @@ Solo en el APK (artboards `WidgetsClaro`/`WidgetsOscuro`, [ADR-0011](adr/0011-wi
 
 - **Dato contextual del 2×2:** ráfaga ≥ 29 km/h → ráfaga; lloviendo → lluvia de hoy; neblina → humedad;
   sin conexión → hora de la última lectura; en otro caso, máx/mín del día.
+- **Sin conexión:** si la consola no responde, el widget dibuja completa la última lectura guardada (la guardan la
+  app y el widget en `wx-last-reading`, sin importar su antigüedad), con la temperatura en gris y "Última: hora" (con
+  la fecha corta si no es de hoy) como dato contextual. El estado "sin conexión", con "—", queda solo si nunca hubo
+  una lectura.
 - **Ícono:** 7 versiones fijas que resumen las 21 escenas (despejado, noche, parcial, lluvia, tormenta, neblina, sin
   conexión), sobre un fondo sólido tintado por el clima.
 - **Tema e idioma:** sigue el tema del sistema; el idioma y las unidades salen de las preferencias de la app.

@@ -1,8 +1,8 @@
 // Pantalla "Ahora" (CU-01, CU-02): carga → panel. Arma el modelo de vista con @tt/core y lo reparte a las
 // tarjetas en una columna, como el artboard `MobileNow`.
 
-import { buildCurrentConditions } from '@tt/core'
-import { useEffect, useState } from 'react'
+import { type LiveReading, buildCurrentConditions } from '@tt/core'
+import { useEffect, useRef, useState } from 'react'
 import { RefreshControl, ScrollView, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppHeader } from '@/components/shell/app-header'
@@ -27,7 +27,7 @@ export function NowScreen() {
   const live = useLiveWeather()
   const revealed = useRevealAfterFirstReading(live.reading !== null)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  useWidgetRefresh(live.reading?.observedAt.getTime() ?? null)
+  useWidgetRefresh(live.reading)
 
   if (live.reading === null || !revealed) {
     return <LoadingScreen done={live.reading !== null} failed={live.status === 'offline'} onRetry={live.refresh} />
@@ -67,11 +67,14 @@ export function NowScreen() {
 }
 
 /** Con cada lectura nueva, los widgets de la pantalla de inicio se redibujan sin esperar los 30 min de Android. */
-function useWidgetRefresh(readingTime: number | null) {
+function useWidgetRefresh(reading: LiveReading | null) {
+  const latest = useRef(reading)
+  latest.current = reading
+  const readingTime = reading?.observedAt.getTime() ?? null
   useEffect(() => {
-    if (!WIDGETS_AVAILABLE || readingTime === null) return
+    if (!WIDGETS_AVAILABLE || latest.current === null) return
     const { refreshWeatherWidgets } = require('@/widget/register') as typeof import('@/widget/register')
-    refreshWeatherWidgets().catch(() => undefined)
+    refreshWeatherWidgets(latest.current).catch(() => undefined)
   }, [readingTime])
 }
 
