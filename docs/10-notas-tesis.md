@@ -70,12 +70,11 @@ que conviene contar en la tesis, porque cambian lo que el usuario ve:
 - **D1:** el orden real de los extremos `hl*` (los dos mappers previos estaban mal).
 - **D2/D3:** la presión del histórico viene en mmHg y, desde el 20-oct-2026, reducida a nivel del mar; las
   lecturas previas sin corregir se descartan al graficar.
-- **D5:** `wind_dir` y `hi_dir` intercambiados en la captura automática (verificado contra el CSV de la consola y
-  el `INSERT`); la rosa de los vientos muestra la dirección de la ráfaga hasta que se corrija en el pipeline.
 - **D7/D9/D11:** un día de retraso, fecha + hora en hora de CDMX y extremos incluidos al consultar por rango.
 - **D12:** la consola tiene la zona horaria en UTC−5; la app compensa amanecer y ocaso.
 
-Tabla completa: [06 · Datos](06-datos.md).
+Tabla completa: [06 · Datos](06-datos.md). D5 (`wind_dir`/`hi_dir` intercambiados en la captura) **no va en la
+tesis**: se corrige en el pipeline sin reportarlo (decisión del 6-nov).
 
 ### 7.x Mejoras después de la primera versión (fase 8, sección nueva o ampliación)
 
