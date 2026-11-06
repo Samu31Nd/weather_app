@@ -92,11 +92,13 @@ Cambios pedidos tras usar la app; cada uno tiene su ADR o su nota y sus pruebas:
 - **Accesibilidad:** auditoría automática y lista manual (ver "Pruebas y despliegue").
 - **Distribución del APK:** identificador definitivo `mx.ipn.escom.ttb033` y URLs como variables de entorno de EAS,
   fuera del repositorio ([09 · Despliegue](09-despliegue.md)).
+- **Arranque sin splash:** Android 12+ siempre muestra una pantalla de arranque del sistema; ahora va sin ícono y
+  con el color del cielo de la pantalla de carga, así que al abrir el APK se ve directo la carga.
 
 ### 7.x Pruebas y despliegue
 
 - Estrategia por capa y matriz de trazabilidad RF → CU → componente → prueba: [08 · Calidad y pruebas](08-calidad-pruebas.md).
-  Cifras al 5-nov-2026: 819 pruebas automatizadas (núcleo 362, arte 183, web 107, i18n 59, tokens 56, móvil 52)
+  Cifras al 6-nov-2026: 821 pruebas automatizadas (núcleo 362, arte 183, web 107, i18n 59, tokens 56, móvil 54)
   y cobertura de líneas del núcleo de 99.6 %. Van mejor en el cap. 8.
 - Accesibilidad (RNF-APP-05): contraste calculado en los dos temas, auditoría axe en web (0 violaciones), revisión
   de rol, nombre y área táctil en móvil, y una lista de verificación manual con TalkBack

@@ -125,7 +125,7 @@ fase. Orden: 0 → D → 0b → 1 … 6.
 | 5. Histórico | En `@tt/core`: periodos y resoluciones en hora de CDMX, `buildHistoryView` (agregación, huecos, rosa, indicadores), `historyCharts` (escalas y trazos SVG), `historyArt`, `exportHistory` (CSV/JSON); textos en `@tt/i18n`. Web `/historico` según `Main` y móvil según `MobileHistory` (acordeones, hoja de compartir). Fuera MUI, recharts, shadcn y `/api/weather/historical` (la web pasa de 50+ a 7 dependencias) | `feat/history` (#11) | ✅ Hecho |
 | 6. Cierre | ~~archivar `weather-dashboard`~~ (hecho 24-oct, Vercel retirado); README del monorepo; `docs/10-notas-tesis.md` (qué cambia en los caps. 6 y 7 y de dónde sale el texto); diagrama UML de casos de uso en `docs/diagramas/casos-de-uso.puml`; QR de la actualización móvil de producción en el release y el resumen de `release.yml` | `docs/cierre` (#12) | ✅ Hecho |
 | 7. Widget de Android | Widgets 2×2 y 4×2 según `WidgetsClaro`/`WidgetsOscuro` con `react-native-android-widget` (ADR-0011): ícono por clima, dato contextual, tema del sistema, fuente del usuario, ↻ y respaldo sin conexión; reglas, textos, colores AA e íconos en los paquetes; solo en el APK | `feat/android-widget` (#13) | ✅ Hecho |
-| 8. Mejoras tras la primera versión | Exportación Parquet (ADR-0012); caché persistente del histórico por día (ADR-0013); widget que dibuja la última lectura guardada sin conexión; auditoría de accesibilidad (axe en web, controles en móvil, lista TalkBack); URLs del APK en variables de entorno de EAS; `android.package` definitivo `mx.ipn.escom.ttb033`; `*.apk` en `.gitignore` | `feat/final-improvements` (#15) | 🔄 En revisión |
+| 8. Mejoras tras la primera versión | Exportación Parquet (ADR-0012); caché persistente del histórico por día (ADR-0013); widget que dibuja la última lectura guardada sin conexión; auditoría de accesibilidad (axe en web, controles en móvil, lista TalkBack); URLs del APK en variables de entorno de EAS; `android.package` definitivo `mx.ipn.escom.ttb033`; `*.apk` en `.gitignore`; arranque nativo sin splash | `feat/final-improvements` (#15) | 🔄 En revisión |
 
 Notas de la fase 0:
 - Se usa **npm workspaces** en lugar de pnpm, que el plan proponía. Así no hace falta instalar herramientas
@@ -251,4 +251,7 @@ Notas de la fase 8 (5-nov):
   perfiles de `eas.json` declaran `environment`. Los APK de prueba con `com.samu31nd.ttb033` hay que desinstalarlos.
 - **D5 verificado:** el CSV de la consola trae `Hi Dir,Wind Dir` y el `INSERT` de la captura los guarda por
   posición como `wind_dir, hi_dir`. Se corrige en el pipeline, fuera de esta fase.
+- **Splash del APK:** el de la plantilla (azul con ícono) solo se veía en el APK, porque Expo Go usa el suyo. Android
+  12+ no permite quitar la pantalla de arranque del sistema: va sin ícono (`splash-blank.png`, transparente) y con
+  `sky1` de cada tema, el color de arriba de la carga. `test/splash-config.test.ts` los mantiene iguales.
 - `npx expo lint` instala ESLint y crea `eslint.config.js` si no existen: no correrlo sin querer agregar ESLint.

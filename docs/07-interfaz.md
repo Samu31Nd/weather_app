@@ -35,6 +35,9 @@ flowchart LR
 - **En el histórico móvil**, las secciones (temperatura, viento, lluvia, presión) son acordeones, con un control
   para abrir o cerrar todas.
 
+- **Arranque del APK:** Android 12+ siempre pinta una pantalla del sistema antes de la app. Va sin ícono y con el
+  color de arriba del cielo de la carga (`sky1`, claro u oscuro según el sistema), así que se ve directo la carga.
+
 ## Contenido de "Ahora"
 
 Va en el mismo orden en las dos plataformas. La web lo acomoda en una cuadrícula y el móvil en una columna.
