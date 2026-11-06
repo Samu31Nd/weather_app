@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Genera docs/guia-tecnica.pdf a partir de los Markdown de docs/ (ver docs/pdf/README.md).
 #
-# Requiere: pandoc ≥ 3, pdfLaTeX (TeX Live con latexextra), rsvg-convert (librsvg) y un navegador Chromium,
+# Requiere: pandoc ≥ 3, pdfLaTeX (TeX Live con latexextra), rsvg-convert (librsvg), Node y un navegador Chromium,
 # Chrome o Brave para dibujar los diagramas Mermaid.
 #
 # Variables opcionales:
@@ -15,7 +15,7 @@ PDF_DIR="$DOCS_DIR/pdf"
 CACHE_DIR="$PDF_DIR/.cache"
 OUTPUT="$DOCS_DIR/guia-tecnica.pdf"
 
-for tool in pandoc pdflatex rsvg-convert; do
+for tool in pandoc pdflatex rsvg-convert node; do
   command -v "$tool" >/dev/null || { echo "Falta $tool (ver docs/pdf/README.md)" >&2; exit 1; }
 done
 
@@ -33,21 +33,37 @@ elif [[ ! -f "$CACHE_DIR/mermaid.min.js" ]]; then
   curl -fsSL "https://cdn.jsdelivr.net/npm/mermaid@$MERMAID_VERSION/dist/mermaid.min.js" -o "$CACHE_DIR/mermaid.min.js"
 fi
 
-# Separadores de partes: comentarios HTML que guia.lua convierte en \part y \appendix de LaTeX.
-part() { printf '<!-- part: %s -->\n' "$2" > "$CACHE_DIR/$1.md"; echo ".cache/$1.md"; }
-appendix() { printf '<!-- appendix -->\n' > "$CACHE_DIR/apendices.md"; echo ".cache/apendices.md"; }
+# Arte: la escena del cielo de la portada y la de cada parte, sacadas de @tt/sky-art (arte.mjs) y pasadas a PDF.
+SCENES=(clearDay dawn partly windy twilight clearNight)
+for scene in "${SCENES[@]}"; do
+  if [[ ! -f "$CACHE_DIR/arte-$scene.pdf" ]]; then
+    node "$PDF_DIR/arte.mjs" "$DOCS_DIR/../packages/sky-art/src/scenes.generated.ts" "$scene" "$CACHE_DIR/arte-$scene.svg"
+    rsvg-convert -f pdf -o "$CACHE_DIR/arte-$scene.pdf" "$CACHE_DIR/arte-$scene.svg"
+  fi
+done
+
+# Fecha de la portada y rutas de las imágenes: LaTeX corre en una carpeta temporal, así que van absolutas.
+MONTHS=(enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre diciembre)
+cat > "$CACHE_DIR/rutas.tex" <<EOF
+\\graphicspath{{$PDF_DIR/img/}{$CACHE_DIR/}}
+\\newcommand{\\guiafecha}{$(date +%-d) de ${MONTHS[$(( $(date +%-m) - 1 ))]} de $(date +%Y)}
+EOF
+
+# Separadores de partes: comentarios HTML que guia.lua convierte en \part (con su escena) y \appendix.
+part() { printf '<!-- part: %s | %s -->\n' "$2" "$3" > "$CACHE_DIR/$1.md"; echo ".cache/$1.md"; }
+appendix() { printf '<!-- appendix -->\n\n<!-- part: Apéndices | clearNight -->\n' > "$CACHE_DIR/apendices.md"; echo ".cache/apendices.md"; }
 
 # Orden de lectura del PDF. Los nombres de archivo conservan su número para los enlaces del repositorio.
 cd "$DOCS_DIR"
 CHAPTERS=(
   pdf/presentacion.md
-  "pdf/$(part parte-1 'Visión y especificación')"
+  "pdf/$(part parte-1 'Visión y especificación' dawn)"
   00-vision.md 01-requerimientos.md 02-casos-de-uso.md 07-interfaz.md
-  "pdf/$(part parte-2 'Diseño técnico')"
+  "pdf/$(part parte-2 'Diseño técnico' partly)"
   03-arquitectura.md 04-modelo-dominio.md 05-flujos.md 06-datos.md
-  "pdf/$(part parte-3 'Implementación y desarrollo')"
+  "pdf/$(part parte-3 'Implementación y desarrollo' windy)"
   12-implementacion.md 11-entorno-desarrollo.md 13-contribuir.md 08-calidad-pruebas.md
-  "pdf/$(part parte-4 'Operación')"
+  "pdf/$(part parte-4 'Operación' twilight)"
   09-despliegue.md 14-mantenimiento.md
   "pdf/$(appendix)"
   15-glosario.md
@@ -59,9 +75,10 @@ GUIA_CACHE="$CACHE_DIR" GUIA_BROWSER="$GUIA_BROWSER" pandoc "${CHAPTERS[@]}" \
   --file-scope \
   --from=gfm \
   --metadata-file="$PDF_DIR/metadata.yaml" \
-  --metadata=date:"Generada el $(date +%Y-%m-%d) · commit $(git -C "$DOCS_DIR" rev-parse --short HEAD 2>/dev/null || echo '—')" \
   --lua-filter="$PDF_DIR/guia.lua" \
   --include-in-header="$PDF_DIR/header.tex" \
+  --include-in-header="$CACHE_DIR/rutas.tex" \
+  --include-before-body="$PDF_DIR/portada.tex" \
   --top-level-division=chapter \
   --toc --toc-depth=2 \
   --pdf-engine=pdflatex \

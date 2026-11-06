@@ -14,6 +14,7 @@ docs/pdf/build.sh        # deja docs/guia-tecnica.pdf (unos 20 s la primera vez;
 | pandoc ≥ 3 | Unir los Markdown y convertirlos a LaTeX | `pandoc-cli` | `pandoc` (o el `.deb` de pandoc.org si la versión es vieja) |
 | pdfLaTeX con los paquetes de `latexextra` | Componer el PDF | `texlive-latexextra texlive-fontsrecommended texlive-pictures` | `texlive-latex-extra texlive-fonts-recommended` |
 | rsvg-convert | Pasar los diagramas de SVG a PDF | `librsvg` | `librsvg2-bin` |
+| Node | Sacar las escenas del cielo de `@tt/sky-art` para la portada y las partes | ya está para el repo | ya está para el repo |
 | Chromium, Chrome o Brave | Dibujar los diagramas Mermaid | — | — |
 | curl | Descargar `mermaid.min.js` la primera vez | — | — |
 
@@ -25,9 +26,11 @@ descargarlo) y `GUIA_OUTPUT` (otra salida, por ejemplo `.tex` para revisar el La
 | Archivo | Qué hace |
 |---------|----------|
 | `build.sh` | Define el **orden de lectura** (partes, capítulos y apéndices) y llama a pandoc. Un capítulo nuevo de `docs/` se agrega aquí |
+| `portada.tex` | Portada: escena del cielo, logos del IPN y la ESCOM (`img/`, los mismos de la tesis), título y autores |
+| `arte.mjs` | Saca una escena de `packages/sky-art/src/scenes.generated.ts` como SVG; `build.sh` elige cuál va en la portada y en cada parte |
 | `presentacion.md` | Primer capítulo del PDF: qué es la app, a quién va dirigida la guía y cómo está organizada |
 | `metadata.yaml` | Título, idioma, márgenes y fuentes |
-| `header.tex` | Ajustes de LaTeX: símbolos Unicode (✓, →, ≥…), cortes de línea en el código, tablas y encabezados |
+| `header.tex` | Diseño: colores (guinda IPN y azul ESCOM), títulos, páginas de parte, encabezados, tablas, código y símbolos Unicode (✓, →, ≥…) |
 | `guia.lua` | Filtro de pandoc: dibuja los diagramas Mermaid, convierte los enlaces entre archivos en enlaces internos (y los demás en enlaces a GitHub), quita el número de los títulos, ajusta el ancho de las tablas y separa las partes |
 | `.cache/` | Diagramas ya dibujados (por hash de su código) y `mermaid.min.js`. No se versiona; borrarlo obliga a redibujar |
 
@@ -38,7 +41,9 @@ descargarlo) y `GUIA_OUTPUT` (otra salida, por ejemplo `.tex` para revisar el La
 - **Un diagrama falla** con *Mermaid no pudo dibujar el diagrama*: el error de Mermaid sale en la terminal. Suele ser
   un `;` dentro de un mensaje de un diagrama de secuencia (Mermaid lo toma como fin de instrucción). Si falla aquí,
   también se ve roto en GitHub.
-- **Diagramas muy altos o anchos** se reducen para caber en la página (ancho completo y hasta ¾ del alto). Si uno
-  queda ilegible, conviene partirlo o cambiar su dirección (`flowchart TB`/`LR`).
+- **Diagramas muy altos o anchos** se reducen para caber en la página (ancho completo y hasta ¾ del alto). Uno mucho
+  más alto que ancho empieza página con su título. Si uno queda ilegible, conviene partirlo: dos bloques Mermaid
+  seguidos se ponen lado a lado, cada uno en media página (así va el diagrama de clases).
+- **Autores de la portada:** están escritos en `portada.tex`; si cambia el equipo, se corrigen ahí.
 - **XeLaTeX o LuaLaTeX** no hacen falta. Se usa pdfLaTeX porque es el motor que viene en cualquier instalación de
   TeX Live; con los otros habría que cambiar `--pdf-engine` y las fuentes de `metadata.yaml`.

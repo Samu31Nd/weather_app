@@ -71,16 +71,47 @@ local function render_mermaid(source)
   return pdf
 end
 
+-- Alto entre ancho del diagrama, leído del viewBox del SVG.
+local function aspect_ratio(pdf)
+  local handle = io.open((pdf:gsub('%.pdf$', '.svg')), 'r')
+  if not handle then return 1 end
+  local svg = handle:read('a')
+  handle:close()
+  local width, height = svg:match('viewBox="[%d.-]+ [%d.-]+ ([%d.]+) ([%d.]+)"')
+  return (width and height) and tonumber(height) / tonumber(width) or 1
+end
+
+-- Un diagrama mucho más alto que ancho (el de clases) no cabe a lo ancho: va en su propia página, debajo de su
+-- título, con todo el alto que queda libre.
+local TALL_RATIO = 1.3
+
+local function is_mermaid(block)
+  return block and block.t == 'CodeBlock' and block.classes:includes('mermaid')
+end
+
+local function is_tall(block)
+  return is_mermaid(block) and aspect_ratio(render_mermaid(block.text)) > TALL_RATIO
+end
+
+local function side_by_side(left, right)
+  local half = '\\begin{minipage}[c]{0.49\\linewidth}\\centering\\includegraphics[width=\\linewidth,'
+    .. 'height=\\dimexpr\\textheight-9\\baselineskip\\relax,keepaspectratio]{%s}\\end{minipage}'
+  return pandoc.RawBlock('latex', '\\begin{center}' .. half:format(render_mermaid(left.text)) .. '\\hfill'
+    .. half:format(render_mermaid(right.text)) .. '\\end{center}')
+end
+
 local function mermaid_block(block)
   if not block.classes:includes('mermaid') then
     -- Los bloques sin lenguaje pasan por el resaltador para poder cortar líneas largas (fvextra).
     if #block.classes == 0 then block.classes:insert('default') end
     return block
   end
-  -- Ancho de la página y a lo más ¾ de su alto, sin deformar: los diagramas altos (clases, secuencias) caben en una
-  -- página. Sin el tope de alto, LaTeX agrega páginas sin fin buscando dónde ponerlos.
-  return pandoc.Para({ pandoc.RawInline('latex', string.format(
-    '\\includegraphics[width=\\linewidth,height=0.75\\textheight,keepaspectratio]{%s}', render_mermaid(block.text))) })
+  -- Centrado, a lo ancho de la página y sin deformar. Siempre con tope de alto: sin él, LaTeX agrega páginas sin fin
+  -- buscando dónde poner un diagrama más alto que la página.
+  local height = is_tall(block) and '\\dimexpr\\textheight-7\\baselineskip\\relax' or '0.75\\textheight'
+  return pandoc.RawBlock('latex', string.format(
+    '\\begin{center}\\includegraphics[width=\\linewidth,height=%s,keepaspectratio]{%s}\\end{center}',
+    height, render_mermaid(block.text)))
 end
 
 -- Títulos -----------------------------------------------------------------------------------------------------
@@ -115,8 +146,11 @@ local LATEX_ESCAPES = {
 local function latex_code(text, breakable)
   -- `{-}` evita que LaTeX junte `--` o `---` en un guion largo.
   local escaped = text:gsub('[\\{}$&#%%_^~]', LATEX_ESCAPES):gsub('%-', '{-}')
-  if breakable then escaped = escaped:gsub('([/%.,]+)', '%1\\allowbreak{}'):gsub('{%-}', '{-}\\allowbreak{}'):gsub('(\\_)', '%1\\allowbreak{}') end
-  return pandoc.RawInline('latex', '\\texttt{' .. escaped .. '}')
+  if breakable then escaped = escaped:gsub('([/%.,]+)', '%1\\allowbreak{}'):gsub('{%-}', '{-}\\allowbreak{}'):gsub('(\\_)', '%1\\allowbreak{}')
+    -- También entre palabras de un nombre en CamelCase (`LiveWeatherRepository`).
+    escaped = escaped:gsub('(%l)(%u)', '%1\\allowbreak{}%2')
+  end
+  return pandoc.RawInline('latex', (breakable and '\\codeinline{' or '\\texttt{') .. escaped .. '}')
 end
 
 -- Tablas ----------------------------------------------------------------------------------------------------
@@ -155,11 +189,13 @@ end
 
 -- Partes ------------------------------------------------------------------------------------------------------
 
--- build.sh separa las partes con `<!-- part: Título -->` y `<!-- appendix -->`.
+-- build.sh separa las partes con `<!-- part: Título | escena -->` y `<!-- appendix -->`.
 local function part_separator(raw)
   if raw.format ~= 'html' then return nil end
-  local title = raw.text:match('^<!%-%- part: (.-) %-%->')
-  if title then return pandoc.RawBlock('latex', '\\part{' .. title .. '}') end
+  local title, scene = raw.text:match('^<!%-%- part: (.-) | (.-) %-%->')
+  if title then
+    return pandoc.RawBlock('latex', '\\renewcommand{\\guiaescena}{arte-' .. scene .. '}\\part{' .. title .. '}')
+  end
   if raw.text:match('^<!%-%- appendix %-%->') then return pandoc.RawBlock('latex', '\\appendix') end
   return {}
 end
@@ -220,6 +256,27 @@ function Pandoc(doc)
     if block.t == 'Header' then current_file = file_of(block.identifier) or current_file end
     doc.blocks[index] = block:walk({ Link = resolver(current_file) })
   end
+
+  -- Los diagramas muy altos empiezan página junto con el título que los presenta, y dos diagramas seguidos (las dos
+  -- partes del de clases) van lado a lado, cada uno en media página.
+  local blocks = pandoc.Blocks({})
+  local index = 1
+  while index <= #doc.blocks do
+    local block = doc.blocks[index]
+    if block.t == 'Header' then
+      local first, second = doc.blocks[index + 1], doc.blocks[index + 2]
+      local starts_figure = is_tall(first) or (first and first.t == 'Para' and (is_tall(second) or is_mermaid(doc.blocks[index + 3]) and is_mermaid(second)))
+      if starts_figure then blocks:insert(pandoc.RawBlock('latex', '\\clearpage')) end
+    end
+    if is_mermaid(block) and is_mermaid(doc.blocks[index + 1]) then
+      blocks:insert(side_by_side(block, doc.blocks[index + 1]))
+      index = index + 2
+    else
+      blocks:insert(block)
+      index = index + 1
+    end
+  end
+  doc.blocks = blocks
 
   -- Las tablas se miden antes de convertir el código en línea a LaTeX (stringify no ve el texto de RawInline).
   doc = doc:walk({
