@@ -1,0 +1,34 @@
+% Ajustes de LaTeX para la guía técnica (docs/pdf/build.sh). Se compila con pdfLaTeX.
+% Símbolos Unicode que usan los Markdown de docs/ (pdfLaTeX no los trae; las cajas del árbol de carpetas las pone
+% pmboxdraw). Si un documento nuevo usa otro símbolo, se agrega aquí.
+\usepackage{graphicx} % los diagramas entran como LaTeX directo (guia.lua)
+\usepackage{tikz}     % escudos y líneas de la portada (portada.tex)
+\usepackage{pmboxdraw}
+\usepackage{pifont}
+\usepackage{amssymb}
+\usepackage{newunicodechar}
+\newunicodechar{✓}{\ding{51}}
+\newunicodechar{✗}{\ding{55}}
+\newunicodechar{↻}{\ensuremath{\circlearrowright}}
+\newunicodechar{→}{\ensuremath{\rightarrow}}
+\newunicodechar{≥}{\ensuremath{\geq}}
+\newunicodechar{≤}{\ensuremath{\leq}}
+\newunicodechar{≈}{\ensuremath{\approx}}
+\newunicodechar{−}{\ensuremath{-}}
+% Bloques de código: cortar las líneas largas en lugar de salirse del margen.
+\usepackage{fvextra}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breakanywhere,commandchars=\\\{\}}
+% Tablas: letra un poco menor y celdas con más aire.
+\AtBeginEnvironment{longtable}{\small}
+\renewcommand{\arraystretch}{1.25}
+% Párrafos separados por espacio, sin sangría (como en la vista de GitHub).
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em plus 0.1em}
+% Encabezado con el capítulo en curso.
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\nouppercase{\leftmark}}
+\fancyhead[R]{\small Guía técnica · TT 2026-B033}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}

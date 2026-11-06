@@ -12,6 +12,7 @@ web-build/
 next-env.d.ts
 expo-env.d.ts
 coverage/
+docs/pdf/.cache/
 
 # generated native folders
 apps/mobile/ios/

@@ -14,9 +14,13 @@ Este modelo une los dos `WeatherEntity` que existen hoy: `apps/mobile/src/core/d
 - **Las fechas son instantes** (`Date`) creados en America/Mexico_City (UTC−6 fijo) desde `fecha` + `hora` o desde
   `loctime`, nunca desde `utctime` (sale 1 h atrasado, rareza D12).
 - **Implementación:** `packages/core/src`. Los nombres de campos finales (`seaLevelHPa`, `extremes.*.today/month/year`,
-  `avg2MinKmh`, …) están en `domain/live-reading.ts` y `domain/history.ts`; el diagrama de abajo es la vista general.
+  `avg2MinKmh`, …) están en `domain/live-reading.ts` y `domain/history.ts`; los diagramas de abajo son la vista
+  general.
 
 ## Diagrama de clases
+
+Va en dos partes que no se relacionan entre sí: la lectura en vivo, y el histórico con las escenas, las
+preferencias y los puertos.
 
 ```mermaid
 classDiagram
@@ -102,6 +106,11 @@ classDiagram
   LiveReading *-- ForecastRule
   LiveReading *-- DailyMonthlyExtremes
   ForecastRule ..> ForecastParts
+```
+
+```mermaid
+classDiagram
+  direction LR
 
   class HistorySample {
     +at: Date
