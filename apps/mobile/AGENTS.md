@@ -51,7 +51,7 @@ Desde la raíz del repo:
 npm run mobile                          # Expo dev server (Expo Go)
 npm run typecheck --workspace=mobile
 npm test --workspace=mobile             # jest-expo + Testing Library
-npm run build:android                   # APK local (eas build --local)
+TMPDIR=~/tmp-build npm run build:android   # APK local (eas build --local); TMPDIR en disco, ver docs/09
 ```
 
 ## Entorno

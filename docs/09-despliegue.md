@@ -126,10 +126,14 @@ El CI nunca compila binarios: solo publica EAS Updates, que no gastan el cupo de
 máquina de quien lo necesite, sin límite:
 
 ```bash
-npm run build:android   # eas build --platform android --profile production --local
+mkdir -p ~/tmp-build
+TMPDIR=~/tmp-build npm run build:android   # eas build --platform android --profile production --local
 ```
 
 - Requiere JDK 17 y el Android SDK (por ejemplo, con Android Studio).
+- **`TMPDIR` en disco.** `eas build --local` copia el repo y compila en `$TMPDIR` (unos 3.5 GB con Gradle). Si
+  `/tmp` es un `tmpfs` pequeño (en la máquina de desarrollo es de 3.6 GB, en RAM), el build falla con
+  `No space left on device`. Si un build falla así, borrar lo que dejó en `/tmp/<usuario>/eas-build-local-nodejs`.
 - Genera el `.apk` en `apps/mobile/`.
 - Solo hace falta un APK nuevo si cambian las dependencias nativas o la versión de la app
   (`runtimeVersion: appVersion`). Los demás cambios llegan por EAS Update al canal `production`.

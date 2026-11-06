@@ -42,7 +42,7 @@ npm run mobile    # Expo: escanear el QR con Expo Go (SDK 58)
 npm run typecheck
 npm test                          # todos los paquetes y las dos apps
 npm run build --workspace=web
-npm run build:android             # APK local con eas build --local
+TMPDIR=~/tmp-build npm run build:android   # APK local (eas build --local; TMPDIR en disco, ver docs/09)
 ```
 
 ## Flujo de trabajo

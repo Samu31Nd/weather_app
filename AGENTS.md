@@ -58,7 +58,7 @@ npm run mobile              # Expo dev server (apps/mobile)
 npm run typecheck           # tsc en todos los workspaces
 npm test                    # tests en todos los workspaces
 npm run build --workspace=web
-npm run build:android        # APK local (no usa el cupo de EAS Build)
+TMPDIR=~/tmp-build npm run build:android   # APK local (no usa el cupo de EAS Build; /tmp es tmpfs pequeño)
 ```
 
 Cada app lee su propio `.env`. Las plantillas son `apps/mobile/.env.example` y `apps/web/.env.template`; nunca se
