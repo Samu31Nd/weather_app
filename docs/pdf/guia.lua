@@ -150,7 +150,7 @@ local function latex_code(text, breakable)
     -- También entre palabras de un nombre en CamelCase (`LiveWeatherRepository`).
     escaped = escaped:gsub('(%l)(%u)', '%1\\allowbreak{}%2')
   end
-  return pandoc.RawInline('latex', (breakable and '\\codeinline{' or '\\texttt{') .. escaped .. '}')
+  return pandoc.RawInline('latex', '\\texttt{' .. escaped .. '}')
 end
 
 -- Tablas ----------------------------------------------------------------------------------------------------
@@ -189,13 +189,11 @@ end
 
 -- Partes ------------------------------------------------------------------------------------------------------
 
--- build.sh separa las partes con `<!-- part: Título | escena -->` y `<!-- appendix -->`.
+-- build.sh separa las partes con `<!-- part: Título -->` y `<!-- appendix -->`.
 local function part_separator(raw)
   if raw.format ~= 'html' then return nil end
-  local title, scene = raw.text:match('^<!%-%- part: (.-) | (.-) %-%->')
-  if title then
-    return pandoc.RawBlock('latex', '\\renewcommand{\\guiaescena}{arte-' .. scene .. '}\\part{' .. title .. '}')
-  end
+  local title = raw.text:match('^<!%-%- part: (.-) %-%->')
+  if title then return pandoc.RawBlock('latex', '\\part{' .. title .. '}') end
   if raw.text:match('^<!%-%- appendix %-%->') then return pandoc.RawBlock('latex', '\\appendix') end
   return {}
 end

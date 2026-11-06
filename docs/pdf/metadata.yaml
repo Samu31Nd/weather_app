@@ -1,19 +1,18 @@
-# La portada es propia (portada.tex); `title-meta` y `author-meta` solo llenan las propiedades del PDF.
-title-meta: "Guía técnica · Estación meteorológica TT 2026-B033"
-author-meta: "IPN · ESCOM"
+title: "Guía técnica"
+subtitle: "App web y móvil de la Estación meteorológica · TT 2026-B033"
+author:
+  - "Instituto Politécnico Nacional · Escuela Superior de Cómputo"
 lang: es-MX
 documentclass: report
 classoption:
   - oneside
-papersize: letter
 fontsize: 10pt
 geometry:
   - margin=2.3cm
-  - headheight=14pt
 fontfamily: lmodern
 linestretch: 1.1
 colorlinks: true
-linkcolor: "black"
-urlcolor: "black"
+linkcolor: "blue!50!black"
+urlcolor: "blue!50!black"
 toccolor: "black"
 highlight-style: tango
