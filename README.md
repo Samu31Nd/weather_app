@@ -56,6 +56,10 @@ TMPDIR=~/tmp-build npm run build:android   # APK local (eas build --local; TMPDI
 
 ## Documentación
 
-- [`AGENTS.md`](AGENTS.md): guía para retomar el trabajo, reglas de arquitectura y avance por fase.
-- [`docs/`](docs/README.md): especificación técnica completa. La tesis toma una versión resumida
+- **[Guía técnica en PDF](docs/guia-tecnica.pdf)**: todo `docs/` en un solo documento, para leer o imprimir:
+  especificación, arquitectura, implementación, cómo contribuir, operación y mantenimiento.
+- [`docs/`](docs/README.md): la misma guía en Markdown, que es la fuente. Para empezar a programar:
+  [implementación](docs/12-implementacion.md), [entorno](docs/11-entorno-desarrollo.md) y
+  [cómo contribuir](docs/13-contribuir.md). La tesis toma una versión resumida
   ([`docs/10-notas-tesis.md`](docs/10-notas-tesis.md)).
+- [`AGENTS.md`](AGENTS.md): guía para retomar el trabajo, reglas de arquitectura y avance por fase.

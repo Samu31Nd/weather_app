@@ -1,5 +1,8 @@
 # Documentación técnica de la app
 
+> **Guía técnica en PDF:** [`guia-tecnica.pdf`](guia-tecnica.pdf) reúne todos estos documentos en un solo archivo,
+> ordenados para leerse de corrido. Se regenera con `docs/pdf/build.sh` ([cómo](pdf/README.md)).
+
 Especificación de la app web y móvil de la Estación meteorológica TT 2026-B033. Va primero: el código de cada
 fase se escribe a partir de esto y cita sus IDs (`RF-APP-NN`, `RNF-APP-NN`, `CU-NN`).
 
@@ -19,8 +22,22 @@ procesamiento de los datos; lo que no entre en el cuerpo irá a anexos.
 | [08 · Calidad y pruebas](08-calidad-pruebas.md) | Estrategia de pruebas y matriz de trazabilidad |
 | [09 · Despliegue](09-despliegue.md) | *Anexo operativo:* entornos, CI/CD, costos y rollback |
 | [10 · Notas para la tesis](10-notas-tesis.md) | Qué cambia en los caps. 6 y 7 de `documentTT` y de dónde sale el texto |
+| [11 · Entorno de desarrollo](11-entorno-desarrollo.md) | Instalar, configurar, correr y verificar las dos apps; problemas comunes |
+| [12 · Implementación](12-implementacion.md) | Recorrido por el código: qué hay en cada carpeta y cómo viaja cada dato hasta la pantalla |
+| [13 · Cómo contribuir](13-contribuir.md) | Flujo de ramas y PR, convenciones, pruebas y recetas para los cambios más comunes |
+| [14 · Mantenimiento y traspaso](14-mantenimiento.md) | Cuentas y accesos que hay que entregar, tareas periódicas, actualizaciones y fallas |
+| [15 · Glosario](15-glosario.md) | Términos de meteorología y de software usados en la guía |
 | [diagramas/](diagramas/) | Diagrama UML de casos de uso en PlantUML, exportable para la tesis |
 | [adr/](adr/) | Registro de decisiones de arquitectura |
+| [pdf/](pdf/README.md) | Cómo se genera la guía técnica en PDF |
+
+## Por dónde empezar
+
+| Si eres… | Lee primero |
+|----------|-------------|
+| Profesor o sinodal | 00 → 01 → 02 → 03, y la matriz de trazabilidad de 08 |
+| Estudiante que retoma el proyecto | 12 → 11 → 13 |
+| Responsable de operar el sistema | 09 → 14 |
 
 ## Convenciones
 
