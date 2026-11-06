@@ -77,11 +77,11 @@ sequenceDiagram
 
   U->>S: cambia el tema / idioma / unidades / tamaño
   S->>PP: update({ theme: "dark" })
-  PP->>UP: execute(patch)
+  PP->>PP: aplica el cambio en pantalla de inmediato
+  PP->>UP: execute(actuales, cambios)
   UP->>UP: valida y combina con los valores por defecto
-  UP->>PR: save(prefs)
-  UP-->>PP: prefs
-  PP->>PP: aplica: web → class en <html> / --font-scale / lang; móvil → Appearance + FontScaleContext
+  UP->>PR: save(prefs) en las claves wx-*
+  Note over PP: web: clase dark, lang y data-text-size en html<br/>móvil: palette y textScale del provider
 ```
 
 ## Estados de la pantalla "Ahora"

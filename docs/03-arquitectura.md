@@ -63,70 +63,53 @@ flowchart LR
 
 ## Nivel 3 · Componentes (hexagonal)
 
+Las flechas se leen "depende de". Todas apuntan hacia el núcleo, y dentro de él, hacia el dominio.
+
 ```mermaid
 flowchart TB
-  subgraph core["packages/core (TS puro)"]
+  subgraph apps["Apps (React)"]
+    direction LR
+    web["apps/web<br/>pantallas · providers · hooks<br/>proxy /api/live"]
+    mobile["apps/mobile<br/>pantallas · providers · hooks<br/>widget de Android"]
+  end
+
+  subgraph presentacion["Paquetes de presentación"]
+    direction LR
+    i18n["@tt/i18n<br/>catálogos es/en · formato<br/>textos derivados"]
+    tokens["@tt/tokens<br/>paleta · tipografía"]
+    art["@tt/sky-art<br/>escenas · animaciones"]
+  end
+
+  subgraph core["@tt/core (TypeScript puro)"]
     direction TB
-    subgraph dominio["Dominio"]
-      ent["Entidades<br/>LiveReading · HistorySeries"]
-      vo["Value objects<br/>Temperature · Speed · Pressure · Rain<br/>Beaufort · CompassPoint · SkyScene"]
-      reglas["Reglas puras<br/>sensación térmica · punto de rocío<br/>ForecastDecoder · SkySceneRules · KPIs"]
-    end
-    subgraph aplicacion["Aplicación (casos de uso)"]
-      uc1["GetLiveWeather"]
-      uc2["GetHistory"]
-      uc3["ResolveSkyScene"]
-      uc4["BuildChartSeries"]
-      uc5["Get/UpdatePreferences"]
-      uc6["ExportHistory"]
-    end
-    subgraph puertos["Puertos"]
-      p1["LiveWeatherRepository"]
-      p2["HistoryRepository"]
-      p3["PreferencesRepository"]
-      p4["Clock"]
-    end
-    subgraph adaptadoresComunes["Adaptadores compartidos"]
-      a1["DavisLiveHttpAdapter + mapper"]
-      a2["ProxyLiveHttpAdapter"]
-      a3["CloudHistoryHttpAdapter + mapper"]
-    end
-    charts["charts/<br/>escalas · ticks · paths · rosa"]
+    container["createCore<br/>composition root"]
+    aplicacion["Aplicación<br/>GetLiveWeather · GetHistory · ResolveCurrentSky<br/>Get/UpdatePreferences · liveStatus<br/>buildCurrentConditions · buildHistoryView · exportHistory"]
+    charts["charts/<br/>escalas · trazos SVG · medidores"]
+    adaptadores["Adaptadores<br/>HttpLiveWeatherRepository + mapper Davis<br/>HttpHistoryRepository + mapper del histórico<br/>CachedHistoryRepository · KeyValuePreferencesRepository"]
+    puertos["Puertos<br/>LiveWeatherRepository · HistoryRepository<br/>PreferencesRepository · KeyValueStorage · Clock"]
+    dominio["Dominio<br/>LiveReading · HistorySample · unidades · viento<br/>sensación térmica · pronóstico · escena del cielo"]
   end
 
-  subgraph web["apps/web (Next.js)"]
-    wui["UI web<br/>componentes + SVG/CSS"]
-    wctx["Providers<br/>Container · Preferences · Theme"]
-    wroute["Route handler /api/live"]
-    wstore["LocalStoragePreferences"]
-  end
-
-  subgraph mobile["apps/mobile (Expo)"]
-    mui["UI móvil<br/>componentes + react-native-svg / reanimated"]
-    mctx["Providers<br/>Container · Preferences · FontScale"]
-    mstore["AsyncStoragePreferences"]
-  end
-
-  tokens["packages/tokens"]
-  i18n["packages/i18n"]
-
-  aplicacion --> dominio
+  web --> container
+  mobile --> container
+  web --> presentacion
+  mobile --> presentacion
+  presentacion --> aplicacion
+  container --> aplicacion
+  container --> adaptadores
+  aplicacion --> charts
   aplicacion --> puertos
-  adaptadoresComunes -. implementa .-> p1
-  adaptadoresComunes -. implementa .-> p2
-  wstore -. implementa .-> p3
-  mstore -. implementa .-> p3
-
-  wui --> wctx --> aplicacion
-  wui --> charts
-  wui --> tokens
-  wui --> i18n
-  wroute --> a1
-  mui --> mctx --> aplicacion
-  mui --> charts
-  mui --> tokens
-  mui --> i18n
+  adaptadores -. implementan .-> puertos
+  charts --> dominio
+  puertos --> dominio
+  adaptadores --> dominio
 ```
+
+- **Plataforma.** Las apps solo aportan el almacén clave-valor (`localStorage` en web, AsyncStorage en móvil) que
+  `createCore` usa para las preferencias y la caché del histórico, y la URL de cada fuente.
+- **El proxy `/api/live`** no usa el núcleo: reenvía el JSON de la consola sin datos de red. El mapper corre en el
+  cliente, igual que con la consola directa.
+- **Recorrido por el código** de cada flujo, con los nombres de archivo: [12 · Implementación](12-implementacion.md).
 
 ### Regla de dependencias
 
@@ -137,15 +120,16 @@ flowchart TB
 | **adaptadores** (`core`) | ✓ | ✗ | ✓ | ✓ | ✗ (solo `fetch` estándar) |
 | **apps** | ✓ | ✓ | ✓ | ✓ | ✓ |
 
-Una regla de lint (`no-restricted-imports`) lo hace cumplir en `packages/core`: no se permite importar `react`,
-`react-native`, `next/*` ni `expo*`.
+La prueba `packages/core/test/architecture.test.ts` lo hace cumplir: lee cada archivo de `packages/core/src` y falla
+si importa algo que no sea un archivo propio (nada de `react`, `react-native`, `next`, `expo` ni librerías, salvo
+`hyparquet-writer`, aprobada por ADR-0012), o si el dominio importa de las otras capas.
 
 ### Composición (DI)
 
-Cada app arma sus dependencias en un **composition root**:
-`createContainer({ liveUrl, historyUrl, preferencesRepository, clock })` devuelve los casos de uso ya conectados.
-Un provider de React los reparte. En los tests se llama a `createContainer` con dobles (repositorios en memoria,
-reloj fijo) en lugar de los adaptadores reales.
+Cada app arma sus dependencias en un **composition root** (`apps/web/lib/core.ts`, `apps/mobile/src/lib/core.ts`):
+`createCore({ liveUrl, historyUrl, storage })` devuelve los casos de uso ya conectados. Un provider de React los
+reparte con `useCore()`. En los tests, `createCore` recibe dobles (`liveRepository`, `historyRepository`, un reloj
+fijo) en lugar de los adaptadores reales.
 
 ## Despliegue
 
