@@ -22,6 +22,8 @@ export interface PreferencesRepository {
 export interface KeyValueStorage {
   getItem(key: string): string | null | Promise<string | null>
   setItem(key: string, value: string): void | Promise<void>
+  /** Opcional: la caché del histórico lo usa para borrar días viejos. */
+  removeItem?(key: string): void | Promise<void>
 }
 
 export interface Clock {

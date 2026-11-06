@@ -37,6 +37,7 @@ export { HttpLiveWeatherRepository } from './adapters/davis-live/http-live-weath
 export { mapDavisLive } from './adapters/davis-live/davis-live.mapper'
 export { parseLiveReading, serializeLiveReading } from './adapters/live-reading-json'
 export type { DavisLiveDto } from './adapters/davis-live/davis-live.dto'
+export { CachedHistoryRepository, HISTORY_CACHE_PREFIX } from './adapters/cached-history.repository'
 export { HttpHistoryRepository, TruncatedHistoryError } from './adapters/cloud-history/http-history.repository'
 export { mapCleanWeatherRow } from './adapters/cloud-history/cloud-history.mapper'
 export { KeyValuePreferencesRepository, PREFERENCE_KEYS } from './adapters/key-value-preferences.repository'

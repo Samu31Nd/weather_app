@@ -94,7 +94,8 @@ para no saturar el diagrama.
   1. El usuario abre "Histórico".
   2. El sistema propone los últimos 7 días con resolución por hora.
   3. El usuario cambia el periodo o la resolución (opcional).
-  4. El sistema parte el rango en consultas de 10 días o menos, las une, las ordena y las remuestrea.
+  4. El sistema toma de la caché los días ya consultados, pide los que faltan en consultas de 10 días o menos, los
+     une, los ordena y los remuestrea.
   5. El sistema calcula los KPIs y dibuja las gráficas por variable.
 - **Flujos alternos:**
   - **A1. Rango sin datos** (por ejemplo, un día perdido, como el 2026-09-07). El sistema muestra "sin datos en

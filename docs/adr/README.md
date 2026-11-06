@@ -17,3 +17,4 @@ se borra: si cambia, se escribe un ADR nuevo que la **reemplaza** y se marca el 
 | [0010](0010-animaciones-como-datos.md) | Las animaciones del diseño se describen como datos y móvil las reproduce con reanimated | Aceptada |
 | [0011](0011-widget-android.md) | Widget de Android con react-native-android-widget, solo en el APK | Aceptada |
 | [0012](0012-exportar-parquet.md) | Exportar a Parquet con hyparquet-writer dentro del núcleo | Aceptada |
+| [0013](0013-cache-historico.md) | Caché persistente del histórico por día | Aceptada |

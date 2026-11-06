@@ -237,3 +237,8 @@ Notas del 5-nov (después de la fase 7):
 - **Parquet** (ADR-0012): `exportHistory` escribe Parquet con `hyparquet-writer`; `apps/mobile/metro.config.js` lo
   resuelve con la condición `browser`, porque su entrada de Node importa `fs`.
 - `npx expo lint` instala ESLint y crea `eslint.config.js` si no existen: no correrlo sin querer agregar ESLint.
+Notas de la caché del histórico (5-nov):
+- `CachedHistoryRepository` (ADR-0013) decora el repositorio HTTP en `createCore`: caché por día de CDMX en el
+  almacén de preferencias (`wx-history-v1:YYYY-MM-DD`), días cerrados sin vencimiento, recientes a 1 h, tope 200.
+  Si el pipeline corrige datos viejos, subir el prefijo a `v2` para invalidarla.
+- El hook `useHistory` conserva su caché en memoria por periodo: evita volver a unir muestras al cambiar de periodo.
